@@ -18,6 +18,7 @@
             <div class="main-title">
                 <div class="title-text">🏛️ 국가를 설계하라 🏛️</div>
                 <div class="subtitle">~ PIXEL POLITICS SIMULATOR ~</div>
+                <div class="version-info">v2.0 Enhanced Edition</div>
             </div>
 
             <div class="nations-grid">
@@ -28,11 +29,15 @@
                 <div class="loading-pixel"></div>
                 <div class="loading-pixel"></div>
                 <div class="loading-pixel"></div>
+                <div class="loading-text">국가 데이터 로딩 중...</div>
             </div>
 
             <div class="start-section">
                 <div class="start-message">
                     선택한 국가: <span id="selectedNation">국가를 선택해주세요</span>
+                </div>
+                <div class="nation-preview" id="nationPreview" style="display: none;">
+                    <!-- 선택된 국가의 상세 정보 표시 -->
                 </div>
                 <div class="button-group">
                     <button class="pixel-btn" onclick="startGame()" id="startBtn" disabled>
@@ -40,6 +45,9 @@
                     </button>
                     <button class="pixel-btn secondary" onclick="showHelp()">
                         ❓ 게임 설명
+                    </button>
+                    <button class="pixel-btn secondary" onclick="showCredits()">
+                        👥 크레딧
                     </button>
                 </div>
             </div>
@@ -57,6 +65,12 @@
                     <span class="budget-amount" id="budgetAmount">💰 100pt</span>
                     <span class="budget-status" id="budgetStatus">✅ 안전</span>
                 </div>
+                <div class="game-progress">
+                    <div class="progress-bar" id="gameProgress">
+                        <div class="progress-fill"></div>
+                    </div>
+                    <span class="progress-text" id="progressText">진행률: 20%</span>
+                </div>
             </div>
 
             <!-- 지표 대시보드 -->
@@ -65,6 +79,11 @@
                 <div class="indicators-grid" id="indicatorsGrid">
                     <!-- 지표들은 JS에서 동적 생성 -->
                 </div>
+                <div class="indicators-summary" id="indicatorsSummary">
+                    <span class="total-score">총점: <span id="totalScore">0</span></span>
+                    <span class="citizen-satisfaction">시민만족도: <span id="citizenSatisfaction">0.0</span></span>
+                    <span class="sustainability">지속가능성: <span id="sustainability">0.0</span></span>
+                </div>
             </div>
 
             <!-- 정책 선택 영역 -->
@@ -72,6 +91,7 @@
                 <div class="category-header">
                     <span class="category-title" id="categoryTitle">📋 정책 카테고리</span>
                     <span class="selection-info" id="selectionInfo">0/2 선택됨</span>
+                    <span class="category-description" id="categoryDescription">정책 설명</span>
                 </div>
                 
                 <div class="policies-grid" id="policiesGrid">
@@ -82,6 +102,8 @@
                     <!-- 선택된 정책 요약 -->
                 </div>
 
+                <!-- 교착상태 경고는 JS에서 동적으로 추가됨 -->
+
                 <div class="action-buttons">
                     <button class="pixel-btn" onclick="confirmPolicies()" id="confirmBtn" disabled>
                         ✅ 정책 확정
@@ -89,18 +111,24 @@
                     <button class="pixel-btn secondary" onclick="clearSelection()">
                         🔄 선택 초기화
                     </button>
+                    <button class="pixel-btn secondary" onclick="showPolicyHelp()">
+                        💡 정책 도움말
+                    </button>
                 </div>
             </div>
         </div>
 
         <!-- 이벤트 화면 (팝업) -->
         <div id="eventPopup" class="popup-overlay">
-            <div class="popup-content">
+            <div class="popup-content event-popup">
                 <div class="popup-header">
                     <h3 id="eventTitle">📢 긴급 상황 발생!</h3>
+                    <div class="event-type" id="eventType">랜덤 이벤트</div>
                 </div>
                 <div class="popup-body">
-                    <p id="eventDescription">이벤트 설명이 여기에 표시됩니다.</p>
+                    <div class="event-description-box">
+                        <p id="eventDescription">이벤트 설명이 여기에 표시됩니다.</p>
+                    </div>
                     <div class="event-effects" id="eventEffects">
                         <!-- 이벤트 효과 표시 -->
                     </div>
@@ -117,27 +145,49 @@
             <div class="meme-display" id="memeDisplay">
                 <!-- 밈 반응들 -->
             </div>
+            <div class="panel-footer">
+                <button class="mini-btn" onclick="hideCitizenPanel()">❌</button>
+            </div>
         </div>
 
         <!-- 결과 화면 -->
         <div id="resultsScreen" class="screen">
             <div class="results-container">
                 <div class="final-title" id="finalTitle">🏆 게임 완료!</div>
+                
                 <div class="ending-info" id="endingInfo">
                     <!-- 엔딩 정보 -->
                 </div>
+
+                <div class="special-achievements" id="specialAchievements" style="display: none;">
+                    <!-- 특별 엔딩들 -->
+                </div>
+
+                <div class="policy-combinations" id="policyCombinations" style="display: none;">
+                    <!-- 정책 조합 분석 -->
+                </div>
+                
                 <div class="final-stats" id="finalStats">
                     <!-- 최종 통계 -->
                 </div>
+
                 <div class="achievements" id="achievements">
                     <!-- 달성한 업적들 -->
                 </div>
+
+                <div class="detailed-analysis" id="detailedAnalysis">
+                    <!-- 상세 분석 -->
+                </div>
+                
                 <div class="replay-buttons">
                     <button class="pixel-btn" onclick="restartGame()">
                         🔄 다시 플레이
                     </button>
                     <button class="pixel-btn secondary" onclick="shareResults()">
                         📤 결과 공유
+                    </button>
+                    <button class="pixel-btn secondary" onclick="saveResults()">
+                        💾 결과 저장
                     </button>
                 </div>
             </div>
@@ -151,31 +201,117 @@
                     <button class="close-btn" onclick="closeHelp()">✖</button>
                 </div>
                 <div class="popup-body">
-                    <div class="help-section">
-                        <h4>🎯 게임 목표</h4>
-                        <p>5턴에 걸쳐 정책을 선택하여 최고의 국가를 만드세요!</p>
+                    <div class="help-tabs">
+                        <button class="tab-btn active" onclick="showHelpTab('basic')">기본 규칙</button>
+                        <button class="tab-btn" onclick="showHelpTab('indicators')">지표 설명</button>
+                        <button class="tab-btn" onclick="showHelpTab('nations')">국가 특성</button>
+                        <button class="tab-btn" onclick="showHelpTab('tips')">게임 팁</button>
                     </div>
-                    <div class="help-section">
-                        <h4>🎮 게임 방법</h4>
-                        <ul>
-                            <li>각 턴마다 해당 분야에서 최대 2개 정책 선택</li>
-                            <li>예산을 고려하여 신중하게 선택하세요</li>
-                            <li>정책 간 충돌과 시너지를 확인하세요</li>
-                            <li>시민들의 반응을 체크하세요</li>
-                        </ul>
+
+                    <div class="help-tab-content" id="helpTabBasic">
+                        <div class="help-section">
+                            <h4>🎯 게임 목표</h4>
+                            <p>5턴에 걸쳐 정책을 선택하여 최고의 국가를 만드세요!</p>
+                        </div>
+                        <div class="help-section">
+                            <h4>🎮 게임 방법</h4>
+                            <ul>
+                                <li>각 턴마다 해당 분야에서 최대 2개 정책 선택</li>
+                                <li>예산을 고려하여 신중하게 선택하세요</li>
+                                <li>정책 간 충돌과 시너지를 확인하세요</li>
+                                <li>시민들의 반응을 체크하세요</li>
+                                <li>이벤트에 현명하게 대응하세요</li>
+                            </ul>
+                        </div>
                     </div>
-                    <div class="help-section">
-                        <h4>📊 지표 설명</h4>
-                        <ul>
-                            <li>💰 경제: 국가의 경제 상황</li>
-                            <li>🚀 기술: 과학기술 발전 수준</li>
-                            <li>😊 시민반응: 국민들의 만족도</li>
-                            <li>🌱 환경: 환경 보호 수준</li>
-                            <li>💼 재정: 국가 재정 건전성</li>
-                            <li>🛡️ 안정성: 사회 안정 정도</li>
-                            <li>❤️ 복지: 사회 복지 수준</li>
-                            <li>🤝 외교: 국제 관계 상태</li>
-                        </ul>
+
+                    <div class="help-tab-content" id="helpTabIndicators" style="display: none;">
+                        <div class="help-section">
+                            <h4>📊 지표 설명</h4>
+                            <ul>
+                                <li>💰 경제: 국가의 경제 상황</li>
+                                <li>🚀 기술: 과학기술 발전 수준</li>
+                                <li>😊 시민반응: 국민들의 만족도</li>
+                                <li>🌱 환경: 환경 보호 수준</li>
+                                <li>💼 재정: 국가 재정 건전성</li>
+                                <li>🛡️ 안정성: 사회 안정 정도</li>
+                                <li>❤️ 복지: 사회 복지 수준</li>
+                                <li>🤝 외교: 국제 관계 상태</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="help-tab-content" id="helpTabNations" style="display: none;">
+                        <div class="help-section">
+                            <h4>🏛️ 국가별 특성</h4>
+                            <ul>
+                                <li><strong>복지 강국:</strong> 복지 정책 할인, 높은 적자 허용도</li>
+                                <li><strong>자원 풍부국:</strong> 경제 정책 효과 증가</li>
+                                <li><strong>기술 선진국:</strong> 기술 정책 할인, 윤리 이벤트 증가</li>
+                                <li><strong>신흥 개발국:</strong> 균형잡힌 성장 기회</li>
+                                <li><strong>위기국가:</strong> 극한 상황, 재건 보너스</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="help-tab-content" id="helpTabTips" style="display: none;">
+                        <div class="help-section">
+                            <h4>💡 게임 팁</h4>
+                            <ul>
+                                <li>예산 관리가 핵심! 항상 다음 턴을 고려하세요</li>
+                                <li>정책 요구조건을 확인하여 선택권을 넓히세요</li>
+                                <li>시너지 정책 조합으로 보너스를 노리세요</li>
+                                <li>국가별 특성을 최대한 활용하세요</li>
+                                <li>시민 반응도 중요한 지표입니다</li>
+                                <li>이벤트는 위기이자 기회입니다</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 정책 도움말 팝업 -->
+        <div id="policyHelpPopup" class="popup-overlay">
+            <div class="popup-content">
+                <div class="popup-header">
+                    <h3>💡 정책 도움말</h3>
+                    <button class="close-btn" onclick="closePolicyHelp()">✖</button>
+                </div>
+                <div class="popup-body" id="policyHelpContent">
+                    <!-- 현재 카테고리 정책 설명 -->
+                </div>
+            </div>
+        </div>
+
+        <!-- 크레딧 팝업 -->
+        <div id="creditsPopup" class="popup-overlay">
+            <div class="popup-content">
+                <div class="popup-header">
+                    <h3>👥 크레딧</h3>
+                    <button class="close-btn" onclick="closeCredits()">✖</button>
+                </div>
+                <div class="popup-body">
+                    <div class="credits-section">
+                        <h4>🎮 게임 개발</h4>
+                        <p>픽셀 정치 시뮬레이터 - 국가를 설계하라</p>
+                        <p>교육용 정치 시뮬레이션 게임</p>
+                    </div>
+                    <div class="credits-section">
+                        <h4>🎨 디자인 컨셉</h4>
+                        <p>레트로 픽셀아트 스타일</p>
+                        <p>8비트 게임 오마주</p>
+                    </div>
+                    <div class="credits-section">
+                        <h4>📚 교육적 목표</h4>
+                        <p>정치학 및 공공정책 학습</p>
+                        <p>복잡한 사회 문제 이해</p>
+                        <p>정책 트레이드오프 체험</p>
+                    </div>
+                    <div class="credits-section">
+                        <h4>🛠️ 기술 스택</h4>
+                        <p>HTML5, CSS3, JavaScript</p>
+                        <p>순수 웹 기술로 구현</p>
                     </div>
                 </div>
             </div>
@@ -184,9 +320,15 @@
 
     <!-- 상태 표시 바 -->
     <div class="status-bar">
-        <div class="status-item">🎮 픽셀 정치 시뮬레이터</div>
+        <div class="status-item">🎮 픽셀 정치 시뮬레이터 v2.0</div>
         <div class="status-item" id="gameStatus">대기 중...</div>
         <div class="status-item" id="systemStatus">시스템 정상</div>
+        <div class="status-item" id="debugInfo" style="display: none;">디버그 모드</div>
+    </div>
+
+    <!-- 알림 컨테이너 -->
+    <div id="notificationContainer" class="notification-container">
+        <!-- 토스트 알림들이 여기에 표시됩니다 -->
     </div>
 
     <!-- JavaScript 파일들 -->
