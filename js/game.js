@@ -76,79 +76,92 @@ class GameState {
         console.log('정책 선택 초기화');
     }
 
-    // 정책 확정
+    // 정책 확정 - 무한재귀 방지를 위한 안전장치 추가
     confirmPolicies() {
         if (this.currentSelection.length === 0) {
             throw new Error('선택된 정책이 없습니다');
         }
 
-        const result = this.calculatePolicyEffects(this.currentSelection);
-        
-        // 예산 차감
-        this.budget -= result.totalCost;
-        
-        // 지표 적용
-        this.applyEffects(result.totalEffects);
-        
-        // 기록
-        this.turnHistory.push({
-            turn: this.currentTurn,
-            category: this.getCurrentCategory(),
-            policies: [...this.currentSelection],
-            cost: result.totalCost,
-            effects: result.totalEffects,
-            budgetAfter: this.budget
-        });
+        try {
+            const result = this.calculatePolicyEffects(this.currentSelection);
+            
+            // 예산 차감
+            this.budget -= result.totalCost;
+            
+            // 지표 적용
+            this.applyEffects(result.totalEffects);
+            
+            // 기록
+            this.turnHistory.push({
+                turn: this.currentTurn,
+                category: this.getCurrentCategory(),
+                policies: [...this.currentSelection],
+                cost: result.totalCost,
+                effects: result.totalEffects,
+                budgetAfter: this.budget
+            });
 
-        this.selectedPolicies.push(...this.currentSelection);
-        this.currentSelection = [];
+            this.selectedPolicies.push(...this.currentSelection);
+            this.currentSelection = [];
 
-        console.log(`턴 ${this.currentTurn} 정책 확정:`, result);
-        
-        return result;
+            console.log(`턴 ${this.currentTurn} 정책 확정:`, result);
+            
+            return result;
+        } catch (error) {
+            console.error('정책 확정 중 오류:', error);
+            throw error;
+        }
     }
 
-    // 정책 효과 계산
+    // 정책 효과 계산 - 간소화 및 안전장치
     calculatePolicyEffects(policyNames) {
         let totalCost = 0;
         let totalEffects = {};
         let interactions = [];
 
         // 개별 정책 효과 계산
-        policyNames.forEach(policyName => {
+        for (const policyName of policyNames) {
             const policy = GameData.findPolicy(policyName);
-            if (!policy) return;
+            if (!policy) {
+                console.warn(`정책을 찾을 수 없습니다: ${policyName}`);
+                continue;
+            }
 
             // 비용 계산 (국가별 조정 적용)
             let cost = this.calculatePolicyCost(policy);
             totalCost += cost;
 
             // 효과 합산
-            Object.entries(policy.효과).forEach(([indicator, value]) => {
+            for (const [indicator, value] of Object.entries(policy.효과)) {
                 totalEffects[indicator] = (totalEffects[indicator] || 0) + value;
-            });
-        });
+            }
+        }
 
-        // 정책 간 상호작용 계산
+        // 정책 간 상호작용 계산 (2개일 때만)
         if (policyNames.length === 2) {
-            const interaction = this.calculatePolicyInteraction(policyNames[0], policyNames[1]);
-            if (interaction.type !== 'none') {
-                interactions.push(interaction);
-                
-                // 상호작용에 따른 효과 조정
-                if (interaction.type === 'conflict') {
-                    // 충돌: 효과 감소
-                    Object.keys(totalEffects).forEach(indicator => {
-                        totalEffects[indicator] = Math.floor(totalEffects[indicator] * 0.8);
-                    });
-                    totalCost += 10; // 추가 비용
-                } else if (interaction.type === 'synergy') {
-                    // 시너지: 효과 증가
-                    Object.keys(totalEffects).forEach(indicator => {
-                        totalEffects[indicator] = Math.floor(totalEffects[indicator] * 1.2);
-                    });
-                    totalCost -= 5; // 비용 절약
+            try {
+                const interaction = this.calculatePolicyInteraction(policyNames[0], policyNames[1]);
+                if (interaction.type !== 'none') {
+                    interactions.push(interaction);
+                    
+                    // 상호작용에 따른 효과 조정
+                    if (interaction.type === 'conflict') {
+                        // 충돌: 효과 감소
+                        for (const indicator in totalEffects) {
+                            totalEffects[indicator] = Math.floor(totalEffects[indicator] * 0.8);
+                        }
+                        totalCost += 10; // 추가 비용
+                    } else if (interaction.type === 'synergy') {
+                        // 시너지: 효과 증가
+                        for (const indicator in totalEffects) {
+                            totalEffects[indicator] = Math.floor(totalEffects[indicator] * 1.2);
+                        }
+                        totalCost -= 5; // 비용 절약
+                    }
                 }
+            } catch (error) {
+                console.warn('정책 상호작용 계산 중 오류:', error);
+                // 상호작용 계산 실패 시 기본 효과만 적용
             }
         }
 
@@ -163,7 +176,6 @@ class GameState {
 
     // 국가별 정책 비용 계산
     calculatePolicyCost(policy) {
-        const nationData = GameData.getNation(this.currentNation);
         let cost = policy.비용;
 
         // 국가별 비용 조정 (간소화된 버전)
@@ -178,46 +190,62 @@ class GameState {
         return cost;
     }
 
-    // 정책 상호작용 계산
+    // 정책 상호작용 계산 - 안전장치 강화
     calculatePolicyInteraction(policy1Name, policy2Name) {
-        const policy1 = GameData.findPolicy(policy1Name);
-        const policy2 = GameData.findPolicy(policy2Name);
+        try {
+            // 동일한 정책명 체크
+            if (policy1Name === policy2Name) {
+                return { type: 'none', message: '' };
+            }
 
-        if (!policy1 || !policy2) {
+            const policy1 = GameData.findPolicy(policy1Name);
+            const policy2 = GameData.findPolicy(policy2Name);
+
+            if (!policy1 || !policy2) {
+                return { type: 'none', message: '' };
+            }
+
+            // 안전한 배열 접근
+            const conflicts1 = policy1.충돌정책 || [];
+            const conflicts2 = policy2.충돌정책 || [];
+            const synergies1 = policy1.시너지정책 || [];
+            const synergies2 = policy2.시너지정책 || [];
+
+            // 충돌 확인
+            if (conflicts1.includes(policy2Name) || conflicts2.includes(policy1Name)) {
+                return {
+                    type: 'conflict',
+                    message: '⚠️ 정책 간 충돌이 발생했습니다. 효과가 감소하고 비용이 증가합니다.',
+                    modifier: -0.2
+                };
+            }
+
+            // 시너지 확인
+            if (synergies1.includes(policy2Name) || synergies2.includes(policy1Name)) {
+                return {
+                    type: 'synergy',
+                    message: '✨ 정책 간 시너지가 발생했습니다! 효과가 증가하고 비용이 절약됩니다.',
+                    modifier: 0.2
+                };
+            }
+
+            return { type: 'none', message: '' };
+        } catch (error) {
+            console.warn('정책 상호작용 계산 오류:', error);
             return { type: 'none', message: '' };
         }
-
-        // 충돌 확인
-        if (policy1.충돌정책.includes(policy2Name) || policy2.충돌정책.includes(policy1Name)) {
-            return {
-                type: 'conflict',
-                message: '⚠️ 정책 간 충돌이 발생했습니다. 효과가 감소하고 비용이 증가합니다.',
-                modifier: -0.2
-            };
-        }
-
-        // 시너지 확인
-        if (policy1.시너지정책.includes(policy2Name) || policy2.시너지정책.includes(policy1Name)) {
-            return {
-                type: 'synergy',
-                message: '✨ 정책 간 시너지가 발생했습니다! 효과가 증가하고 비용이 절약됩니다.',
-                modifier: 0.2
-            };
-        }
-
-        return { type: 'none', message: '' };
     }
 
     // 효과 적용
     applyEffects(effects) {
-        Object.entries(effects).forEach(([indicator, value]) => {
+        for (const [indicator, value] of Object.entries(effects)) {
             if (this.indicators.hasOwnProperty(indicator)) {
                 this.indicators[indicator] = Math.max(
                     GAME_CONFIG.min_indicator_value,
                     Math.min(GAME_CONFIG.max_indicator_value, this.indicators[indicator] + value)
                 );
             }
-        });
+        }
 
         // 예산 페널티 적용
         if (this.budget < 0) {
@@ -313,6 +341,7 @@ class GameState {
 
 // 전역 게임 상태 인스턴스
 let gameState = null;
+let isProcessingAction = false; // 중복 실행 방지
 
 // 게임 API 함수들
 function initializeGame() {
@@ -371,8 +400,13 @@ function calculateCurrentSelection() {
         return { success: false, error: '선택된 정책이 없습니다' };
     }
 
-    const result = gameState.calculatePolicyEffects(gameState.currentSelection);
-    return { success: true, ...result };
+    try {
+        const result = gameState.calculatePolicyEffects(gameState.currentSelection);
+        return { success: true, ...result };
+    } catch (error) {
+        console.error('정책 효과 계산 오류:', error);
+        return { success: false, error: '정책 효과 계산 중 오류가 발생했습니다' };
+    }
 }
 
 function confirmPolicies() {
@@ -380,11 +414,20 @@ function confirmPolicies() {
         return { success: false, error: '게임이 활성화되지 않았습니다' };
     }
 
+    // 중복 실행 방지
+    if (isProcessingAction) {
+        return { success: false, error: '이미 처리 중입니다' };
+    }
+
     try {
+        isProcessingAction = true;
         const result = gameState.confirmPolicies();
         return { success: true, ...result, status: gameState.getStatus() };
     } catch (error) {
+        console.error('정책 확정 오류:', error);
         return { success: false, error: error.message };
+    } finally {
+        isProcessingAction = false;
     }
 }
 
@@ -393,8 +436,13 @@ function advanceToNextTurn() {
         return { success: false, error: '게임이 활성화되지 않았습니다' };
     }
 
-    const result = gameState.nextTurn();
-    return { success: true, ...result, status: gameState.getStatus() };
+    try {
+        const result = gameState.nextTurn();
+        return { success: true, ...result, status: gameState.getStatus() };
+    } catch (error) {
+        console.error('턴 진행 오류:', error);
+        return { success: false, error: error.message };
+    }
 }
 
 function triggerRandomEvent() {
@@ -402,7 +450,12 @@ function triggerRandomEvent() {
         return null;
     }
 
-    return gameState.checkForEvents();
+    try {
+        return gameState.checkForEvents();
+    } catch (error) {
+        console.error('이벤트 처리 오류:', error);
+        return null;
+    }
 }
 
 function applyEventChoice(event, choiceKey) {
@@ -414,6 +467,7 @@ function applyEventChoice(event, choiceKey) {
         gameState.applyEventEffect(event, choiceKey);
         return { success: true, status: gameState.getStatus() };
     } catch (error) {
+        console.error('이벤트 적용 오류:', error);
         return { success: false, error: error.message };
     }
 }
@@ -427,6 +481,7 @@ function getGameStatus() {
 
 function restartGame() {
     gameState = null;
+    isProcessingAction = false;
     return { success: true };
 }
 
@@ -517,7 +572,9 @@ function showToast(message, type = 'info') {
     setTimeout(() => {
         toast.style.animation = 'toast-out 0.3s ease-in forwards';
         setTimeout(() => {
-            document.body.removeChild(toast);
+            if (document.body.contains(toast)) {
+                document.body.removeChild(toast);
+            }
         }, 300);
     }, 3000);
 }
@@ -570,43 +627,6 @@ function playSound(type) {
         oscillator.stop(audioContext.currentTime + 0.5);
     } catch (error) {
         console.log('Sound playback failed:', error);
-    }
-}
-
-// 로컬 스토리지 관리
-function saveGameToStorage() {
-    if (!gameState) return;
-    
-    const saveData = {
-        timestamp: Date.now(),
-        gameState: gameState.getStatus(),
-        turnHistory: gameState.turnHistory
-    };
-    
-    try {
-        localStorage.setItem('pixelPoliticsGame', JSON.stringify(saveData));
-    } catch (error) {
-        console.error('게임 저장 실패:', error);
-    }
-}
-
-function loadGameFromStorage() {
-    try {
-        const saveData = localStorage.getItem('pixelPoliticsGame');
-        if (saveData) {
-            return JSON.parse(saveData);
-        }
-    } catch (error) {
-        console.error('저장된 게임 로드 실패:', error);
-    }
-    return null;
-}
-
-function clearGameStorage() {
-    try {
-        localStorage.removeItem('pixelPoliticsGame');
-    } catch (error) {
-        console.error('저장된 게임 삭제 실패:', error);
     }
 }
 
@@ -674,9 +694,6 @@ window.gameAPI = {
     applyEventChoice,
     getGameStatus,
     restartGame,
-    saveGameToStorage,
-    loadGameFromStorage,
-    clearGameStorage,
     calculateGameStats,
     getDebugInfo
 };
