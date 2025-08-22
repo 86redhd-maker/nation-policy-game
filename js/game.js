@@ -70,10 +70,60 @@ class GameState {
         }
     }
 
-    // 선택 초기화
-    clearSelection() {
-        this.currentSelection = [];
-        console.log('정책 선택 초기화');
+    // 선택 가능한 정책이 있는지 확인
+    hasSelectablePolicies() {
+        const currentCategory = this.getCurrentCategory();
+        if (!currentCategory) return false;
+        
+        const policies = GameData.getPoliciesByCategory(currentCategory);
+        
+        return policies.some(policy => {
+            // 예산 확인
+            const cost = this.calculatePolicyCost(policy);
+            const canAfford = this.budget - cost >= this.debtLimit;
+            
+            // 요구조건 확인
+            const requirementsMet = this.checkPolicyRequirements(policy);
+            
+            return canAfford && requirementsMet;
+        });
+    }
+    
+    // 정책 요구조건 확인 (내부 메서드)
+    checkPolicyRequirements(policy) {
+        if (!policy.요구조건) return true;
+        
+        return Object.entries(policy.요구조건).every(([indicator, required]) => {
+            const current = this.indicators[indicator] || 0;
+            return current >= required;
+        });
+    }
+    
+    // 턴 스킵 (선택 가능한 정책이 없을 때)
+    skipTurn() {
+        console.log(`턴 ${this.currentTurn} 스킵 - 선택 가능한 정책 없음`);
+        
+        // 턴 스킵 페널티 적용
+        const skipPenalty = {
+            '시민 반응': -1,
+            '안정성': -1
+        };
+        
+        this.applyEffects(skipPenalty);
+        
+        // 턴 기록
+        this.turnHistory.push({
+            turn: this.currentTurn,
+            category: this.getCurrentCategory(),
+            policies: ['턴 스킵'],
+            cost: 0,
+            effects: skipPenalty,
+            budgetAfter: this.budget,
+            skipped: true
+        });
+        
+        console.log('턴 스킵 페널티 적용:', skipPenalty);
+        return { skipped: true, penalty: skipPenalty };
     }
 
     // 정책 확정 - 무한재귀 방지를 위한 안전장치 추가
@@ -427,7 +477,33 @@ function calculateCurrentSelection() {
     }
 }
 
-function confirmPolicies() {
+function checkTurnProgress() {
+    if (!gameState || !gameState.gameActive) {
+        return { success: false, error: '게임이 활성화되지 않았습니다' };
+    }
+    
+    const hasSelectable = gameState.hasSelectablePolicies();
+    
+    return {
+        success: true,
+        hasSelectablePolicies: hasSelectable,
+        canProgress: hasSelectable || gameState.currentSelection.length > 0
+    };
+}
+
+function skipCurrentTurn() {
+    if (!gameState || !gameState.gameActive) {
+        return { success: false, error: '게임이 활성화되지 않았습니다' };
+    }
+    
+    try {
+        const result = gameState.skipTurn();
+        return { success: true, ...result, status: gameState.getStatus() };
+    } catch (error) {
+        console.error('턴 스킵 오류:', error);
+        return { success: false, error: error.message };
+    }
+}
     if (!gameState || !gameState.gameActive) {
         return { success: false, error: '게임이 활성화되지 않았습니다' };
     }
@@ -743,6 +819,8 @@ window.gameAPI = {
     calculateCurrentSelection,
     confirmPolicies,
     advanceToNextTurn,
+    checkTurnProgress,
+    skipCurrentTurn,
     triggerRandomEvent,
     applyEventChoice,
     getGameStatus,
