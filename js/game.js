@@ -504,6 +504,8 @@ function skipCurrentTurn() {
         return { success: false, error: error.message };
     }
 }
+
+function confirmPolicies() {  // ← 이 부분이 빠진 것 같습니다
     if (!gameState || !gameState.gameActive) {
         return { success: false, error: '게임이 활성화되지 않았습니다' };
     }
