@@ -91,6 +91,9 @@ class GameState {
             // 지표 적용
             this.applyEffects(result.totalEffects);
             
+            // 예산 페널티 별도 확인
+            this.checkAndApplyBudgetPenalty();
+            
             // 기록
             this.turnHistory.push({
                 turn: this.currentTurn,
@@ -236,8 +239,9 @@ class GameState {
         }
     }
 
-    // 효과 적용
-    applyEffects(effects, skipPenalty = false) {
+    // 효과 적용 - 완전히 재작성하여 무한재귀 방지
+    applyEffects(effects) {
+        // 효과 적용
         for (const [indicator, value] of Object.entries(effects)) {
             if (this.indicators.hasOwnProperty(indicator)) {
                 this.indicators[indicator] = Math.max(
@@ -246,13 +250,23 @@ class GameState {
                 );
             }
         }
+        // 예산 페널티는 별도 함수에서 처리하도록 분리
+    }
 
-        // 예산 페널티 적용 (무한 재귀 방지)
-        if (!skipPenalty && this.budget < 0) {
+    // 예산 페널티 별도 처리 함수
+    checkAndApplyBudgetPenalty() {
+        if (this.budget < 0) {
             const penalty = GameData.getBudgetPenalty(this.budget);
-            if (penalty) {
-                // skipPenalty=true로 재귀 방지
-                this.applyEffects(penalty.effects, true);
+            if (penalty && penalty.effects) {
+                // 직접 지표 적용 (applyEffects 호출 안함)
+                for (const [indicator, value] of Object.entries(penalty.effects)) {
+                    if (this.indicators.hasOwnProperty(indicator)) {
+                        this.indicators[indicator] = Math.max(
+                            GAME_CONFIG.min_indicator_value,
+                            Math.min(GAME_CONFIG.max_indicator_value, this.indicators[indicator] + value)
+                        );
+                    }
+                }
                 console.log(`예산 페널티 적용: ${penalty.message}`);
             }
         }
@@ -314,13 +328,16 @@ class GameState {
     // 이벤트 효과 적용
     applyEventEffect(event, choiceKey = null) {
         // 기본 효과 적용
-        this.applyEffects(event.effects, false);
+        this.applyEffects(event.effects);
 
         // 선택지 효과 적용
         if (choiceKey && event.choices && event.choices[choiceKey]) {
-            this.applyEffects(event.choices[choiceKey], false);
+            this.applyEffects(event.choices[choiceKey]);
             console.log(`이벤트 선택: ${choiceKey}`, event.choices[choiceKey]);
         }
+        
+        // 예산 페널티 별도 확인
+        this.checkAndApplyBudgetPenalty();
     }
 
     // 게임 상태 요약
