@@ -371,6 +371,10 @@ function calculateCurrentSelection() {
         return { success: false, error: '선택된 정책이 없습니다' };
     }
 
+    const result = gameState.calculatePolicyEffects(gameState.currentSelection);
+    return { success: true, ...result };
+}
+
 function confirmPolicies() {
     if (!gameState || !gameState.gameActive) {
         return { success: false, error: '게임이 활성화되지 않았습니다' };
@@ -528,42 +532,45 @@ function addAnimation(element, animationClass) {
 
 // 사운드 효과 (간단한 구현)
 function playSound(type) {
-    // 웹 오디오 API를 사용한 간단한 픽셀 사운드
-    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-    const oscillator = audioContext.createOscillator();
-    const gainNode = audioContext.createGain();
-    
-    oscillator.connect(gainNode);
-    gainNode.connect(audioContext.destination);
-    
-    switch(type) {
-        case 'select':
-            oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
-            gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
-            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
-            break;
-        case 'confirm':
-            oscillator.frequency.setValueAtTime(600, audioContext.currentTime);
-            oscillator.frequency.setValueAtTime(800, audioContext.currentTime + 0.1);
-            gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
-            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.2);
-            break;
-        case 'error':
-            oscillator.frequency.setValueAtTime(300, audioContext.currentTime);
-            gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
-            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
-            break;
-        case 'success':
-            oscillator.frequency.setValueAtTime(500, audioContext.currentTime);
-            oscillator.frequency.setValueAtTime(700, audioContext.currentTime + 0.1);
-            oscillator.frequency.setValueAtTime(900, audioContext.currentTime + 0.2);
-            gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
-            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
-            break;
+    try {
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+        
+        switch(type) {
+            case 'select':
+                oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
+                gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
+                break;
+            case 'confirm':
+                oscillator.frequency.setValueAtTime(600, audioContext.currentTime);
+                oscillator.frequency.setValueAtTime(800, audioContext.currentTime + 0.1);
+                gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.2);
+                break;
+            case 'error':
+                oscillator.frequency.setValueAtTime(300, audioContext.currentTime);
+                gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+                break;
+            case 'success':
+                oscillator.frequency.setValueAtTime(500, audioContext.currentTime);
+                oscillator.frequency.setValueAtTime(700, audioContext.currentTime + 0.1);
+                oscillator.frequency.setValueAtTime(900, audioContext.currentTime + 0.2);
+                gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+                break;
+        }
+        
+        oscillator.start();
+        oscillator.stop(audioContext.currentTime + 0.5);
+    } catch (error) {
+        console.log('Sound playback failed:', error);
     }
-    
-    oscillator.start();
-    oscillator.stop(audioContext.currentTime + 0.5);
 }
 
 // 로컬 스토리지 관리
@@ -576,7 +583,11 @@ function saveGameToStorage() {
         turnHistory: gameState.turnHistory
     };
     
-    localStorage.setItem('pixelPoliticsGame', JSON.stringify(saveData));
+    try {
+        localStorage.setItem('pixelPoliticsGame', JSON.stringify(saveData));
+    } catch (error) {
+        console.error('게임 저장 실패:', error);
+    }
 }
 
 function loadGameFromStorage() {
@@ -592,7 +603,11 @@ function loadGameFromStorage() {
 }
 
 function clearGameStorage() {
-    localStorage.removeItem('pixelPoliticsGame');
+    try {
+        localStorage.removeItem('pixelPoliticsGame');
+    } catch (error) {
+        console.error('저장된 게임 삭제 실패:', error);
+    }
 }
 
 // 게임 통계
@@ -677,17 +692,4 @@ window.gameUtils = {
     showToast,
     addAnimation,
     playSound
-}; = gameState.calculatePolicyEffects(gameState.currentSelection);
-        return { success: true, ...result };
-    } catch (error) {
-        return { success: false, error: error.message };
-    }
-}
-
-function confirmPolicies() {
-    if (!gameState || !gameState.gameActive) {
-        return { success: false, error: '게임이 활성화되지 않았습니다' };
-    }
-
-    try {
-        const result
+};
