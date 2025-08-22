@@ -967,3 +967,109 @@ body::before {
     from { transform: translateX(100%); opacity: 0; }
     to { transform: translateX(0); opacity: 1; }
 }
+/* 교착상태 경고 스타일 - 맨 아래에 추가 */
+
+.deadlock-warning {
+    background: linear-gradient(145deg, #ff4444, #cc2222);
+    border: 3px solid #ff8888;
+    padding: 20px;
+    margin: 20px 0;
+    text-align: center;
+    animation: warning-pulse 2s ease-in-out infinite;
+    box-shadow: 
+        0 0 20px rgba(255,68,68,0.5),
+        inset 0 0 20px rgba(255,255,255,0.1);
+}
+
+@keyframes warning-pulse {
+    0%, 100% { 
+        box-shadow: 0 0 20px rgba(255,68,68,0.5);
+        border-color: #ff8888;
+    }
+    50% { 
+        box-shadow: 0 0 30px rgba(255,68,68,0.8);
+        border-color: #ffaaaa;
+    }
+}
+
+.warning-content h3 {
+    font-size: 12px;
+    color: #ffffff;
+    margin-bottom: 10px;
+    text-shadow: 2px 2px 0px #000000;
+}
+
+.warning-content p {
+    font-size: 8px;
+    color: #ffffaa;
+    line-height: 12px;
+    margin-bottom: 8px;
+    text-shadow: 1px 1px 0px #000000;
+}
+
+.warning-buttons {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    margin-top: 15px;
+    flex-wrap: wrap;
+}
+
+.pixel-btn.danger {
+    background: linear-gradient(145deg, #ff6666, #ff4444);
+    border: 2px solid #ffaaaa;
+    animation: danger-glow 1.5s ease-in-out infinite alternate;
+}
+
+@keyframes danger-glow {
+    from { 
+        box-shadow: 3px 3px 0px #442222, 0 0 10px rgba(255,102,102,0.5);
+    }
+    to { 
+        box-shadow: 5px 5px 0px #442222, 0 0 20px rgba(255,102,102,0.8);
+    }
+}
+
+.pixel-btn.danger:hover {
+    background: linear-gradient(145deg, #ff8888, #ff6666);
+    transform: translateY(-2px);
+}
+
+/* 비상 옵션 팝업 개선 */
+.popup-content ul {
+    text-align: left;
+    margin: 10px 0;
+    padding-left: 20px;
+}
+
+.popup-content li {
+    font-size: 8px;
+    line-height: 12px;
+    margin-bottom: 5px;
+    color: #cccccc;
+}
+
+.popup-content strong {
+    color: #88ffaa;
+}
+
+/* 모바일 대응 */
+@media (max-width: 768px) {
+    .warning-buttons {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .deadlock-warning {
+        margin: 10px 0;
+        padding: 15px;
+    }
+    
+    .warning-content h3 {
+        font-size: 10px;
+    }
+    
+    .warning-content p {
+        font-size: 7px;
+    }
+}
