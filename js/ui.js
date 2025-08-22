@@ -220,6 +220,9 @@ function loadPoliciesForCategory(category) {
         const card = createPolicyCard(policy);
         grid.appendChild(card);
     });
+
+ // 교착상태 확인
+    checkForDeadlock();
 }
 
 // 정책 카드 생성
@@ -877,3 +880,123 @@ console.log(`
 `);
 
 console.log('🎨 UI 시스템 로딩 완료!');
+
+// 교착상태 확인 및 처리
+function checkForDeadlock() {
+    const progressCheck = gameAPI.checkTurnProgress();
+    
+    if (progressCheck.success && !progressCheck.hasSelectablePolicies) {
+        showDeadlockWarning();
+    } else {
+        hideDeadlockWarning();
+    }
+}
+
+// 교착상태 경고 표시
+function showDeadlockWarning() {
+    // 기존 경고가 있으면 제거
+    const existingWarning = document.getElementById('deadlockWarning');
+    if (existingWarning) {
+        existingWarning.remove();
+    }
+    
+    const warning = document.createElement('div');
+    warning.id = 'deadlockWarning';
+    warning.className = 'deadlock-warning';
+    warning.innerHTML = `
+        <div class="warning-content">
+            <h3>⚠️ 선택 가능한 정책이 없습니다!</h3>
+            <p>현재 예산이나 요구조건으로는 어떤 정책도 선택할 수 없습니다.</p>
+            <p>이런 경우 턴을 스킵할 수 있지만, 시민 반응과 안정성이 감소합니다.</p>
+            <div class="warning-buttons">
+                <button class="pixel-btn danger" onclick="skipTurn()">
+                    ⏭️ 턴 스킵 (페널티 적용)
+                </button>
+                <button class="pixel-btn secondary" onclick="showEmergencyOptions()">
+                    🆘 비상 옵션
+                </button>
+            </div>
+        </div>
+    `;
+    
+    const policySection = document.querySelector('.policy-section');
+    policySection.appendChild(warning);
+}
+
+// 교착상태 경고 숨김
+function hideDeadlockWarning() {
+    const warning = document.getElementById('deadlockWarning');
+    if (warning) {
+        warning.remove();
+    }
+}
+
+// 턴 스킵 실행
+function skipTurn() {
+    const result = gameAPI.skipCurrentTurn();
+    
+    if (result.success) {
+        gameUtils.playSound('error');
+        gameUtils.showToast('턴이 스킵되었습니다. 페널티가 적용됩니다.', 'warning');
+        
+        // UI 업데이트
+        const gameStatus = gameAPI.getGameStatus();
+        updateIndicators(gameStatus.indicators);
+        
+        // 시민 반응 표시
+        showCitizenReactions(['턴 스킵']);
+        
+        setTimeout(() => {
+            proceedToNextTurn();
+        }, 2000);
+    } else {
+        gameUtils.showToast(result.error, 'error');
+    }
+}
+
+// 비상 옵션 표시
+function showEmergencyOptions() {
+    const popup = document.createElement('div');
+    popup.className = 'popup-overlay active';
+    popup.innerHTML = `
+        <div class="popup-content">
+            <div class="popup-header">
+                <h3>🆘 비상 상황 대처법</h3>
+                <button class="close-btn" onclick="closeEmergencyOptions()">✖</button>
+            </div>
+            <div class="popup-body">
+                <h4>💡 상황 해결 방법</h4>
+                <ul>
+                    <li><strong>턴 스킵:</strong> 이번 턴을 건너뛰고 다음 턴으로 진행 (페널티 적용)</li>
+                    <li><strong>예산 부족:</strong> 이전 턴에서 비용이 낮은 정책을 선택했어야 합니다</li>
+                    <li><strong>요구조건 미달:</strong> 지표를 개선하는 정책을 먼저 선택했어야 합니다</li>
+                </ul>
+                
+                <h4>🎯 게임 팁</h4>
+                <ul>
+                    <li>항상 다음 턴을 고려해서 예산을 관리하세요</li>
+                    <li>지표 균형을 맞춰서 요구조건을 충족하세요</li>
+                    <li>국가별 특성을 활용해서 비용을 절약하세요</li>
+                </ul>
+                
+                <div style="text-align: center; margin-top: 20px;">
+                    <button class="pixel-btn danger" onclick="skipTurn(); closeEmergencyOptions();">
+                        ⏭️ 턴 스킵하기
+                    </button>
+                    <button class="pixel-btn secondary" onclick="restartGame();">
+                        🔄 게임 재시작
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(popup);
+}
+
+function closeEmergencyOptions() {
+    const popup = document.querySelector('.popup-overlay');
+    if (popup) {
+        popup.remove();
+    }
+}
