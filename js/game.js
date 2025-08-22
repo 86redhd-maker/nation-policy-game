@@ -237,7 +237,7 @@ class GameState {
     }
 
     // 효과 적용
-    applyEffects(effects) {
+    applyEffects(effects, skipPenalty = false) {
         for (const [indicator, value] of Object.entries(effects)) {
             if (this.indicators.hasOwnProperty(indicator)) {
                 this.indicators[indicator] = Math.max(
@@ -247,11 +247,12 @@ class GameState {
             }
         }
 
-        // 예산 페널티 적용
-        if (this.budget < 0) {
+        // 예산 페널티 적용 (무한 재귀 방지)
+        if (!skipPenalty && this.budget < 0) {
             const penalty = GameData.getBudgetPenalty(this.budget);
             if (penalty) {
-                this.applyEffects(penalty.effects);
+                // skipPenalty=true로 재귀 방지
+                this.applyEffects(penalty.effects, true);
                 console.log(`예산 페널티 적용: ${penalty.message}`);
             }
         }
@@ -313,11 +314,11 @@ class GameState {
     // 이벤트 효과 적용
     applyEventEffect(event, choiceKey = null) {
         // 기본 효과 적용
-        this.applyEffects(event.effects);
+        this.applyEffects(event.effects, false);
 
         // 선택지 효과 적용
         if (choiceKey && event.choices && event.choices[choiceKey]) {
-            this.applyEffects(event.choices[choiceKey]);
+            this.applyEffects(event.choices[choiceKey], false);
             console.log(`이벤트 선택: ${choiceKey}`, event.choices[choiceKey]);
         }
     }
@@ -630,7 +631,42 @@ function playSound(type) {
     }
 }
 
-// 게임 통계
+//로컬 스토리지 관리 함수들 추가
+function saveGameToStorage() {
+    if (!gameState) return;
+    
+    const saveData = {
+        timestamp: Date.now(),
+        gameState: gameState.getStatus(),
+        turnHistory: gameState.turnHistory
+    };
+    
+    try {
+        localStorage.setItem('pixelPoliticsGame', JSON.stringify(saveData));
+    } catch (error) {
+        console.error('게임 저장 실패:', error);
+    }
+}
+
+function loadGameFromStorage() {
+    try {
+        const saveData = localStorage.getItem('pixelPoliticsGame');
+        if (saveData) {
+            return JSON.parse(saveData);
+        }
+    } catch (error) {
+        console.error('저장된 게임 로드 실패:', error);
+    }
+    return null;
+}
+
+function clearGameStorage() {
+    try {
+        localStorage.removeItem('pixelPoliticsGame');
+    } catch (error) {
+        console.error('저장된 게임 삭제 실패:', error);
+    }
+}
 function calculateGameStats() {
     if (!gameState) return null;
     
@@ -694,6 +730,9 @@ window.gameAPI = {
     applyEventChoice,
     getGameStatus,
     restartGame,
+    saveGameToStorage,
+    loadGameFromStorage,
+    clearGameStorage,
     calculateGameStats,
     getDebugInfo
 };
