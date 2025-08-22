@@ -35,10 +35,10 @@
                     선택한 국가: <span id="selectedNation">국가를 선택해주세요</span>
                 </div>
                 <div class="button-group">
-                    <button class="pixel-btn" onclick="handleStartGame()" id="startBtn" disabled>
+                    <button class="pixel-btn" onclick="startGame()" id="startBtn" disabled>
                         🎮 게임 시작
                     </button>
-                    <button class="pixel-btn secondary" onclick="handleShowHelp()">
+                    <button class="pixel-btn secondary" onclick="showHelp()">
                         ❓ 게임 설명
                     </button>
                 </div>
@@ -83,10 +83,10 @@
                 </div>
 
                 <div class="action-buttons">
-                    <button class="pixel-btn" onclick="handleConfirmPolicies()" id="confirmBtn" disabled>
+                    <button class="pixel-btn" onclick="confirmPolicies()" id="confirmBtn" disabled>
                         ✅ 정책 확정
                     </button>
-                    <button class="pixel-btn secondary" onclick="handleClearSelection()">
+                    <button class="pixel-btn secondary" onclick="clearSelection()">
                         🔄 선택 초기화
                     </button>
                 </div>
@@ -133,10 +133,10 @@
                     <!-- 달성한 업적들 -->
                 </div>
                 <div class="replay-buttons">
-                    <button class="pixel-btn" onclick="handleRestartGame()">
+                    <button class="pixel-btn" onclick="restartGame()">
                         🔄 다시 플레이
                     </button>
-                    <button class="pixel-btn secondary" onclick="handleShareResults()">
+                    <button class="pixel-btn secondary" onclick="shareResults()">
                         📤 결과 공유
                     </button>
                 </div>
@@ -148,7 +148,7 @@
             <div class="popup-content help-content">
                 <div class="popup-header">
                     <h3>❓ 게임 설명</h3>
-                    <button class="close-btn" onclick="handleCloseHelp()">✖</button>
+                    <button class="close-btn" onclick="closeHelp()">✖</button>
                 </div>
                 <div class="popup-body">
                     <div class="help-section">
@@ -189,202 +189,9 @@
         <div class="status-item" id="systemStatus">시스템 정상</div>
     </div>
 
-    <!-- JavaScript 파일들 - 순서가 중요! -->
+    <!-- JavaScript 파일들 -->
     <script src="js/data.js"></script>
     <script src="js/game.js"></script>
     <script src="js/ui.js"></script>
-    
-    <!-- 초기화 스크립트 -->
-    <script>
-        // 전역 변수들
-        let selectedNationName = null;
-        let currentEvent = null;
-
-        // 안전한 함수 호출을 위한 래퍼 함수들
-        function handleStartGame() {
-            try {
-                if (typeof startGame === 'function') {
-                    startGame();
-                } else {
-                    console.error('startGame 함수를 찾을 수 없습니다');
-                    alert('게임 시스템 로딩 중입니다. 잠시 후 다시 시도해주세요.');
-                }
-            } catch (error) {
-                console.error('게임 시작 오류:', error);
-                alert('게임 시작 중 오류가 발생했습니다: ' + error.message);
-            }
-        }
-
-        function handleShowHelp() {
-            try {
-                if (typeof showHelp === 'function') {
-                    showHelp();
-                } else {
-                    alert('도움말을 준비 중입니다.');
-                }
-            } catch (error) {
-                console.error('도움말 표시 오류:', error);
-            }
-        }
-
-        function handleCloseHelp() {
-            try {
-                if (typeof closeHelp === 'function') {
-                    closeHelp();
-                } else {
-                    document.getElementById('helpPopup').classList.remove('active');
-                }
-            } catch (error) {
-                console.error('도움말 닫기 오류:', error);
-            }
-        }
-
-        function handleConfirmPolicies() {
-            try {
-                if (typeof confirmPolicies === 'function') {
-                    confirmPolicies();
-                } else {
-                    alert('정책 확정 기능을 로딩 중입니다.');
-                }
-            } catch (error) {
-                console.error('정책 확정 오류:', error);
-            }
-        }
-
-        function handleClearSelection() {
-            try {
-                if (typeof clearSelection === 'function') {
-                    clearSelection();
-                } else {
-                    alert('선택 초기화 기능을 로딩 중입니다.');
-                }
-            } catch (error) {
-                console.error('선택 초기화 오류:', error);
-            }
-        }
-
-        function handleRestartGame() {
-            try {
-                if (typeof restartGame === 'function') {
-                    restartGame();
-                } else {
-                    location.reload();
-                }
-            } catch (error) {
-                console.error('게임 재시작 오류:', error);
-            }
-        }
-
-        function handleShareResults() {
-            try {
-                if (typeof shareResults === 'function') {
-                    shareResults();
-                } else {
-                    alert('결과 공유 기능을 준비 중입니다.');
-                }
-            } catch (error) {
-                console.error('결과 공유 오류:', error);
-            }
-        }
-
-        // 국가 선택 함수 (전역으로 정의)
-        function selectNation(nationName) {
-            console.log('국가 선택:', nationName);
-            
-            try {
-                // 이전 선택 해제
-                document.querySelectorAll('.nation-card').forEach(card => {
-                    card.classList.remove('selected');
-                });
-
-                // 현재 선택 활성화
-                event.target.closest('.nation-card').classList.add('selected');
-                selectedNationName = nationName;
-                
-                document.getElementById('selectedNation').textContent = nationName;
-                document.getElementById('startBtn').disabled = false;
-                
-                // 사운드 재생 (안전하게)
-                try {
-                    if (typeof gameUtils !== 'undefined' && gameUtils.playSound) {
-                        gameUtils.playSound('select');
-                    }
-                } catch (soundError) {
-                    console.log('사운드 재생 실패:', soundError);
-                }
-
-                console.log('선택된 국가:', selectedNationName);
-            } catch (error) {
-                console.error('국가 선택 오류:', error);
-            }
-        }
-
-        // 페이지 로드 완료 후 초기화
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('🎮 페이지 로드 완료');
-            
-            // 잠시 기다린 후 초기화 (모든 스크립트가 로드되도록)
-            setTimeout(function() {
-                try {
-                    if (typeof initializeStartScreen === 'function') {
-                        initializeStartScreen();
-                        console.log('✅ 시작 화면 초기화 완료');
-                    } else {
-                        console.log('⚠️ initializeStartScreen 함수 없음 - 수동 초기화');
-                        manualInitializeStartScreen();
-                    }
-                } catch (error) {
-                    console.error('초기화 오류:', error);
-                    manualInitializeStartScreen();
-                }
-            }, 100);
-        });
-
-        // 수동 초기화 함수 (백업용)
-        function manualInitializeStartScreen() {
-            console.log('수동 초기화 시작');
-            
-            const nationsGrid = document.querySelector('.nations-grid');
-            if (!nationsGrid) {
-                console.error('nations-grid를 찾을 수 없습니다');
-                return;
-            }
-            
-            nationsGrid.innerHTML = '';
-
-            const nations = {
-                '복지 강국': { description: '복지 수준이 높지만 재정 부담과 제도 피로도가 존재함', stars: 1 },
-                '자원 풍부국': { description: '자원이 풍부하지만 환경 갈등이 잦고 산업 의존도가 높음', stars: 2 },
-                '기술 선진국': { description: '기술력이 뛰어나지만 시민 신뢰도가 낮고 윤리 갈등이 존재함', stars: 3 },
-                '신흥 개발국': { description: '성장 중인 국가로 인프라 부족과 사회 불균형이 문제', stars: 2 },
-                '위기국가': { description: '정치·사회·경제 모두 불안정한 상태에서 재건이 필요한 국가', stars: 3 }
-            };
-
-            Object.entries(nations).forEach(([nationName, data]) => {
-                const card = document.createElement('div');
-                card.className = 'nation-card';
-                card.onclick = () => selectNation(nationName);
-                
-                const stars = '★'.repeat(data.stars) + '☆'.repeat(3 - data.stars);
-                
-                card.innerHTML = `
-                    <div class="nation-name">${nationName}</div>
-                    <div class="difficulty-stars">${stars}</div>
-                    <div class="nation-description">${data.description}</div>
-                `;
-                
-                nationsGrid.appendChild(card);
-            });
-
-            console.log('수동 초기화 완료');
-        }
-
-        // 오류 감지
-        window.addEventListener('error', function(event) {
-            console.error('JavaScript 오류:', event.error);
-        });
-        
-        console.log('🚀 메인 스크립트 로딩 완료');
-    </script>
 </body>
 </html>
