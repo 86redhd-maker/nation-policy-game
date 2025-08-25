@@ -42,7 +42,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     waitForData(() => {
-        initializeStartScreen();
+        initializeGameScreen();
         updateStatusBar('게임 준비 완료');
     });
 });
@@ -1688,6 +1688,7 @@ console.log(`
 `);
 
 console.log('🎨 UI 시스템 로딩 완료!');
+
 
 
 
