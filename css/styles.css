@@ -1437,74 +1437,75 @@ body::before {
     z-index: 10;
 }
 
-/* 결과 화면 강제 표시 수정 */
+/* 결과 화면 표시 수정 */
 #resultsScreen {
-    min-height: 100vh !important;
-    padding: 20px !important;
+    min-height: 100vh;
+    padding: 20px;
 }
 
-#resultsScreen .results-container {
-    min-height: 80vh !important;
+#resultsScreen.active {
     display: block !important;
 }
 
-#finalTitle {
-    display: block !important;
-    font-size: 20px !important;
-    color: #ffaa00 !important;
-    margin-bottom: 30px !important;
-    text-align: center !important;
-    min-height: 60px !important;
-    line-height: 1.5 !important;
-    padding: 10px !important;
+.results-container {
+    min-height: 80vh;
+    display: block;
 }
 
-#endingInfo {
-    display: block !important;
-    background: #0f3460 !important;
-    border: 3px solid #00ff88 !important;
-    padding: 20px !important;
-    margin-bottom: 20px !important;
-    min-height: 100px !important;
-    color: #ffffff !important;
-    font-size: 10px !important;
-    line-height: 1.4 !important;
+.final-title {
+    display: block;
+    font-size: 20px;
+    color: #ffaa00;
+    margin-bottom: 30px;
+    text-align: center;
+    min-height: 60px;
+    line-height: 1.5;
+    padding: 10px;
 }
 
-#endingInfo .ending-title {
-    font-size: 14px !important;
-    color: #00ff88 !important;
-    margin-bottom: 10px !important;
-    display: block !important;
+.ending-info {
+    display: block;
+    background: linear-gradient(145deg, #0f3460, #16213e);
+    border: 3px solid #00ff88;
+    padding: 20px;
+    margin-bottom: 20px;
+    min-height: 100px;
 }
 
-#endingInfo .ending-description {
-    font-size: 10px !important;
-    color: #cccccc !important;
-    line-height: 1.4 !important;
-    margin-bottom: 15px !important;
-    display: block !important;
+.ending-title {
+    font-size: 14px;
+    color: #00ff88;
+    margin-bottom: 10px;
+    display: block;
 }
 
-#endingInfo .final-score {
-    font-size: 12px !important;
-    color: #ffffff !important;
-    margin-top: 10px !important;
-    display: block !important;
+.ending-description {
+    font-size: 10px;
+    color: #cccccc;
+    line-height: 1.4;
+    margin-bottom: 15px;
+    display: block;
 }
 
-#finalStats {
-    display: block !important;
-    margin-bottom: 20px !important;
-    min-height: 200px !important;
+.final-score {
+    font-size: 12px;
+    color: #ffffff;
+    margin-top: 10px;
+    display: block;
+    font-weight: bold;
 }
 
-#achievements {
-    display: block !important;
-    background: #2a2a4e !important;
-    border: 2px solid #ffaa00 !important;
-    padding: 15px !important;
-    margin-bottom: 20px !important;
-    min-height: 100px !important;
+.final-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    margin-bottom: 20px;
 }
 
+.achievements {
+    background: linear-gradient(145deg, #2a2a4e, #1a1a3e);
+    border: 2px solid #ffaa00;
+    padding: 15px;
+    margin-bottom: 20px;
+    min-height: 100px;
+}
