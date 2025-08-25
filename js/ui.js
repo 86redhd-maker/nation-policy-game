@@ -790,7 +790,6 @@ function updatePolicyCards() {
     updateCurrentSelectionPreview();
     updateCategoryStats(gameStatus);
 }
-}
 
 // 선택 요약 업데이트
 function updateSelectionSummary() {
@@ -1689,5 +1688,6 @@ console.log(`
 `);
 
 console.log('🎨 UI 시스템 로딩 완료!');
+
 
 
