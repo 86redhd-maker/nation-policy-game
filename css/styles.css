@@ -1073,3 +1073,45 @@ body::before {
         font-size: 7px;
     }
 }
+
+/* 긴급정책 스타일 */
+.emergency-policy {
+    border: 3px solid #ff6600 !important;
+    background: linear-gradient(145deg, #4a2c00, #3a1f00) !important;
+    position: relative;
+}
+
+.emergency-policy::before {
+    content: "🆘 긴급";
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background: #ff6600;
+    color: white;
+    font-size: 6px;
+    padding: 2px 4px;
+    border-radius: 2px;
+    font-family: 'Press Start 2P', monospace;
+    z-index: 10;
+}
+
+.emergency-policy:hover {
+    border-color: #ff8833 !important;
+    box-shadow: 
+        0 5px 15px rgba(255, 102, 0, 0.3),
+        0 0 20px rgba(255, 102, 0, 0.4);
+}
+
+.emergency-policy.selected {
+    border-color: #ffaa00 !important;
+    background: linear-gradient(145deg, #805500, #603300) !important;
+}
+
+.emergency-policy .policy-name {
+    color: #ff8833 !important;
+}
+
+.emergency-policy .citizen-preview {
+    background: rgba(255, 102, 0, 0.1);
+    border-left: 2px solid #ff6600;
+}
