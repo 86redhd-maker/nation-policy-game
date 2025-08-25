@@ -70,6 +70,12 @@ class GameState {
         }
     }
 
+    // 선택 초기화 - 추가된 메서드
+    clearSelection() {
+        this.currentSelection = [];
+        console.log('정책 선택 초기화');
+    }
+
     // 선택 가능한 정책이 있는지 확인
     hasSelectablePolicies() {
         const currentCategory = this.getCurrentCategory();
@@ -126,7 +132,7 @@ class GameState {
         return { skipped: true, penalty: skipPenalty };
     }
 
-    // 정책 확정 - 무한재귀 방지를 위한 안전장치 추가
+    // 정책 확정
     confirmPolicies() {
         if (this.currentSelection.length === 0) {
             throw new Error('선택된 정책이 없습니다');
@@ -166,7 +172,7 @@ class GameState {
         }
     }
 
-    // 정책 효과 계산 - 간소화 및 안전장치
+    // 정책 효과 계산
     calculatePolicyEffects(policyNames) {
         let totalCost = 0;
         let totalEffects = {};
@@ -209,12 +215,11 @@ class GameState {
                         for (const indicator in totalEffects) {
                             totalEffects[indicator] = Math.floor(totalEffects[indicator] * 1.2);
                         }
-                        totalCost -= 5; // 비용 절약
+                        totalCost = Math.max(0, totalCost - 5); // 비용 절약
                     }
                 }
             } catch (error) {
                 console.warn('정책 상호작용 계산 중 오류:', error);
-                // 상호작용 계산 실패 시 기본 효과만 적용
             }
         }
 
@@ -231,7 +236,7 @@ class GameState {
     calculatePolicyCost(policy) {
         let cost = policy.비용;
 
-        // 국가별 비용 조정 (간소화된 버전)
+        // 국가별 비용 조정
         if (this.currentNation === '복지 강국' && this.getCurrentCategory() === '복지') {
             cost = Math.floor(cost * 0.85); // 15% 할인
         } else if (this.currentNation === '기술 선진국' && this.getCurrentCategory() === '복지') {
@@ -243,10 +248,9 @@ class GameState {
         return cost;
     }
 
-    // 정책 상호작용 계산 - 안전장치 강화
+    // 정책 상호작용 계산
     calculatePolicyInteraction(policy1Name, policy2Name) {
         try {
-            // 동일한 정책명 체크
             if (policy1Name === policy2Name) {
                 return { type: 'none', message: '' };
             }
@@ -289,9 +293,8 @@ class GameState {
         }
     }
 
-    // 효과 적용 - 완전히 재작성하여 무한재귀 방지
+    // 효과 적용
     applyEffects(effects) {
-        // 효과 적용
         for (const [indicator, value] of Object.entries(effects)) {
             if (this.indicators.hasOwnProperty(indicator)) {
                 this.indicators[indicator] = Math.max(
@@ -300,15 +303,13 @@ class GameState {
                 );
             }
         }
-        // 예산 페널티는 별도 함수에서 처리하도록 분리
     }
 
-    // 예산 페널티 별도 처리 함수
+    // 예산 페널티 별도 처리
     checkAndApplyBudgetPenalty() {
         if (this.budget < 0) {
             const penalty = GameData.getBudgetPenalty(this.budget);
             if (penalty && penalty.effects) {
-                // 직접 지표 적용 (applyEffects 호출 안함)
                 for (const [indicator, value] of Object.entries(penalty.effects)) {
                     if (this.indicators.hasOwnProperty(indicator)) {
                         this.indicators[indicator] = Math.max(
@@ -409,7 +410,7 @@ class GameState {
 
 // 전역 게임 상태 인스턴스
 let gameState = null;
-let isProcessingAction = false; // 중복 실행 방지
+let isProcessingAction = false;
 
 // 게임 API 함수들
 function initializeGame() {
@@ -417,13 +418,17 @@ function initializeGame() {
     console.log('게임 시스템 초기화 완료');
 }
 
+// 수정된 startGame 함수 - 올바른 리턴값과 에러 처리
 function startGame(nationName) {
     if (!gameState) initializeGame();
     
     try {
         gameState.startNewGame(nationName);
-        return { success: true, status: gameState.getStatus() };
+        const status = gameState.getStatus();
+        console.log('게임 시작 성공:', status);
+        return { success: true, status };
     } catch (error) {
+        console.error('게임 시작 실패:', error);
         return { success: false, error: error.message };
     }
 }
@@ -450,6 +455,7 @@ function deselectPolicy(policyName) {
     return { success: true, selection: gameState.currentSelection };
 }
 
+// 수정된 clearPolicySelection 함수
 function clearPolicySelection() {
     if (!gameState || !gameState.gameActive) {
         return { success: false, error: '게임이 활성화되지 않았습니다' };
@@ -505,12 +511,11 @@ function skipCurrentTurn() {
     }
 }
 
-function confirmPolicies() {  // ← 이 부분이 빠진 것 같습니다
+function confirmPolicies() {
     if (!gameState || !gameState.gameActive) {
         return { success: false, error: '게임이 활성화되지 않았습니다' };
     }
 
-    // 중복 실행 방지
     if (isProcessingAction) {
         return { success: false, error: '이미 처리 중입니다' };
     }
@@ -601,7 +606,6 @@ function getBudgetStatus(budget, debtLimit) {
 }
 
 function getIndicatorBarWidth(value) {
-    // -5 ~ 5 범위를 0 ~ 100% 로 변환
     const normalized = ((value + 5) / 10) * 100;
     return Math.max(0, Math.min(100, normalized));
 }
@@ -633,7 +637,6 @@ function calculateSustainability(indicators) {
     return Math.round(sustainability * 10) / 10;
 }
 
-// 효과 텍스트 생성
 function generateEffectText(effects) {
     const effectTexts = [];
     
@@ -648,7 +651,6 @@ function generateEffectText(effects) {
     return effectTexts.join(', ');
 }
 
-// 정책 요구조건 확인
 function checkPolicyRequirements(policy, indicators) {
     if (!policy.요구조건) return true;
     
@@ -658,7 +660,6 @@ function checkPolicyRequirements(policy, indicators) {
     });
 }
 
-// 토스트 알림 표시
 function showToast(message, type = 'info') {
     const toast = document.createElement('div');
     toast.className = `toast ${type}`;
@@ -675,7 +676,6 @@ function showToast(message, type = 'info') {
     }, 3000);
 }
 
-// 애니메이션 효과
 function addAnimation(element, animationClass) {
     element.classList.add(animationClass);
     setTimeout(() => {
@@ -683,7 +683,6 @@ function addAnimation(element, animationClass) {
     }, 500);
 }
 
-// 사운드 효과 (간단한 구현)
 function playSound(type) {
     try {
         const audioContext = new (window.AudioContext || window.webkitAudioContext)();
@@ -726,7 +725,6 @@ function playSound(type) {
     }
 }
 
-//로컬 스토리지 관리 함수들 추가
 function saveGameToStorage() {
     if (!gameState) return;
     
@@ -762,6 +760,7 @@ function clearGameStorage() {
         console.error('저장된 게임 삭제 실패:', error);
     }
 }
+
 function calculateGameStats() {
     if (!gameState) return null;
     
@@ -787,7 +786,6 @@ function calculateGameStats() {
     };
 }
 
-// 디버그 정보
 function getDebugInfo() {
     if (!gameState) return 'No active game';
     
