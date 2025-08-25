@@ -42,11 +42,9 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     waitForData(() => {
-    // game.js에 정의된 gameAPI를 사용하여 게임 상태를 가져옵니다.
-    const gameStatus = gameAPI.getGameStatus();
-
-    // 가져온 gameStatus 객체를 인자로 전달합니다.
-    initializeGameScreen(gameStatus);
+    // 1. 데이터 로드가 완료되면, 게임 화면이 아닌
+    //    '시작 화면'을 초기화하는 함수를 호출합니다.
+    initializeStartScreen();
 
     updateStatusBar('게임 준비 완료');
 });
@@ -1693,6 +1691,7 @@ console.log(`
 `);
 
 console.log('🎨 UI 시스템 로딩 완료!');
+
 
 
 
