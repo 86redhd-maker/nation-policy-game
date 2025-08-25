@@ -3,7 +3,7 @@ let selectedNationName = null;
 let currentEvent = null;
 let currentActiveCategory = '복지';
 
-// 화면 전환 함수 - 디버그 추가
+// 화면 전환 함수 - 강화된 버전
 function showScreen(screenId) {
     console.log('화면 전환 시도:', screenId);
     
@@ -13,16 +13,30 @@ function showScreen(screenId) {
         return false;
     }
     
+    // 모든 화면 강제 비활성화
     document.querySelectorAll('.screen').forEach(screen => {
         screen.classList.remove('active');
+        screen.style.display = 'none'; // 강제 숨김 추가
         console.log('화면 비활성화:', screen.id);
     });
     
+    // 대상 화면 강제 활성화
     targetScreen.classList.add('active');
+    targetScreen.style.display = 'block'; // 강제 표시 추가
     console.log('화면 활성화 완료:', screenId);
     
     // 결과 화면의 경우 추가 확인
     if (screenId === 'resultsScreen') {
+        // 즉시 다시 한번 확인하고 강제 표시
+        setTimeout(() => {
+            if (window.getComputedStyle(targetScreen).display === 'none') {
+                console.warn('결과화면이 여전히 숨겨져 있음, 다시 표시 시도');
+                targetScreen.style.display = 'block !important';
+                targetScreen.style.visibility = 'visible';
+                targetScreen.style.opacity = '1';
+            }
+        }, 50);
+        
         const elements = {
             finalTitle: document.getElementById('finalTitle'),
             endingInfo: document.getElementById('endingInfo'),
@@ -43,7 +57,6 @@ function showScreen(screenId) {
     
     return true;
 }
-
 // 팝업 표시/숨김
 function showPopup(popupId) {
     document.getElementById(popupId).classList.add('active');
@@ -1847,5 +1860,6 @@ console.log(`
 `);
 
 console.log('🎨 UI 시스템 로딩 완료!');
+
 
 
