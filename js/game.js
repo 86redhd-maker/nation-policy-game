@@ -888,7 +888,7 @@ window.gameAPI = {
     loadGameFromStorage,
     clearGameStorage,
     calculateGameStats,
-    getDebugInfo
+    getDebugInfo,
     canSelectFromCategory: (category) => {
         if (!gameState || !gameState.gameActive) return false;
         return gameState.canSelectFromCategory(category);
@@ -922,6 +922,7 @@ window.gameUtils = {
     addAnimation,
     playSound
 };
+
 
 
 
