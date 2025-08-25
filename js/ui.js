@@ -51,7 +51,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 // 시작 화면 초기화
-function initializeGameScreen(gameStatus) {
+function initializeStartScreen(gameStatus) {
     try {
         console.log('게임 화면 초기화 시작:', gameStatus);
         updateGameHeader(gameStatus);
@@ -302,7 +302,7 @@ function showLoading(show) {
 }
 
 // 게임 화면 초기화
-function initializeGameScreen(gameStatus) {
+function initializeStartScreen(gameStatus) {
     try {
         console.log('게임 화면 초기화 시작:', gameStatus);
         updateGameHeader(gameStatus);
@@ -1691,6 +1691,7 @@ console.log(`
 `);
 
 console.log('🎨 UI 시스템 로딩 완료!');
+
 
 
 
