@@ -397,24 +397,45 @@ findPolicyCategory(policyName) {
         };
     }
 
-    // 게임 종료
+     // 게임 종료 - 수정된 버전
     finishGame() {
+        console.log('게임 종료 처리 시작');
         this.gameActive = false;
+        
         const totalScore = Object.values(this.indicators).reduce((sum, val) => sum + val, 0);
-        const ending = GameData.getEnding(totalScore, this.indicators);
+        console.log('최종 점수 계산:', totalScore);
+        
+        let ending = null;
+        try {
+            ending = GameData.getEnding(totalScore, this.indicators);
+            console.log('엔딩 결정:', ending);
+        } catch (error) {
+            console.warn('엔딩 결정 실패, 기본 엔딩 사용:', error);
+            ending = {
+                grade: 'C급',
+                title: '발전 중인 국가',
+                description: '아직 갈 길이 멀지만 변화의 기초를 다졌습니다.',
+                citizen_reaction: '🤔 완전히 좋아진 건 아니지만... 변화는 느껴져요'
+            };
+        }
         
         console.log('게임 종료!');
         console.log(`최종 점수: ${totalScore}`);
         console.log(`엔딩: ${ending.grade} - ${ending.title}`);
         
-        return {
+        const result = {
             finished: true,
             totalScore,
             ending,
             finalIndicators: { ...this.indicators },
             selectedPolicies: [...this.selectedPolicies],
-            turnHistory: [...this.turnHistory]
+            turnHistory: [...this.turnHistory],
+            nationName: this.currentNation,
+            initialIndicators: { ...this.initialIndicators }
         };
+        
+        console.log('게임 종료 결과:', result);
+        return result;
     }
 
     // 이벤트 발생 확인
@@ -920,3 +941,4 @@ window.gameUtils = {
     addAnimation,
     playSound
 };
+
