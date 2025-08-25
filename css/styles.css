@@ -1436,3 +1436,47 @@ body::before {
     border: 1px solid #ff6666;
     z-index: 10;
 }
+
+/* 결과 화면 강제 표시 수정 */
+#resultsScreen {
+    min-height: 100vh !important;
+    padding: 20px !important;
+}
+
+#resultsScreen .results-container {
+    min-height: 80vh !important;
+    display: block !important;
+}
+
+#finalTitle {
+    display: block !important;
+    font-size: 20px !important;
+    color: #ffaa00 !important;
+    margin-bottom: 30px !important;
+    text-align: center !important;
+    min-height: 60px !important;
+}
+
+#endingInfo {
+    display: block !important;
+    background: #0f3460 !important;
+    border: 3px solid #00ff88 !important;
+    padding: 20px !important;
+    margin-bottom: 20px !important;
+    min-height: 100px !important;
+}
+
+#finalStats {
+    display: block !important;
+    margin-bottom: 20px !important;
+    min-height: 200px !important;
+}
+
+#achievements {
+    display: block !important;
+    background: #2a2a4e !important;
+    border: 2px solid #ffaa00 !important;
+    padding: 15px !important;
+    margin-bottom: 20px !important;
+    min-height: 100px !important;
+}
