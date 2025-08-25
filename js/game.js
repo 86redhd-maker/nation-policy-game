@@ -891,6 +891,25 @@ window.gameAPI = {
     clearGameStorage,
     calculateGameStats,
     getDebugInfo
+    canSelectFromCategory: (category) => {
+        if (!gameState || !gameState.gameActive) return false;
+        return gameState.canSelectFromCategory(category);
+    },
+    
+    getCategoryStats: () => {
+        if (!gameState) return {};
+        return { ...gameState.categoryStats };
+    },
+    
+    getAvailableCategories: () => {
+        if (!gameState || !gameState.gameActive) return [];
+        return gameState.getCurrentAvailableCategories();
+    },
+    
+    findPolicyCategory: (policyName) => {
+        if (!gameState) return null;
+        return gameState.findPolicyCategory(policyName);
+    }
 };
 
 window.gameUtils = {
@@ -905,4 +924,5 @@ window.gameUtils = {
     addAnimation,
     playSound
 };
+
 
