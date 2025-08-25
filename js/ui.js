@@ -908,6 +908,20 @@ function confirmPolicies() {
     updateIndicators(result.status.indicators);
     updateBudgetDisplay(result.status.budget, result.status.debtLimit);
     
+    // 시민 반응 표시
+    showCitizenReactions(result.policies);
+    
+    // 이벤트 확인
+    setTimeout(() => {
+        const event = gameAPI.triggerRandomEvent();
+        if (event) {
+            showEventPopup(event);
+        } else {
+            proceedToNextTurn();
+        }
+    }, 2000);
+}
+
 // 시민 반응 표시
 function showCitizenReactions(policies) {
     const panel = document.getElementById('citizenPanel');
@@ -1685,3 +1699,4 @@ console.log(`
 `);
 
 console.log('🎨 UI 시스템 로딩 완료!');
+
