@@ -1019,22 +1019,31 @@ function proceedToNextTurn() {
     }
 
     if (result.finished) {
-        console.log('게임 완료! 결과 화면 표시');
-        console.log('게임 결과 데이터:', result);
-        
-        // 잠시 대기 후 결과 화면 표시 (UI 업데이트 완료를 위해)
-        setTimeout(() => {
-            const success = showResultsScreen(result);
-            if (!success) {
-                console.error('결과 화면 표시 실패, 대안 방법 시도');
-                // 대안: 간단한 알림으로라도 게임 완료를 알림
-                if (typeof gameUtils !== 'undefined') {
-                    gameUtils.showToast('게임이 완료되었습니다! 결과를 확인하세요.', 'success');
-                } else {
-                    alert('게임이 완료되었습니다!');
-                }
-            }
-        }, 100);
+    console.log('게임 완료! 결과 화면 표시');
+    console.log('게임 결과 데이터:', result);
+    
+    // ⭐ 강제로 결과화면 내용 채우기 ⭐
+    document.getElementById('finalTitle').innerHTML = '🏆 강제 테스트!<br>게임 완료!';
+    document.getElementById('endingInfo').innerHTML = `
+        <div class="ending-title" style="font-size: 14px; color: #00ff88; margin-bottom: 10px;">테스트 성공!</div>
+        <div class="ending-description" style="font-size: 8px; color: #cccccc;">JS 파일 수정으로 결과화면 표시</div>
+        <div class="final-score" style="margin-top: 10px;"><strong>최종 점수: 테스트/40점</strong></div>
+    `;
+    document.getElementById('finalStats').innerHTML = `
+        <div class="stat-group" style="background: #1a1a2e; border: 2px solid #6666ff; padding: 15px;">
+            <div class="stat-group-title" style="color: #6666ff; margin-bottom: 10px;">📊 강제 테스트 통계</div>
+            <div class="stat-row" style="display: flex; justify-content: space-between;"><span>테스트 결과</span><span>성공</span></div>
+        </div>
+    `;
+    document.getElementById('achievements').innerHTML = `
+        <div class="achievements-title" style="color: #ffaa00; margin-bottom: 10px;">🏆 달성한 업적</div>
+        <div class="achievement-item" style="background: rgba(255,170,0,0.2); border: 1px solid #ffaa00; padding: 8px;">🎖️ JS 파일 수정 성공!</div>
+    `;
+    
+    // 강제로 결과화면 표시
+    showScreen('resultsScreen');
+    
+    console.log('🚀 강제 결과화면 표시 완료!');
         
     } else {
         console.log('다음 턴 진행:', result.status);
@@ -1880,6 +1889,7 @@ console.log(`
 `);
 
 console.log('🎨 UI 시스템 로딩 완료!');
+
 
 
 
