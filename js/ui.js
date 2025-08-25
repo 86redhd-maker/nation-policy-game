@@ -41,27 +41,35 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
     
-   waitForData(() => {
-    // 1. 데이터 로드가 완료되면, 게임 화면이 아닌
-    //    '시작 화면'을 초기화하는 함수를 호출합니다.
-    initializeStartScreen();
-
-    updateStatusBar('게임 준비 완료');
-});
+    waitForData(() => {
+        initializeStartScreen();
+        updateStatusBar('게임 준비 완료');
+    });
 });
 
 // 시작 화면 초기화
 function initializeStartScreen() {
     try {
-        console.log('시작 화면 초기화 시작');
+        const nationsGrid = document.querySelector('.nations-grid');
+        if (!nationsGrid) {
+            console.error('nations-grid 요소를 찾을 수 없습니다');
+            return;
+        }
         
-        // 이 함수는 단순히 'startScreen'을 활성화하는 역할만 수행해야 합니다.
-        // 게임 상태에 의존하는 코드는 이곳에 있으면 안 됩니다.
-        showScreen('startScreen');
+        nationsGrid.innerHTML = '';
+
+        // NATIONS_DATA 사용, 없으면 fallback
+        const nationsData = window.NATIONS_DATA || createFallbackNationsData();
+
+        Object.entries(nationsData).forEach(([nationName, nationData]) => {
+            const card = createNationCard(nationName, nationData);
+            nationsGrid.appendChild(card);
+        });
         
-        console.log('시작 화면 초기화 완료');
+        console.log('국가 카드 생성 완료:', Object.keys(nationsData).length + '개');
     } catch (error) {
         console.error('시작 화면 초기화 실패:', error);
+        createFallbackCards();
     }
 }
 
@@ -1691,6 +1699,7 @@ console.log(`
 `);
 
 console.log('🎨 UI 시스템 로딩 완료!');
+
 
 
 
