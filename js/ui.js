@@ -1,6 +1,7 @@
 // UI 상태 관리
 let selectedNationName = null;
 let currentEvent = null;
+let currentActiveCategory = '복지';
 
 // 화면 전환 함수
 function showScreen(screenId) {
@@ -47,28 +48,20 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 // 시작 화면 초기화
-function initializeStartScreen() {
+function initializeGameScreen(gameStatus) {
     try {
-        const nationsGrid = document.querySelector('.nations-grid');
-        if (!nationsGrid) {
-            console.error('nations-grid 요소를 찾을 수 없습니다');
-            return;
-        }
-        
-        nationsGrid.innerHTML = '';
-
-        // NATIONS_DATA 사용, 없으면 fallback
-        const nationsData = window.NATIONS_DATA || createFallbackNationsData();
-
-        Object.entries(nationsData).forEach(([nationName, nationData]) => {
-            const card = createNationCard(nationName, nationData);
-            nationsGrid.appendChild(card);
-        });
-        
-        console.log('국가 카드 생성 완료:', Object.keys(nationsData).length + '개');
+        console.log('게임 화면 초기화 시작:', gameStatus);
+        updateGameHeader(gameStatus);
+        updateIndicators(gameStatus.indicators);
+        initializeCategoryTabs(); // 새로 추가
+        updateCategoryStats(gameStatus); // 새로 추가
+        loadPoliciesForCategory(currentActiveCategory); // 수정
+        updateBudgetDisplay(gameStatus.budget, gameStatus.debtLimit);
+        updateTurnInfo(gameStatus); // 새로 추가
+        clearPolicySelection();
+        console.log('게임 화면 초기화 완료');
     } catch (error) {
-        console.error('시작 화면 초기화 실패:', error);
-        createFallbackCards();
+        console.error('게임 화면 초기화 실패:', error);
     }
 }
 
@@ -426,6 +419,153 @@ function updateBudgetDisplay(budget, debtLimit) {
     }
 }
 
+// 카테고리 탭 초기화
+function initializeCategoryTabs() {
+    // 모든 탭에 클릭 이벤트 추가
+    const tabs = document.querySelectorAll('.tab-btn');
+    tabs.forEach(tab => {
+        const category = tab.dataset.category;
+        tab.onclick = () => switchToCategory(category);
+    });
+    
+    // 첫 번째 탭 활성화
+    switchToCategory(currentActiveCategory);
+}
+
+// 카테고리 전환 함수
+function switchToCategory(category) {
+    console.log('카테고리 전환:', category);
+    
+    // 탭 활성화 상태 변경
+    document.querySelectorAll('.tab-btn').forEach(tab => {
+        tab.classList.remove('active');
+        if (tab.dataset.category === category) {
+            tab.classList.add('active');
+        }
+    });
+    
+    // 현재 카테고리 업데이트
+    currentActiveCategory = category;
+    
+    // 해당 카테고리 정책들 로드
+    loadPoliciesForCategory(category);
+    
+    // 선택 요약 업데이트
+    updateSelectionSummary();
+    
+    if (typeof gameUtils !== 'undefined') {
+        gameUtils.playSound('select');
+    }
+}
+
+// 카테고리별 통계 업데이트
+function updateCategoryStats(gameStatus) {
+    if (!gameStatus.categoryStats) return;
+    
+    Object.entries(gameStatus.categoryStats).forEach(([category, count]) => {
+        const tabElement = document.querySelector(`[data-category="${category}"]`);
+        const countElement = document.getElementById(`tab-${category}`);
+        
+        if (tabElement && countElement) {
+            // 카운트 표시 업데이트
+            countElement.textContent = `${count}/4`;
+            
+            // 제한 상태에 따른 스타일 적용
+            tabElement.classList.remove('disabled', 'limited');
+            
+            if (count >= 4) {
+                tabElement.classList.add('disabled');
+                tabElement.title = `${category}: 최대 선택 완료 (${count}/4)`;
+            } else if (count >= 3) {
+                tabElement.classList.add('limited');
+                tabElement.title = `${category}: 제한 임박 (${count}/4)`;
+            } else {
+                tabElement.title = `${category}: ${count}/4 선택됨`;
+            }
+        }
+    });
+}
+
+// 턴 정보 업데이트
+function updateTurnInfo(gameStatus) {
+    const turnDisplay = document.getElementById('turnDisplay');
+    const selectionCount = document.getElementById('selectionCount');
+    const budgetQuick = document.getElementById('budgetQuick');
+    
+    if (turnDisplay) {
+        turnDisplay.textContent = `턴 ${gameStatus.turn}/${gameStatus.maxTurns}`;
+    }
+    
+    if (selectionCount) {
+        const selectedCount = gameStatus.currentSelection ? gameStatus.currentSelection.length : 0;
+        selectionCount.textContent = `선택: ${selectedCount}/2`;
+        
+        // 색상 변경
+        if (selectedCount === 0) {
+            selectionCount.style.color = '#888888';
+        } else if (selectedCount === 2) {
+            selectionCount.style.color = '#00ff88';
+        } else {
+            selectionCount.style.color = '#ffaa00';
+        }
+    }
+    
+    if (budgetQuick) {
+        let budgetText = `예산: ${gameStatus.budget}pt`;
+        if (gameStatus.budget < 0) {
+            budgetText = `적자: ${Math.abs(gameStatus.budget)}pt`;
+            budgetQuick.style.color = '#ff6666';
+        } else {
+            budgetQuick.style.color = '#88aaff';
+        }
+        budgetQuick.textContent = budgetText;
+    }
+}
+
+// 현재 선택 미리보기 업데이트
+function updateCurrentSelectionPreview() {
+    if (typeof gameAPI === 'undefined') return;
+    
+    const gameStatus = gameAPI.getGameStatus();
+    const previewContainer = document.getElementById('currentSelectionPreview');
+    const previewPolicies = document.getElementById('previewPolicies');
+    
+    if (!previewContainer || !previewPolicies) return;
+    
+    if (gameStatus.currentSelection.length === 0) {
+        previewContainer.style.display = 'none';
+        return;
+    }
+    
+    previewContainer.style.display = 'block';
+    previewPolicies.innerHTML = '';
+    
+    gameStatus.currentSelection.forEach(policyName => {
+        const category = gameAPI.findPolicyCategory(policyName);
+        const categoryIcon = getCategoryIcon(category);
+        
+        const policyItem = document.createElement('div');
+        policyItem.className = 'preview-policy-item';
+        policyItem.innerHTML = `
+            <span>${categoryIcon} ${policyName}</span>
+            <button class="preview-remove-btn" onclick="deselectPolicy('${policyName}')">✕</button>
+        `;
+        previewPolicies.appendChild(policyItem);
+    });
+}
+
+// 카테고리 아이콘 가져오기
+function getCategoryIcon(category) {
+    const icons = {
+        '복지': '❤️',
+        '경제': '💰', 
+        '환경': '🌱',
+        '교육': '📚',
+        '외교': '🤝'
+    };
+    return icons[category] || '📋';
+}
+
 // 카테고리별 정책 로드
 function loadPoliciesForCategory(category) {
     try {
@@ -631,15 +771,25 @@ function updatePolicyCards() {
         const policyName = card.querySelector('.policy-name').textContent;
         const isSelected = gameStatus.currentSelection.includes(policyName);
         
+        // 선택 상태 업데이트
         card.classList.toggle('selected', isSelected);
+        
+        // 카테고리 제한 체크
+        const category = gameAPI.findPolicyCategory(policyName);
+        const canSelect = gameAPI.canSelectFromCategory(category);
+        
+        if (!canSelect && !isSelected) {
+            card.classList.add('category-disabled');
+        } else {
+            card.classList.remove('category-disabled');
+        }
     });
 
     // 선택 정보 업데이트
-    const selectionInfo = document.getElementById('selectionInfo');
-    if (selectionInfo && typeof GAME_CONFIG !== 'undefined') {
-        selectionInfo.textContent = 
-            `${gameStatus.currentSelection.length}/${GAME_CONFIG.policies_per_turn} 선택됨`;
-    }
+    updateTurnInfo(gameStatus);
+    updateCurrentSelectionPreview();
+    updateCategoryStats(gameStatus);
+}
 }
 
 // 선택 요약 업데이트
@@ -681,7 +831,11 @@ function updateSelectionSummary() {
         <div class="summary-content">
             <div class="summary-policies">
                 <strong>선택된 정책:</strong><br>
-                ${calculation.policies.join('<br>')}
+                ${calculation.policies.map(policy => {
+                    const category = gameAPI.findPolicyCategory(policy);
+                    const icon = getCategoryIcon(category);
+                    return `${icon} ${policy}`;
+                }).join('<br>')}
                 <br><br>
                 <strong>총 비용:</strong> ${calculation.totalCost}pt<br>
                 <strong>예산 충족:</strong> ${calculation.canAfford ? '✅ 가능' : '❌ 불가능'}
@@ -706,6 +860,16 @@ function clearSelection() {
         updatePolicyCards();
         updateSelectionSummary();
         if (typeof gameUtils !== 'undefined') gameUtils.playSound('select');
+    }
+}
+
+// 전체 정책 개요
+function showAllPoliciesOverview() {
+    // 전체 정책 개요 팝업 (추후 구현)
+    if (typeof gameUtils !== 'undefined') {
+        gameUtils.showToast('전체 정책 개요 기능은 추후 구현 예정입니다', 'info');
+    } else {
+        alert('전체 정책 개요 기능은 추후 구현 예정입니다');
     }
 }
 
@@ -797,7 +961,9 @@ function proceedToNextTurn() {
     } else {
         // 새 턴 UI 업데이트
         updateGameHeader(result.status);
-        loadPoliciesForCategory(result.status.category);
+        updateCategoryStats(result.status); // 추가
+        updateTurnInfo(result.status); // 추가
+        loadPoliciesForCategory(currentActiveCategory); // 현재 활성 카테고리 유지
         clearPolicySelection();
         
         if (typeof gameUtils !== 'undefined') {
@@ -1523,4 +1689,5 @@ console.log(`
 `);
 
 console.log('🎨 UI 시스템 로딩 완료!');
+
 
