@@ -127,12 +127,10 @@ findPolicyCategory(policyName) {
 
     // 선택 가능한 정책이 있는지 확인
     hasSelectablePolicies() {
-        const currentCategory = this.getCurrentCategory();
-        if (!currentCategory) return false;
+        // '자유선택' 모드이므로 모든 카테고리를 확인합니다.
+        const allPolicies = Object.values(POLICIES_DATA).flat();
         
-        const policies = GameData.getPoliciesByCategory(currentCategory);
-        
-        return policies.some(policy => {
+        return allPolicies.some(policy => {
             // 예산 확인
             const cost = this.calculatePolicyCost(policy);
             const canAfford = this.budget - cost >= this.debtLimit;
@@ -140,7 +138,11 @@ findPolicyCategory(policyName) {
             // 요구조건 확인
             const requirementsMet = this.checkPolicyRequirements(policy);
             
-            return canAfford && requirementsMet;
+            // 카테고리 선택 제한 확인
+            const category = this.findPolicyCategory(policy.정책명);
+            const canSelectCategory = this.canSelectFromCategory(category);
+            
+            return canAfford && requirementsMet && canSelectCategory;
         });
     }
     
@@ -169,7 +171,7 @@ findPolicyCategory(policyName) {
         // 턴 기록
         this.turnHistory.push({
             turn: this.currentTurn,
-            category: this.getCurrentCategory(),
+            category: '자유선택',
             policies: ['턴 스킵'],
             cost: 0,
             effects: skipPenalty,
@@ -207,10 +209,10 @@ findPolicyCategory(policyName) {
             }
         });
         
-        // 기록 (getCurrentCategory() 부분 수정)
+        // 기록
         this.turnHistory.push({
             turn: this.currentTurn,
-            category: '자유선택', // 수정된 부분
+            category: '자유선택',
             policies: [...this.currentSelection],
             cost: result.totalCost,
             effects: result.totalEffects,
@@ -294,12 +296,8 @@ findPolicyCategory(policyName) {
     calculatePolicyCost(policy) {
         let cost = policy.비용;
 
-        // 국가별 비용 조정
-        if (this.currentNation === '복지 강국' && this.getCurrentCategory() === '복지') {
-            cost = Math.floor(cost * 0.85); // 15% 할인
-        } else if (this.currentNation === '기술 선진국' && this.getCurrentCategory() === '복지') {
-            cost = Math.floor(cost * 1.3); // 30% 증가
-        } else if (this.currentNation === '위기국가') {
+        // '자유선택' 모드이므로 카테고리별 비용 조정 로직 제거
+        if (this.currentNation === '위기국가') {
             cost = Math.floor(cost * 1.2); // 20% 증가
         }
 
@@ -394,7 +392,7 @@ findPolicyCategory(policyName) {
         
         return {
             turn: this.currentTurn,
-            category: this.getCurrentCategory(),
+            category: '자유선택',
             budget: this.budget
         };
     }
@@ -922,8 +920,3 @@ window.gameUtils = {
     addAnimation,
     playSound
 };
-
-
-
-
-
