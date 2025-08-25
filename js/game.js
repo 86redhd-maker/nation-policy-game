@@ -64,7 +64,7 @@ class GameState {
     return this.categoryStats[category] < 4;
     }
 
-   / 정책이 속한 카테고리 찾기
+    // 정책이 속한 카테고리 찾기
 findPolicyCategory(policyName) {
     // 기본 정책에서 찾기
     for (const [category, policies] of Object.entries(POLICIES_DATA)) {
@@ -922,6 +922,7 @@ window.gameUtils = {
     addAnimation,
     playSound
 };
+
 
 
 
