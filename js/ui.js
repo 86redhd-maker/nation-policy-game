@@ -464,14 +464,20 @@ function hidePopup(popupId) {
 document.addEventListener('DOMContentLoaded', function() {
     console.log('UI 시스템 초기화 시작');
     
-    // 데이터 로드 확인
-    if (typeof NATIONS_DATA === 'undefined') {
-        console.error('게임 데이터가 로드되지 않았습니다!');
-        return;
+    // 데이터 로드를 기다리는 함수
+    function waitForData(callback) {
+        if (typeof NATIONS_DATA !== 'undefined' && typeof GameData !== 'undefined') {
+            callback();
+        } else {
+            console.log('게임 데이터 로딩 대기 중...');
+            setTimeout(() => waitForData(callback), 100);
+        }
     }
     
-    initializeStartScreen();
-    updateStatusBar('게임 준비 완료');
+    waitForData(() => {
+        initializeStartScreen();
+        updateStatusBar('게임 준비 완료');
+    });
 });
 
 // 시작 화면 초기화
@@ -483,17 +489,85 @@ function initializeStartScreen() {
             return;
         }
         
+        // 기존 내용 제거
         nationsGrid.innerHTML = '';
 
-        Object.entries(NATIONS_DATA).forEach(([nationName, nationData]) => {
+        // NATIONS_DATA가 없으면 직접 생성 (fallback)
+        const nationsData = window.NATIONS_DATA || {
+            "복지 강국": {
+                "description": "복지 수준이 높지만 재정 부담과 제도 피로도가 존재함",
+                "difficulty": "하",
+                "difficulty_stars": 1,
+                "initial_budget": 100,
+                "debt_limit": -70,
+                "flag_colors": ["#ff6b6b", "#4ecdc4"]
+            },
+            "자원 풍부국": {
+                "description": "자원이 풍부하지만 환경 갈등이 잦고 산업 의존도가 높음",
+                "difficulty": "중",
+                "difficulty_stars": 2,
+                "initial_budget": 90,
+                "debt_limit": -40,
+                "flag_colors": ["#f39c12", "#27ae60"]
+            },
+            "기술 선진국": {
+                "description": "기술력이 뛰어나지만 시민 신뢰도가 낮고 윤리 갈등이 존재함",
+                "difficulty": "상",
+                "difficulty_stars": 3,
+                "initial_budget": 110,
+                "debt_limit": -60,
+                "flag_colors": ["#9b59b6", "#3498db"]
+            },
+            "신흥 개발국": {
+                "description": "성장 중인 국가로 인프라 부족과 사회 불균형이 문제",
+                "difficulty": "중",
+                "difficulty_stars": 2,
+                "initial_budget": 85,
+                "debt_limit": -35,
+                "flag_colors": ["#e74c3c", "#f1c40f"]
+            },
+            "위기국가": {
+                "description": "정치·사회·경제 모두 불안정한 상태에서 재건이 필요한 국가",
+                "difficulty": "상",
+                "difficulty_stars": 3,
+                "initial_budget": 60,
+                "debt_limit": -20,
+                "flag_colors": ["#2c3e50", "#e74c3c"]
+            }
+        };
+
+        Object.entries(nationsData).forEach(([nationName, nationData]) => {
             const card = createNationCard(nationName, nationData);
             nationsGrid.appendChild(card);
         });
         
-        console.log('국가 카드 생성 완료');
+        console.log('국가 카드 생성 완료:', Object.keys(nationsData).length + '개');
     } catch (error) {
         console.error('시작 화면 초기화 실패:', error);
+        // 에러가 발생해도 기본 카드라도 표시
+        createFallbackCards();
     }
+}
+
+// 폴백 카드 생성 함수
+function createFallbackCards() {
+    const nationsGrid = document.querySelector('.nations-grid');
+    if (!nationsGrid) return;
+    
+    const basicNations = ['복지 강국', '자원 풍부국', '기술 선진국', '신흥 개발국', '위기국가'];
+    
+    basicNations.forEach(name => {
+        const card = document.createElement('div');
+        card.className = 'nation-card';
+        card.onclick = () => selectNation(name);
+        card.innerHTML = `
+            <div class="nation-flag" style="background: linear-gradient(45deg, #333, #666);"></div>
+            <div class="nation-name">${name}</div>
+            <div class="difficulty-stars">★★☆</div>
+            <div class="nation-description">국가 설명을 로딩 중...</div>
+        `;
+        nationsGrid.appendChild(card);
+    });
 }
 
 // 국가 카드 생성
