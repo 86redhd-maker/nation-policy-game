@@ -3,12 +3,45 @@ let selectedNationName = null;
 let currentEvent = null;
 let currentActiveCategory = '복지';
 
-// 화면 전환 함수
+// 화면 전환 함수 - 디버그 추가
 function showScreen(screenId) {
+    console.log('화면 전환 시도:', screenId);
+    
+    const targetScreen = document.getElementById(screenId);
+    if (!targetScreen) {
+        console.error(`화면을 찾을 수 없습니다: ${screenId}`);
+        return false;
+    }
+    
     document.querySelectorAll('.screen').forEach(screen => {
         screen.classList.remove('active');
+        console.log('화면 비활성화:', screen.id);
     });
-    document.getElementById(screenId).classList.add('active');
+    
+    targetScreen.classList.add('active');
+    console.log('화면 활성화 완료:', screenId);
+    
+    // 결과 화면의 경우 추가 확인
+    if (screenId === 'resultsScreen') {
+        const elements = {
+            finalTitle: document.getElementById('finalTitle'),
+            endingInfo: document.getElementById('endingInfo'),
+            finalStats: document.getElementById('finalStats'),
+            achievements: document.getElementById('achievements')
+        };
+        
+        console.log('결과 화면 요소 확인:', elements);
+        
+        Object.entries(elements).forEach(([key, element]) => {
+            if (!element) {
+                console.error(`결과 화면 요소 누락: ${key}`);
+            } else {
+                console.log(`${key} 요소 발견:`, element.tagName);
+            }
+        });
+    }
+    
+    return true;
 }
 
 // 팝업 표시/숨김
@@ -951,13 +984,19 @@ function showCitizenReactions(policies) {
     }, 5000);
 }
 
-// 다음 턴 진행
+// 다음 턴 진행 - 수정된 버전
 function proceedToNextTurn() {
-    if (typeof gameAPI === 'undefined') return;
+    if (typeof gameAPI === 'undefined') {
+        console.error('gameAPI가 정의되지 않음');
+        return;
+    }
     
+    console.log('다음 턴 진행 시작');
     const result = gameAPI.advanceToNextTurn();
+    console.log('턴 진행 결과:', result);
     
     if (!result.success) {
+        console.error('턴 진행 실패:', result.error);
         if (typeof gameUtils !== 'undefined') {
             gameUtils.showToast(result.error, 'error');
         } else {
@@ -967,13 +1006,30 @@ function proceedToNextTurn() {
     }
 
     if (result.finished) {
-        showResultsScreen(result);
+        console.log('게임 완료! 결과 화면 표시');
+        console.log('게임 결과 데이터:', result);
+        
+        // 잠시 대기 후 결과 화면 표시 (UI 업데이트 완료를 위해)
+        setTimeout(() => {
+            const success = showResultsScreen(result);
+            if (!success) {
+                console.error('결과 화면 표시 실패, 대안 방법 시도');
+                // 대안: 간단한 알림으로라도 게임 완료를 알림
+                if (typeof gameUtils !== 'undefined') {
+                    gameUtils.showToast('게임이 완료되었습니다! 결과를 확인하세요.', 'success');
+                } else {
+                    alert('게임이 완료되었습니다!');
+                }
+            }
+        }, 100);
+        
     } else {
+        console.log('다음 턴 진행:', result.status);
         // 새 턴 UI 업데이트
         updateGameHeader(result.status);
-        updateCategoryStats(result.status); // 추가
-        updateTurnInfo(result.status); // 추가
-        loadPoliciesForCategory(currentActiveCategory); // 현재 활성 카테고리 유지
+        updateCategoryStats(result.status);
+        updateTurnInfo(result.status);
+        loadPoliciesForCategory(currentActiveCategory);
         clearPolicySelection();
         
         if (typeof gameUtils !== 'undefined') {
@@ -1071,71 +1127,116 @@ function selectEventChoice(choiceKey) {
     }
 }
 
-// 결과 화면 표시
+// 결과 화면 표시 - 수정된 버전
 function showResultsScreen(gameResult) {
     try {
-        let stats = null;
-        if (typeof gameAPI !== 'undefined') {
-            stats = gameAPI.calculateGameStats();
-        } else {
-            // 기본 통계
-            stats = {
-                totalScore: gameResult.totalScore || 0,
-                budgetUsed: 0,
-                budgetEfficiency: 0,
-                citizenSatisfaction: 0,
-                sustainability: 0,
-                policiesSelected: 0,
-                turnsCompleted: 5
+        console.log('결과 화면 표시 시작:', gameResult);
+        
+        // 게임 결과가 없으면 기본값 생성
+        if (!gameResult) {
+            console.log('gameResult가 없음, 기본값 생성');
+            gameResult = {
+                totalScore: 0,
+                ending: { grade: 'C급', title: '발전 중인 국가', description: '아직 갈 길이 멀지만 변화의 기초를 다졌습니다.' },
+                finalIndicators: {},
+                selectedPolicies: []
             };
         }
-        
-        const finalTitle = document.getElementById('finalTitle');
-        if (finalTitle) {
-            finalTitle.innerHTML = `${gameResult.ending.grade} ${gameResult.ending.title}`;
+
+        // 엔딩이 없으면 기본값 생성
+        if (!gameResult.ending) {
+            gameResult.ending = {
+                grade: 'C급',
+                title: '발전 중인 국가',
+                description: '아직 갈 길이 멀지만 변화의 기초를 다졌습니다.'
+            };
+        }
+
+        // 통계 계산
+        let stats = {
+            totalScore: gameResult.totalScore || 0,
+            budgetUsed: 0,
+            budgetEfficiency: 0,
+            citizenSatisfaction: 0,
+            sustainability: 0,
+            policiesSelected: (gameResult.selectedPolicies || []).length,
+            turnsCompleted: 5
+        };
+
+        if (typeof gameAPI !== 'undefined') {
+            try {
+                const calculatedStats = gameAPI.calculateGameStats();
+                if (calculatedStats) {
+                    stats = { ...stats, ...calculatedStats };
+                }
+            } catch (error) {
+                console.warn('통계 계산 실패, 기본값 사용:', error);
+            }
         }
         
-        // 엔딩 정보
+        // 최종 타이틀 업데이트
+        const finalTitle = document.getElementById('finalTitle');
+        if (finalTitle) {
+            finalTitle.innerHTML = `${gameResult.ending.grade}<br>${gameResult.ending.title}`;
+            console.log('최종 타이틀 설정 완료');
+        } else {
+            console.warn('finalTitle 요소를 찾을 수 없음');
+        }
+        
+        // 엔딩 정보 업데이트
         const endingInfo = document.getElementById('endingInfo');
         if (endingInfo) {
             endingInfo.innerHTML = `
                 <div class="ending-title">${gameResult.ending.title}</div>
                 <div class="ending-description">${gameResult.ending.description}</div>
-                <div class="final-score">최종 점수: ${gameResult.totalScore}/40</div>
+                <div class="final-score">
+                    <strong>최종 점수: ${gameResult.totalScore}/40점</strong>
+                </div>
             `;
+            console.log('엔딩 정보 설정 완료');
+        } else {
+            console.warn('endingInfo 요소를 찾을 수 없음');
         }
         
-        // 최종 통계
+        // 최종 통계 업데이트
         const finalStats = document.getElementById('finalStats');
-        if (finalStats && gameResult.finalIndicators) {
+        if (finalStats) {
             let indicatorRows = '';
             
-            Object.entries(gameResult.finalIndicators).forEach(([indicator, value]) => {
-                let indicatorName = indicator;
-                let change = 0;
-                let changeText = '+0';
-                let changeClass = 'positive';
-                
-                // 지표 이름 가져오기
-                if (typeof GameData !== 'undefined') {
-                    const info = GameData.getIndicatorInfo(indicator);
-                    if (info) indicatorName = info.name;
-                }
-                
-                // 변화량 계산
-                if (typeof gameState !== 'undefined' && gameState.initialIndicators) {
-                    change = value - (gameState.initialIndicators[indicator] || 0);
-                    changeText = change >= 0 ? `+${change}` : change.toString();
-                    changeClass = change >= 0 ? 'positive' : 'negative';
-                }
-                
-                indicatorRows += `
-                    <div class="stat-row">
-                        <span>${indicatorName}</span>
-                        <span class="${changeClass}">${value} (${changeText})</span>
-                    </div>
-                `;
-            });
+            if (gameResult.finalIndicators && Object.keys(gameResult.finalIndicators).length > 0) {
+                Object.entries(gameResult.finalIndicators).forEach(([indicator, value]) => {
+                    let indicatorName = indicator;
+                    let change = 0;
+                    let changeText = '+0';
+                    let changeClass = 'positive';
+                    
+                    // 지표 이름 가져오기
+                    if (typeof GameData !== 'undefined') {
+                        const info = GameData.getIndicatorInfo(indicator);
+                        if (info) indicatorName = info.name;
+                    }
+                    
+                    // 변화량 계산
+                    try {
+                        if (typeof gameState !== 'undefined' && gameState && gameState.initialIndicators) {
+                            change = value - (gameState.initialIndicators[indicator] || 0);
+                            changeText = change >= 0 ? `+${change}` : change.toString();
+                            changeClass = change >= 0 ? 'positive' : 'negative';
+                        }
+                    } catch (error) {
+                        console.warn('변화량 계산 오류:', error);
+                    }
+                    
+                    indicatorRows += `
+                        <div class="stat-row">
+                            <span>${indicatorName}</span>
+                            <span class="${changeClass}">${value} (${changeText})</span>
+                        </div>
+                    `;
+                });
+            } else {
+                indicatorRows = '<div class="stat-row"><span>지표 데이터 없음</span></div>';
+            }
             
             finalStats.innerHTML = `
                 <div class="stat-group">
@@ -1175,30 +1276,77 @@ function showResultsScreen(gameResult) {
                     </div>
                 </div>
             `;
+            console.log('최종 통계 설정 완료');
+        } else {
+            console.warn('finalStats 요소를 찾을 수 없음');
         }
         
         // 업적 표시
-        const achievements = calculateAchievements(gameResult, stats);
-        const achievementsElement = document.getElementById('achievements');
-        if (achievementsElement) {
-            achievementsElement.innerHTML = `
-                <div class="achievements-title">🏆 달성한 업적</div>
-                ${achievements.length > 0 ? 
-                    achievements.map(achievement => 
-                        `<div class="achievement-item">${achievement}</div>`
-                    ).join('') : 
-                    '<div class="achievement-item">달성한 업적이 없습니다</div>'
-                }
-            `;
+        try {
+            const achievements = calculateAchievements(gameResult, stats);
+            const achievementsElement = document.getElementById('achievements');
+            if (achievementsElement) {
+                achievementsElement.innerHTML = `
+                    <div class="achievements-title">🏆 달성한 업적</div>
+                    ${achievements.length > 0 ? 
+                        achievements.map(achievement => 
+                            `<div class="achievement-item">${achievement}</div>`
+                        ).join('') : 
+                        '<div class="achievement-item">🎖️ 게임 완주 - 5턴 완주 달성!</div>'
+                    }
+                `;
+                console.log('업적 설정 완료:', achievements.length);
+            } else {
+                console.warn('achievements 요소를 찾을 수 없음');
+            }
+        } catch (error) {
+            console.warn('업적 계산 실패:', error);
         }
         
+        // 화면 전환
+        console.log('결과 화면으로 전환 시작');
         showScreen('resultsScreen');
+        
+        // 효과음 및 상태 업데이트
         if (typeof gameUtils !== 'undefined') gameUtils.playSound('success');
         updateStatusBar('게임 완료!');
         
-        console.log('결과 화면 표시 완료');
+        console.log('결과 화면 표시 완료!');
+        return true;
+        
     } catch (error) {
         console.error('결과 화면 표시 실패:', error);
+        console.error('Error Stack:', error.stack);
+        
+        // 폴백 처리 - 기본 결과 화면 표시
+        try {
+            const finalTitle = document.getElementById('finalTitle');
+            if (finalTitle) {
+                finalTitle.innerHTML = '🎮 게임 완료!';
+            }
+            
+            const endingInfo = document.getElementById('endingInfo');
+            if (endingInfo) {
+                endingInfo.innerHTML = `
+                    <div class="ending-title">게임을 완주하셨습니다!</div>
+                    <div class="ending-description">모든 정책 선택을 마치고 5턴을 완주했습니다.</div>
+                    <div class="final-score">최종 점수: 계산 중...</div>
+                `;
+            }
+            
+            showScreen('resultsScreen');
+            updateStatusBar('게임 완료 (오류 발생)');
+            
+            if (typeof gameUtils !== 'undefined') {
+                gameUtils.showToast('결과 화면 로딩 중 일부 오류가 발생했습니다', 'warning');
+            }
+            
+        } catch (fallbackError) {
+            console.error('폴백 결과 화면도 실패:', fallbackError);
+            alert('결과 화면 표시에 오류가 발생했습니다. 콘솔을 확인해주세요.');
+        }
+        
+        return false;
     }
 }
 
@@ -1699,4 +1847,5 @@ console.log(`
 `);
 
 console.log('🎨 UI 시스템 로딩 완료!');
+
 
