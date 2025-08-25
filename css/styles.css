@@ -1455,6 +1455,8 @@ body::before {
     margin-bottom: 30px !important;
     text-align: center !important;
     min-height: 60px !important;
+    line-height: 1.5 !important;
+    padding: 10px !important;
 }
 
 #endingInfo {
@@ -1464,6 +1466,31 @@ body::before {
     padding: 20px !important;
     margin-bottom: 20px !important;
     min-height: 100px !important;
+    color: #ffffff !important;
+    font-size: 10px !important;
+    line-height: 1.4 !important;
+}
+
+#endingInfo .ending-title {
+    font-size: 14px !important;
+    color: #00ff88 !important;
+    margin-bottom: 10px !important;
+    display: block !important;
+}
+
+#endingInfo .ending-description {
+    font-size: 10px !important;
+    color: #cccccc !important;
+    line-height: 1.4 !important;
+    margin-bottom: 15px !important;
+    display: block !important;
+}
+
+#endingInfo .final-score {
+    font-size: 12px !important;
+    color: #ffffff !important;
+    margin-top: 10px !important;
+    display: block !important;
 }
 
 #finalStats {
@@ -1480,3 +1507,4 @@ body::before {
     margin-bottom: 20px !important;
     min-height: 100px !important;
 }
+
