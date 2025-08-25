@@ -86,58 +86,72 @@
                 </div>
             </div>
 
-            <!-- 정책 선택 영역 -->
-            <div class="policy-section">
-                <div class="category-header">
-                    <span class="category-title" id="categoryTitle">📋 정책 카테고리</span>
-                    <span class="selection-info" id="selectionInfo">0/2 선택됨</span>
-                    <span class="category-description" id="categoryDescription">정책 설명</span>
-                </div>
-                
-                <div class="policies-grid" id="policiesGrid">
-                    <!-- 정책 카드들은 JS에서 동적 생성 -->
-                </div>
-
-                <div class="selection-summary" id="selectionSummary">
-                    <!-- 선택된 정책 요약 -->
-                </div>
-
-                <!-- 교착상태 경고는 JS에서 동적으로 추가됨 -->
-
-                <div class="action-buttons">
-                    <button class="pixel-btn" onclick="confirmPolicies()" id="confirmBtn" disabled>
-                        ✅ 정책 확정
-                    </button>
-                    <button class="pixel-btn secondary" onclick="clearSelection()">
-                        🔄 선택 초기화
-                    </button>
-                    <button class="pixel-btn secondary" onclick="showPolicyHelp()">
-                        💡 정책 도움말
-                    </button>
-                </div>
+            <!-- 정책 선택 영역 - 새로운 자유 선택 시스템 -->
+<div class="policy-section">
+    <!-- 새로운 정책 헤더 -->
+    <div class="policy-header-new">
+        <div class="turn-info">
+            <span class="turn-display" id="turnDisplay">턴 1/5</span>
+            <span class="selection-count" id="selectionCount">선택: 0/2</span>
+            <span class="budget-quick" id="budgetQuick">예산: 100pt</span>
+        </div>
+        
+        <!-- 카테고리 탭들 -->
+        <div class="category-tabs" id="categoryTabs">
+            <button class="tab-btn active" data-category="복지" onclick="switchToCategory('복지')">
+                ❤️ 복지 <span class="tab-count" id="tab-복지">0/4</span>
+            </button>
+            <button class="tab-btn" data-category="경제" onclick="switchToCategory('경제')">
+                💰 경제 <span class="tab-count" id="tab-경제">0/4</span>
+            </button>
+            <button class="tab-btn" data-category="환경" onclick="switchToCategory('환경')">
+                🌱 환경 <span class="tab-count" id="tab-환경">0/4</span>
+            </button>
+            <button class="tab-btn" data-category="교육" onclick="switchToCategory('교육')">
+                📚 교육 <span class="tab-count" id="tab-교육">0/4</span>
+            </button>
+            <button class="tab-btn" data-category="외교" onclick="switchToCategory('외교')">
+                🤝 외교 <span class="tab-count" id="tab-외교">0/4</span>
+            </button>
+        </div>
+        
+        <!-- 현재 선택된 정책들 미리보기 -->
+        <div class="current-selection-preview" id="currentSelectionPreview" style="display: none;">
+            <div class="preview-title">📋 현재 선택된 정책:</div>
+            <div class="preview-policies" id="previewPolicies">
+                <!-- 선택된 정책들이 여기에 표시됩니다 -->
             </div>
         </div>
+    </div>
+    
+    <!-- 정책 그리드 (기존과 동일) -->
+    <div class="policies-grid" id="policiesGrid">
+        <!-- 정책 카드들은 JS에서 동적 생성 -->
+    </div>
 
-        <!-- 이벤트 화면 (팝업) -->
-        <div id="eventPopup" class="popup-overlay">
-            <div class="popup-content event-popup">
-                <div class="popup-header">
-                    <h3 id="eventTitle">📢 긴급 상황 발생!</h3>
-                    <div class="event-type" id="eventType">랜덤 이벤트</div>
-                </div>
-                <div class="popup-body">
-                    <div class="event-description-box">
-                        <p id="eventDescription">이벤트 설명이 여기에 표시됩니다.</p>
-                    </div>
-                    <div class="event-effects" id="eventEffects">
-                        <!-- 이벤트 효과 표시 -->
-                    </div>
-                    <div class="event-choices" id="eventChoices">
-                        <!-- 이벤트 선택지들 -->
-                    </div>
-                </div>
-            </div>
-        </div>
+    <!-- 선택 요약 (기존과 동일하지만 위치 조정) -->
+    <div class="selection-summary" id="selectionSummary">
+        <!-- 선택된 정책 요약 -->
+    </div>
+
+    <!-- 교착상태 경고는 JS에서 동적으로 추가됨 -->
+
+    <!-- 액션 버튼들 -->
+    <div class="action-buttons">
+        <button class="pixel-btn" onclick="confirmPolicies()" id="confirmBtn" disabled>
+            ✅ 정책 확정
+        </button>
+        <button class="pixel-btn secondary" onclick="clearSelection()">
+            🔄 선택 초기화
+        </button>
+        <button class="pixel-btn secondary" onclick="showAllPoliciesOverview()">
+            👁️ 전체 정책 개요
+        </button>
+        <button class="pixel-btn secondary" onclick="showPolicyHelp()">
+            💡 정책 도움말
+        </button>
+    </div>
+</div>
 
         <!-- 시민 반응 패널 -->
         <div class="citizen-panel" id="citizenPanel">
@@ -337,3 +351,4 @@
     <script src="js/ui.js"></script>
 </body>
 </html>
+
