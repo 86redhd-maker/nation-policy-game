@@ -77,18 +77,18 @@ const NATIONS_DATA = {
     "description": "정치·사회·경제 모두 불안정한 상태에서 재건이 필요한 국가",
     "difficulty": "상",
     "difficulty_stars": 3,
-    "initial_budget": 70,
-    "debt_limit": -25,
+    "initial_budget": 60,
+    "debt_limit": -20,
     "budget_description": "극도로 제한된 예산. 모든 선택이 생존과 직결됨. 진정한 하드모드",
     "initialIndicators": {
-      "경제": -1, "기술": -1, "시민 반응": -2 "환경": -1,
+      "경제": -2, "기술": -1, "시민 반응": -3, "환경": -1,
       "재정": -2, "안정성": -3, "복지": -1, "외교": -1
     },
     "special_features": [
-      "모든 정책 비용 +15% (높은 사회적 저항과 인프라 부족)",
-      "적자 허용도 매우 낮음 (-25pt만 허용)",
+      "모든 정책 비용 +20% (높은 사회적 저항과 인프라 부족)",
+      "적자 허용도 매우 낮음 (-20pt만 허용)",
       "재건 관련 특별 이벤트 확률 +60%",
-      "국제 원조 관련 이벤트 확률 +50%"
+      "국제 원조 관련 이벤트 확률 +40%"
     ],
     "flag_colors": ["#2c3e50", "#e74c3c"]
   }
@@ -962,4 +962,3 @@ window.BUDGET_PENALTIES = BUDGET_PENALTIES;
 window.ENDINGS_DATA = ENDINGS_DATA;
 window.SPECIAL_ENDINGS = SPECIAL_ENDINGS;
 window.POLICY_COMBINATIONS = POLICY_COMBINATIONS;
-
