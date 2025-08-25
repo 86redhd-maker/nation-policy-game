@@ -883,6 +883,31 @@ function showAllPoliciesOverview() {
     }
 }
 
+// 정책 확정
+function confirmPolicies() {
+    if (typeof gameAPI === 'undefined') return;
+    
+    const result = gameAPI.confirmPolicies();
+    
+    if (!result.success) {
+        if (typeof gameUtils !== 'undefined') {
+            gameUtils.showToast(result.error, 'error');
+            gameUtils.playSound('error');
+        } else {
+            alert(result.error);
+        }
+        return;
+    }
+
+    if (typeof gameUtils !== 'undefined') {
+        gameUtils.playSound('confirm');
+        gameUtils.showToast('정책이 확정되었습니다!', 'success');
+    }
+
+    // UI 업데이트
+    updateIndicators(result.status.indicators);
+    updateBudgetDisplay(result.status.budget, result.status.debtLimit);
+    
 // 시민 반응 표시
 function showCitizenReactions(policies) {
     const panel = document.getElementById('citizenPanel');
@@ -912,88 +937,34 @@ function showCitizenReactions(policies) {
     }, 5000);
 }
 
-// 새로운 통합 턴 진행 함수
-function advanceTurn() {
-    const nextTurnButton = document.getElementById('next-turn-button');
-    if (!nextTurnButton) {
-        console.error('next-turn-button 요소를 찾을 수 없습니다.');
-        return;
-    }
-
-    if (nextTurnButton.disabled) {
-        window.gameUtils.showToast('턴 진행 중입니다. 잠시만 기다려주세요.', 'info');
-        return;
-    }
-
-    const status = gameAPI.getGameStatus();
-    if (status.currentSelection.length === 0) {
-        const skipResult = gameAPI.skipCurrentTurn();
-        if (skipResult.success) {
-            window.gameUtils.showToast('선택된 정책이 없어 턴을 스킵합니다. 페널티가 적용됩니다.', 'warning');
-            updateGameStatus(skipResult.status);
-            if (skipResult.finished) {
-                showResultsScreen(skipResult);
-            }
+// 다음 턴 진행
+function proceedToNextTurn() {
+    if (typeof gameAPI === 'undefined') return;
+    
+    const result = gameAPI.advanceToNextTurn();
+    
+    if (!result.success) {
+        if (typeof gameUtils !== 'undefined') {
+            gameUtils.showToast(result.error, 'error');
         } else {
-            window.gameUtils.showToast(skipResult.error, 'error');
+            alert(result.error);
         }
         return;
     }
 
-    nextTurnButton.disabled = true;
-
-    try {
-        const confirmResult = gameAPI.confirmPolicies();
-        if (!confirmResult.success) {
-            console.error('정책 확정 실패:', confirmResult.error);
-            window.gameUtils.playSound('error');
-            window.gameUtils.showToast(`정책 확정 실패: ${confirmResult.error}`, 'error');
-            return;
-        }
-
-        window.gameUtils.playSound('confirm');
-        window.gameUtils.showToast('정책이 확정되었습니다.', 'success');
+    if (result.finished) {
+        showResultsScreen(result);
+    } else {
+        // 새 턴 UI 업데이트
+        updateGameHeader(result.status);
+        updateCategoryStats(result.status); // 추가
+        updateTurnInfo(result.status); // 추가
+        loadPoliciesForCategory(currentActiveCategory); // 현재 활성 카테고리 유지
+        clearPolicySelection();
         
-        updateGameStatus(confirmResult.status);
-        showCitizenReactions(confirmResult.policies); 
-
-        // 🎉 턴 종료 알림
-        if (status.currentTurn === GAME_CONFIG.total_turns) {
-            window.gameUtils.showToast(`턴 ${status.currentTurn} 종료! 게임이 종료되었습니다.`, 'success');
-        } else {
-            window.gameUtils.showToast(`턴 ${status.currentTurn} 종료`, 'info');
+        if (typeof gameUtils !== 'undefined') {
+            gameUtils.showToast(`턴 ${result.status.turn} 시작!`, 'info');
         }
-
-        // 1.5초 후 다음 단계 진행
-        setTimeout(() => {
-            const event = gameAPI.triggerRandomEvent();
-            if (event) {
-                // 🎉 이벤트가 발생하면 팝업을 띄우고 턴 진행을 멈춥니다.
-                showEventPopup(event);
-                
-                // 팝업이 닫힐 때까지 버튼을 비활성화 상태로 유지
-                nextTurnButton.disabled = false;
-                return;
-            }
-
-            // 이벤트가 없으면 다음 턴으로 진행합니다.
-            const nextTurnResult = gameAPI.advanceToNextTurn();
-            if (nextTurnResult.success) {
-                if (nextTurnResult.finished) {
-                    showResultsScreen(nextTurnResult);
-                } else {
-                    updateGameStatus(nextTurnResult.status);
-                    window.gameUtils.showToast(`턴 ${nextTurnResult.status.turn} 시작`, 'info');
-                }
-            } else {
-                console.error('다음 턴 진행 실패:', nextTurnResult.error);
-                window.gameUtils.showToast(nextTurnResult.error, 'error');
-            }
-        }, 1500);
-    } finally {
-        setTimeout(() => {
-            nextTurnButton.disabled = false;
-        }, 2000);
     }
 }
 
@@ -1714,6 +1685,7 @@ console.log(`
 `);
 
 console.log('🎨 UI 시스템 로딩 완료!');
+
 
 
 
