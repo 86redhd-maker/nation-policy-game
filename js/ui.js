@@ -41,7 +41,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
     
-    waitForData(() => {
+   waitForData(() => {
     // 1. 데이터 로드가 완료되면, 게임 화면이 아닌
     //    '시작 화면'을 초기화하는 함수를 호출합니다.
     initializeStartScreen();
@@ -51,20 +51,18 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 // 시작 화면 초기화
-function initializeStartScreen(gameStatus) {
+function initializeStartScreen() {
     try {
-        console.log('게임 화면 초기화 시작:', gameStatus);
-        updateGameHeader(gameStatus);
-        updateIndicators(gameStatus.indicators);
-        initializeCategoryTabs(); // 새로 추가
-        updateCategoryStats(gameStatus); // 새로 추가
-        loadPoliciesForCategory(currentActiveCategory); // 수정
-        updateBudgetDisplay(gameStatus.budget, gameStatus.debtLimit);
-        updateTurnInfo(gameStatus); // 새로 추가
-        clearPolicySelection();
-        console.log('게임 화면 초기화 완료');
+        console.log('시작 화면 초기화 시작');
+        
+        // 이 함수는 국가 선택 UI를 보여주는 역할만 수행해야 합니다.
+        // 게임 상태에 의존하는 코드는 이곳에 있으면 안 됩니다.
+        
+        showScreen('startScreen');
+        
+        console.log('시작 화면 초기화 완료');
     } catch (error) {
-        console.error('게임 화면 초기화 실패:', error);
+        console.error('시작 화면 초기화 실패:', error);
     }
 }
 
@@ -1691,6 +1689,7 @@ console.log(`
 `);
 
 console.log('🎨 UI 시스템 로딩 완료!');
+
 
 
 
