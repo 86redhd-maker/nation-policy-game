@@ -1044,7 +1044,29 @@ function proceedToNextTurn() {
     showScreen('resultsScreen');
     
     console.log('🚀 강제 결과화면 표시 완료!');
+
+        // ⭐ 추가 진단 코드 ⭐
+    setTimeout(() => {
+        const resultsScreen = document.getElementById('resultsScreen');
+        console.log('결과화면 display:', window.getComputedStyle(resultsScreen).display);
+        console.log('결과화면 visibility:', window.getComputedStyle(resultsScreen).visibility);
+        console.log('결과화면 opacity:', window.getComputedStyle(resultsScreen).opacity);
+        console.log('결과화면 높이:', resultsScreen.offsetHeight);
         
+        // 강제로 눈에 띄게 만들기
+        resultsScreen.style.cssText = `
+            display: block !important;
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            width: 100% !important;
+            height: 100% !important;
+            background: red !important;
+            z-index: 99999 !important;
+        `;
+        
+        console.log('🔴 빨간 화면 강제 표시 완료!');
+    }, 200);
     } else {
         console.log('다음 턴 진행:', result.status);
         // 새 턴 UI 업데이트
@@ -1889,6 +1911,7 @@ console.log(`
 `);
 
 console.log('🎨 UI 시스템 로딩 완료!');
+
 
 
 
