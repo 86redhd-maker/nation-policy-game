@@ -1115,3 +1115,324 @@ body::before {
     background: rgba(255, 102, 0, 0.1);
     border-left: 2px solid #ff6600;
 }
+
+/* ===== 새로운 자유 선택 시스템 스타일 ===== */
+
+/* 새로운 정책 헤더 */
+.policy-header-new {
+    background: linear-gradient(145deg, #0f3460, #16213e);
+    border: 2px solid #00ff88;
+    padding: 15px;
+    margin-bottom: 20px;
+    border-radius: 0;
+    box-shadow: 
+        0 0 0 2px #003322,
+        inset 0 0 20px rgba(0,255,136,0.1);
+}
+
+/* 턴 정보 행 */
+.turn-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    font-size: 10px;
+    color: #88ffaa;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.turn-display {
+    font-size: 12px;
+    color: #00ff88;
+    text-shadow: 1px 1px 0px #000000;
+    font-weight: bold;
+}
+
+.selection-count {
+    font-size: 10px;
+    color: #ffaa00;
+    text-shadow: 1px 1px 0px #000000;
+}
+
+.budget-quick {
+    font-size: 10px;
+    color: #88aaff;
+    text-shadow: 1px 1px 0px #000000;
+}
+
+/* 카테고리 탭들 */
+.category-tabs {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-bottom: 15px;
+}
+
+.tab-btn {
+    background: linear-gradient(145deg, #2a2a4e, #1a1a3e);
+    border: 2px solid #4444aa;
+    color: #aaaaff;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 8px;
+    padding: 10px 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    border-radius: 0;
+    text-align: center;
+    min-width: 80px;
+}
+
+.tab-btn:hover {
+    border-color: #6666ff;
+    background: linear-gradient(145deg, #3a3a5e, #2a2a4e);
+    transform: translateY(-2px);
+    box-shadow: 0 2px 8px rgba(102,102,255,0.3);
+}
+
+.tab-btn.active {
+    border-color: #00ff88;
+    background: linear-gradient(145deg, #004422, #003311);
+    color: #88ffaa;
+    transform: translateY(-3px);
+    box-shadow: 
+        0 3px 10px rgba(0,255,136,0.4),
+        0 0 15px rgba(0,255,136,0.2);
+}
+
+.tab-btn.disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    border-color: #666666;
+    background: linear-gradient(145deg, #444444, #333333);
+    color: #888888;
+}
+
+.tab-btn.disabled:hover {
+    transform: none;
+    box-shadow: none;
+}
+
+.tab-btn.limited {
+    border-color: #ffaa00;
+    background: linear-gradient(145deg, #553300, #442200);
+    color: #ffcc66;
+}
+
+.tab-btn.limited::after {
+    content: "⚠️";
+    position: absolute;
+    top: -3px;
+    right: -3px;
+    font-size: 6px;
+    animation: warning-blink 1s infinite;
+}
+
+@keyframes warning-blink {
+    0%, 50% { opacity: 1; }
+    51%, 100% { opacity: 0.5; }
+}
+
+/* 탭 카운트 스타일 */
+.tab-count {
+    display: block;
+    font-size: 6px;
+    margin-top: 2px;
+    opacity: 0.8;
+}
+
+/* 현재 선택 미리보기 */
+.current-selection-preview {
+    background: linear-gradient(145deg, #2a2a4e, #1a1a3e);
+    border: 2px solid #ffaa00;
+    padding: 10px;
+    margin-top: 15px;
+    border-radius: 0;
+    animation: slide-up 0.3s ease-out;
+}
+
+.preview-title {
+    font-size: 8px;
+    color: #ffaa00;
+    margin-bottom: 8px;
+    text-shadow: 1px 1px 0px #000000;
+}
+
+.preview-policies {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+}
+
+.preview-policy-item {
+    background: rgba(255,170,0,0.2);
+    border: 1px solid #ffaa00;
+    padding: 4px 6px;
+    font-size: 6px;
+    color: #ffffaa;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    border-radius: 0;
+}
+
+.preview-remove-btn {
+    background: #ff4444;
+    border: none;
+    color: white;
+    font-size: 6px;
+    width: 12px;
+    height: 12px;
+    cursor: pointer;
+    font-family: 'Press Start 2P', monospace;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0;
+}
+
+.preview-remove-btn:hover {
+    background: #ff6666;
+    transform: scale(1.1);
+}
+
+/* 액션 버튼 영역 개선 */
+.action-buttons {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-top: 20px;
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+    .turn-info {
+        flex-direction: column;
+        text-align: center;
+        gap: 5px;
+    }
+    
+    .category-tabs {
+        flex-direction: column;
+        align-items: center;
+        gap: 5px;
+    }
+    
+    .tab-btn {
+        font-size: 7px;
+        padding: 8px 10px;
+        min-width: 70px;
+    }
+    
+    .action-buttons {
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .current-selection-preview {
+        padding: 8px;
+    }
+    
+    .preview-policies {
+        justify-content: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .policy-header-new {
+        padding: 10px;
+    }
+    
+    .tab-btn {
+        font-size: 6px;
+        padding: 6px 8px;
+        min-width: 60px;
+    }
+    
+    .turn-display {
+        font-size: 10px;
+    }
+    
+    .selection-count, .budget-quick {
+        font-size: 8px;
+    }
+}
+
+/* 탭 전환 애니메이션 */
+.policies-grid {
+    animation: fade-in 0.3s ease-in;
+}
+
+@keyframes fade-in {
+    from { 
+        opacity: 0; 
+        transform: translateY(10px); 
+    }
+    to { 
+        opacity: 1; 
+        transform: translateY(0); 
+    }
+}
+
+/* 선택된 정책 카드 개선 */
+.policy-card.selected {
+    border-color: #ffaa00 !important;
+    background: linear-gradient(145deg, #604000, #403000) !important;
+    animation: pulse-selection 2s ease-in-out infinite;
+    position: relative;
+}
+
+.policy-card.selected::before {
+    content: "✓ 선택됨";
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background: #ffaa00;
+    color: #000000;
+    font-size: 5px;
+    padding: 2px 4px;
+    font-family: 'Press Start 2P', monospace;
+    border-radius: 0;
+    z-index: 10;
+}
+
+@keyframes pulse-selection {
+    0%, 100% { 
+        box-shadow: 0 0 10px rgba(255,170,0,0.5);
+    }
+    50% { 
+        box-shadow: 0 0 20px rgba(255,170,0,0.8), 0 0 30px rgba(255,170,0,0.3);
+    }
+}
+
+/* 비활성화된 정책 카드 (카테고리 제한) */
+.policy-card.category-disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    border-color: #666666 !important;
+    background: linear-gradient(145deg, #333333, #222222) !important;
+}
+
+.policy-card.category-disabled:hover {
+    transform: none;
+    box-shadow: none;
+}
+
+.policy-card.category-disabled::after {
+    content: "카테고리 제한";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(0,0,0,0.8);
+    color: #ff6666;
+    font-size: 6px;
+    padding: 4px 6px;
+    font-family: 'Press Start 2P', monospace;
+    border: 1px solid #ff6666;
+    z-index: 10;
+}
