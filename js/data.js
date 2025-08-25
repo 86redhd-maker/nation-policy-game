@@ -839,7 +839,7 @@ const GameData = {
 getEmergencyPolicies: (category) => EMERGENCY_POLICIES[category] || [],
 
 // 정책 찾기 (긴급정책 포함)
-findPolicyIncludingEmergency: (policyName) => {
+findPolicy: (policyName) => {
   // 기본 정책에서 찾기
   for (const category in POLICIES_DATA) {
     const policy = POLICIES_DATA[category].find(p => p.정책명 === policyName);
@@ -1076,4 +1076,5 @@ window.ENDINGS_DATA = ENDINGS_DATA;
 window.SPECIAL_ENDINGS = SPECIAL_ENDINGS;
 window.POLICY_COMBINATIONS = POLICY_COMBINATIONS;
 window.EMERGENCY_POLICIES = EMERGENCY_POLICIES;
+
 
