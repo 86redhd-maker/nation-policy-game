@@ -431,31 +431,56 @@ function loadPoliciesForCategory(category) {
     try {
         let policies = [];
         
+        // 기본 정책 로드
         if (typeof GameData !== 'undefined') {
             policies = GameData.getPoliciesByCategory(category);
         } else {
-            // 폴백 정책 데이터
             policies = createFallbackPolicies(category);
+        }
+        
+        // 위기국가인 경우 긴급정책도 추가
+        if (typeof gameAPI !== 'undefined') {
+            const gameStatus = gameAPI.getGameStatus();
+            if (gameStatus.nation === '위기국가' && 
+                typeof EMERGENCY_POLICIES !== 'undefined' && 
+                EMERGENCY_POLICIES[category]) {
+                policies = [...policies, ...EMERGENCY_POLICIES[category]];
+            }
         }
         
         const grid = document.getElementById('policiesGrid');
         const title = document.getElementById('categoryTitle');
         
         if (title) {
-            title.textContent = `📋 ${category} 정책`;
+            // 위기국가인 경우 🆘 표시 추가
+            let emergencyIndicator = '';
+            if (typeof gameAPI !== 'undefined') {
+                const gameStatus = gameAPI.getGameStatus();
+                if (gameStatus.nation === '위기국가') {
+                    emergencyIndicator = ' 🆘';
+                }
+            }
+            title.textContent = `📋 ${category} 정책${emergencyIndicator}`;
         }
         
         if (grid) {
             grid.innerHTML = '';
             policies.forEach(policy => {
                 const card = createPolicyCard(policy);
+                // 긴급정책은 특별한 스타일 적용
+                if (policy.emergency_only) {
+                    card.classList.add('emergency-policy');
+                }
                 grid.appendChild(card);
             });
         }
 
         // 교착상태 확인
         checkForDeadlock();
-        console.log(`${category} 정책 로드 완료:`, policies.length);
+        
+        const regularPolicies = policies.filter(p => !p.emergency_only).length;
+        const emergencyPolicies = policies.filter(p => p.emergency_only).length;
+        console.log(`${category} 정책 로드 완료: 기본 ${regularPolicies}개, 긴급 ${emergencyPolicies}개`);
     } catch (error) {
         console.error('정책 로드 실패:', error);
     }
@@ -1498,3 +1523,4 @@ console.log(`
 `);
 
 console.log('🎨 UI 시스템 로딩 완료!');
+
