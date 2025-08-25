@@ -56,6 +56,7 @@ function initializeStartScreen() {
         console.log('시작 화면 초기화 시작');
         
         // 이 함수는 단순히 'startScreen'을 활성화하는 역할만 수행해야 합니다.
+        // 게임 상태에 의존하는 코드는 이곳에 있으면 안 됩니다.
         showScreen('startScreen');
         
         console.log('시작 화면 초기화 완료');
@@ -298,13 +299,16 @@ function showLoading(show) {
 }
 
 // 게임 화면 초기화
-function initializeStartScreen(gameStatus) {
+function initializeGameScreen(gameStatus) {
     try {
         console.log('게임 화면 초기화 시작:', gameStatus);
         updateGameHeader(gameStatus);
         updateIndicators(gameStatus.indicators);
-        loadPoliciesForCategory(gameStatus.category);
+        initializeCategoryTabs();
+        updateCategoryStats(gameStatus);
+        loadPoliciesForCategory(currentActiveCategory);
         updateBudgetDisplay(gameStatus.budget, gameStatus.debtLimit);
+        updateTurnInfo(gameStatus);
         clearPolicySelection();
         console.log('게임 화면 초기화 완료');
     } catch (error) {
@@ -1687,6 +1691,7 @@ console.log(`
 `);
 
 console.log('🎨 UI 시스템 로딩 완료!');
+
 
 
 
