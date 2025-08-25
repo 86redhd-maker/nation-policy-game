@@ -1,445 +1,4 @@
-// 게임 재시작
-function restartGame() {
-    gameAPI.restartGame();
-    selectedNationName = null;
-    currentEvent = null;
-    
-    // UI 초기화
-    const selectedNationElement = document.getElementById('selectedNation');
-    const startButton = document.getElementById('startBtn');
-    
-    if (selectedNationElement) {
-        selectedNationElement.textContent = '국가를 선택해주세요';
-    }
-    if (startButton) {
-        startButton.disabled = true;
-    }
-    
-    document.querySelectorAll('.nation-card').forEach(card => {
-        card.classList.remove('selected');
-    });
-    
-    showScreen('startScreen');
-    updateStatusBar('게임 준비 완료');
-    gameUtils.showToast('게임이 초기화되었습니다', 'info');
-}
-
-// 결과 공유
-function shareResults() {
-    const gameStatus = gameAPI.getGameStatus();
-    const stats = gameAPI.calculateGameStats();
-    
-    const shareText = `
-🎮 픽셀 정치 시뮬레이터 결과 🎮
-
-🏛️ 국가: ${gameStatus.nation}
-🏆 최종 등급: ${document.getElementById('finalTitle').textContent}
-📊 총점: ${stats.totalScore}/40
-😊 시민 만족도: ${stats.citizenSatisfaction}
-🌱 지속가능성: ${stats.sustainability}
-
-나도 국가를 설계해보자! 
-#픽셀정치시뮬레이터 #국가설계게임
-    `.trim();
-    
-    if (navigator.share) {
-        navigator.share({
-            title: '픽셀 정치 시뮬레이터 결과',
-            text: shareText
-        });
-    } else {
-        navigator.clipboard.writeText(shareText).then(() => {
-            gameUtils.showToast('결과가 클립보드에 복사되었습니다!', 'success');
-        });
-    }
-}
-
-// 도움말 표시
-function showHelp() {
-    showPopup('helpPopup');
-}
-
-function closeHelp() {
-    hidePopup('helpPopup');
-}
-
-function showPolicyHelp() {
-    showPopup('policyHelpPopup');
-}
-
-function closePolicyHelp() {
-    hidePopup('policyHelpPopup');
-}
-
-function showCredits() {
-    showPopup('creditsPopup');
-}
-
-function closeCredits() {
-    hidePopup('creditsPopup');
-}
-
-// 시민 패널 숨김
-function hideCitizenPanel() {
-    const panel = document.getElementById('citizenPanel');
-    if (panel) {
-        panel.classList.remove('active');
-    }
-}
-
-// 상태 바 업데이트
-function updateStatusBar(message) {
-    const statusElement = document.getElementById('gameStatus');
-    if (statusElement) {
-        statusElement.textContent = message;
-    }
-}
-
-// 키보드 단축키
-document.addEventListener('keydown', function(event) {
-    if (event.key === 'Escape') {
-        // ESC 키로 팝업 닫기
-        document.querySelectorAll('.popup-overlay.active').forEach(popup => {
-            popup.classList.remove('active');
-        });
-    } else if (event.key === 'Enter') {
-        // Enter 키로 확인 버튼 클릭
-        const confirmBtn = document.getElementById('confirmBtn');
-        if (confirmBtn && !confirmBtn.disabled && !confirmBtn.style.display === 'none') {
-            confirmPolicies();
-        }
-    } else if (event.key >= '1' && event.key <= '5') {
-        // 숫자 키로 정책 선택 (게임 화면에서만)
-        const gameScreen = document.getElementById('gameScreen');
-        if (gameScreen && gameScreen.classList.contains('active')) {
-            const policyCards = document.querySelectorAll('.policy-card:not(.disabled)');
-            const index = parseInt(event.key) - 1;
-            if (index < policyCards.length) {
-                policyCards[index].click();
-            }
-        }
-    }
-});
-
-// 화면 크기 변경 감지
-window.addEventListener('resize', function() {
-    // 모바일에서 시민 패널 위치 조정
-    const citizenPanel = document.getElementById('citizenPanel');
-    if (citizenPanel) {
-        if (window.innerWidth <= 768) {
-            citizenPanel.style.position = 'relative';
-            citizenPanel.style.right = 'auto';
-            citizenPanel.style.top = 'auto';
-            citizenPanel.style.transform = 'none';
-        } else {
-            citizenPanel.style.position = 'fixed';
-            citizenPanel.style.right = '20px';
-            citizenPanel.style.top = '50%';
-            citizenPanel.style.transform = 'translateY(-50%)';
-        }
-    }
-});
-
-// 페이지 종료 전 경고
-window.addEventListener('beforeunload', function(event) {
-    if (typeof gameAPI !== 'undefined') {
-        const gameStatus = gameAPI.getGameStatus();
-        if (gameStatus.active && gameStatus.turn > 1) {
-            event.preventDefault();
-            event.returnValue = '게임이 진행 중입니다. 정말 나가시겠습니까?';
-            return event.returnValue;
-        }
-    }
-});
-
-// 자동 저장 (5초마다)
-setInterval(() => {
-    if (typeof gameAPI !== 'undefined') {
-        const gameStatus = gameAPI.getGameStatus();
-        if (gameStatus.active) {
-            gameAPI.saveGameToStorage();
-        }
-    }
-}, 5000);
-
-// 페이지 로드 시 저장된 게임 확인
-window.addEventListener('load', function() {
-    if (typeof gameAPI !== 'undefined') {
-        const savedGame = gameAPI.loadGameFromStorage();
-        if (savedGame && savedGame.gameState && savedGame.gameState.gameActive) {
-            if (confirm('저장된 게임을 발견했습니다. 이어서 하시겠습니까?')) {
-                // 저장된 게임 로드 로직 (추후 구현)
-                if (typeof gameUtils !== 'undefined') {
-                    gameUtils.showToast('저장된 게임 로드 기능은 추후 구현 예정입니다', 'info');
-                }
-            }
-        }
-    }
-});
-
-// 성능 모니터링
-let frameCount = 0;
-let lastTime = performance.now();
-
-function updatePerformance() {
-    frameCount++;
-    const currentTime = performance.now();
-    
-    if (currentTime - lastTime >= 1000) {
-        const fps = Math.round((frameCount * 1000) / (currentTime - lastTime));
-        const systemStatus = document.getElementById('systemStatus');
-        if (systemStatus) {
-            systemStatus.textContent = `FPS: ${fps}`;
-        }
-        frameCount = 0;
-        lastTime = currentTime;
-    }
-    
-    requestAnimationFrame(updatePerformance);
-}
-
-// 성능 모니터링 시작
-requestAnimationFrame(updatePerformance);
-
-// 접근성 개선
-document.addEventListener('keydown', function(event) {
-    // Tab 키 네비게이션 개선
-    if (event.key === 'Tab') {
-        const focusableElements = document.querySelectorAll(
-            'button:not([disabled]), .nation-card, .policy-card:not(.disabled)'
-        );
-        
-        // 현재 포커스된 요소가 보이도록 스크롤
-        setTimeout(() => {
-            if (document.activeElement) {
-                document.activeElement.scrollIntoView({
-                    behavior: 'smooth',
-                    block: 'nearest'
-                });
-            }
-        }, 100);
-    }
-});
-
-// 터치 이벤트 지원 (모바일)
-let touchStartY = 0;
-document.addEventListener('touchstart', function(event) {
-    touchStartY = event.touches[0].clientY;
-});
-
-document.addEventListener('touchend', function(event) {
-    const touchEndY = event.changedTouches[0].clientY;
-    const diff = touchStartY - touchEndY;
-    
-    // 스와이프 제스처로 시민 패널 토글
-    if (Math.abs(diff) > 50) {
-        const citizenPanel = document.getElementById('citizenPanel');
-        if (citizenPanel) {
-            if (diff > 0) {
-                // 위로 스와이프 - 패널 숨김
-                citizenPanel.classList.remove('active');
-            } else {
-                // 아래로 스와이프 - 패널 표시 (게임 중일 때만)
-                if (typeof gameAPI !== 'undefined') {
-                    const gameStatus = gameAPI.getGameStatus();
-                    if (gameStatus.active) {
-                        citizenPanel.classList.add('active');
-                    }
-                }
-            }
-        }
-    }
-});
-
-// 디버그 모드 (개발용)
-window.debugMode = false;
-window.toggleDebug = function() {
-    window.debugMode = !window.debugMode;
-    if (window.debugMode) {
-        console.log('디버그 모드 활성화');
-        if (typeof gameAPI !== 'undefined') {
-            console.log('게임 상태:', gameAPI.getDebugInfo());
-        }
-        
-        // 디버그 패널 생성
-        let debugPanel = document.getElementById('debugPanel');
-        if (!debugPanel) {
-            debugPanel = document.createElement('div');
-            debugPanel.id = 'debugPanel';
-            debugPanel.style.cssText = `
-                position: fixed; top: 10px; left: 10px; 
-                background: rgba(0,0,0,0.8); color: #00ff88; 
-                padding: 10px; font-size: 8px; z-index: 9999;
-                border: 1px solid #00ff88; max-width: 200px;
-            `;
-            document.body.appendChild(debugPanel);
-        }
-        
-        // 디버그 정보 업데이트
-        const updateDebug = () => {
-            if (window.debugMode && debugPanel && typeof gameAPI !== 'undefined') {
-                const info = gameAPI.getDebugInfo();
-                debugPanel.innerHTML = `
-                    <strong>DEBUG MODE</strong><br>
-                    Active: ${info.gameActive || false}<br>
-                    Turn: ${info.currentTurn || 0}/${GAME_CONFIG?.total_turns || 5}<br>
-                    Nation: ${info.currentNation || 'None'}<br>
-                    Budget: ${info.budget || 0}<br>
-                    Selection: ${info.currentSelection?.length || 0}
-                `;
-            }
-        };
-        
-        setInterval(updateDebug, 1000);
-    } else {
-        console.log('디버그 모드 비활성화');
-        const debugPanel = document.getElementById('debugPanel');
-        if (debugPanel) {
-            debugPanel.remove();
-        }
-    }
-};
-
-// 교착상태 확인 및 처리
-function checkForDeadlock() {
-    if (typeof gameAPI === 'undefined') return;
-    
-    const progressCheck = gameAPI.checkTurnProgress();
-    
-    if (progressCheck.success && !progressCheck.hasSelectablePolicies) {
-        showDeadlockWarning();
-    } else {
-        hideDeadlockWarning();
-    }
-}
-
-// 교착상태 경고 표시
-function showDeadlockWarning() {
-    // 기존 경고가 있으면 제거
-    const existingWarning = document.getElementById('deadlockWarning');
-    if (existingWarning) {
-        existingWarning.remove();
-    }
-    
-    const warning = document.createElement('div');
-    warning.id = 'deadlockWarning';
-    warning.className = 'deadlock-warning';
-    warning.innerHTML = `
-        <div class="warning-content">
-            <h3>⚠️ 선택 가능한 정책이 없습니다!</h3>
-            <p>현재 예산이나 요구조건으로는 어떤 정책도 선택할 수 없습니다.</p>
-            <p>이런 경우 턴을 스킵할 수 있지만, 시민 반응과 안정성이 감소합니다.</p>
-            <div class="warning-buttons">
-                <button class="pixel-btn danger" onclick="skipTurn()">
-                    ⏭️ 턴 스킵 (페널티 적용)
-                </button>
-                <button class="pixel-btn secondary" onclick="showEmergencyOptions()">
-                    🆘 비상 옵션
-                </button>
-            </div>
-        </div>
-    `;
-    
-    const policySection = document.querySelector('.policy-section');
-    if (policySection) {
-        policySection.appendChild(warning);
-    }
-}
-
-// 교착상태 경고 숨김
-function hideDeadlockWarning() {
-    const warning = document.getElementById('deadlockWarning');
-    if (warning) {
-        warning.remove();
-    }
-}
-
-// 턴 스킵 실행
-function skipTurn() {
-    const result = gameAPI.skipCurrentTurn();
-    
-    if (result.success) {
-        gameUtils.playSound('error');
-        gameUtils.showToast('턴이 스킵되었습니다. 페널티가 적용됩니다.', 'warning');
-        
-        // UI 업데이트
-        const gameStatus = gameAPI.getGameStatus();
-        updateIndicators(gameStatus.indicators);
-        
-        // 시민 반응 표시
-        showCitizenReactions(['턴 스킵']);
-        
-        setTimeout(() => {
-            proceedToNextTurn();
-        }, 2000);
-    } else {
-        gameUtils.showToast(result.error, 'error');
-    }
-}
-
-// 비상 옵션 표시
-function showEmergencyOptions() {
-    const popup = document.createElement('div');
-    popup.className = 'popup-overlay active';
-    popup.innerHTML = `
-        <div class="popup-content">
-            <div class="popup-header">
-                <h3>🆘 비상 상황 대처법</h3>
-                <button class="close-btn" onclick="closeEmergencyOptions()">✖</button>
-            </div>
-            <div class="popup-body">
-                <h4>💡 상황 해결 방법</h4>
-                <ul>
-                    <li><strong>턴 스킵:</strong> 이번 턴을 건너뛰고 다음 턴으로 진행 (페널티 적용)</li>
-                    <li><strong>예산 부족:</strong> 이전 턴에서 비용이 낮은 정책을 선택했어야 합니다</li>
-                    <li><strong>요구조건 미달:</strong> 지표를 개선하는 정책을 먼저 선택했어야 합니다</li>
-                </ul>
-                
-                <h4>🎯 게임 팁</h4>
-                <ul>
-                    <li>항상 다음 턴을 고려해서 예산을 관리하세요</li>
-                    <li>지표 균형을 맞춰서 요구조건을 충족하세요</li>
-                    <li>국가별 특성을 활용해서 비용을 절약하세요</li>
-                </ul>
-                
-                <div style="text-align: center; margin-top: 20px;">
-                    <button class="pixel-btn danger" onclick="skipTurn(); closeEmergencyOptions();">
-                        ⏭️ 턴 스킵하기
-                    </button>
-                    <button class="pixel-btn secondary" onclick="restartGame();">
-                        🔄 게임 재시작
-                    </button>
-                </div>
-            </div>
-        </div>
-    `;
-    
-    document.body.appendChild(popup);
-}
-
-function closeEmergencyOptions() {
-    const popup = document.querySelector('.popup-overlay');
-    if (popup && popup.parentNode) {
-        popup.parentNode.removeChild(popup);
-    }
-}
-
-function saveResults() {
-    if (typeof gameUtils !== 'undefined') {
-        gameUtils.showToast('결과 저장 기능은 추후 구현 예정입니다', 'info');
-    }
-}
-
-// 콘솔에서 디버그 모드 안내
-console.log(`
-🎮 픽셀 정치 시뮬레이터 개발자 도구
-- window.toggleDebug() : 디버그 모드 토글
-- gameAPI : 게임 API 접근
-- gameUtils : 유틸리티 함수들
-- GameData : 게임 데이터 접근
-`);
-
-console.log('🎨 UI 시스템 로딩 완료!');UI 상태 관리
+// UI 상태 관리
 let selectedNationName = null;
 let currentEvent = null;
 
@@ -464,13 +23,20 @@ function hidePopup(popupId) {
 document.addEventListener('DOMContentLoaded', function() {
     console.log('UI 시스템 초기화 시작');
     
-    // 데이터 로드를 기다리는 함수
-    function waitForData(callback) {
+    // 데이터 로딩 대기 함수
+    function waitForData(callback, attempts = 0) {
+        if (attempts > 50) { // 5초 후 포기
+            console.error('게임 데이터 로딩 실패');
+            createFallbackCards();
+            return;
+        }
+        
         if (typeof NATIONS_DATA !== 'undefined' && typeof GameData !== 'undefined') {
+            console.log('게임 데이터 로드 완료');
             callback();
         } else {
-            console.log('게임 데이터 로딩 대기 중...');
-            setTimeout(() => waitForData(callback), 100);
+            console.log('게임 데이터 로딩 대기 중...', attempts);
+            setTimeout(() => waitForData(callback, attempts + 1), 100);
         }
     }
     
@@ -489,52 +55,10 @@ function initializeStartScreen() {
             return;
         }
         
-        // 기존 내용 제거
         nationsGrid.innerHTML = '';
 
-        // NATIONS_DATA가 없으면 직접 생성 (fallback)
-        const nationsData = window.NATIONS_DATA || {
-            "복지 강국": {
-                "description": "복지 수준이 높지만 재정 부담과 제도 피로도가 존재함",
-                "difficulty": "하",
-                "difficulty_stars": 1,
-                "initial_budget": 100,
-                "debt_limit": -70,
-                "flag_colors": ["#ff6b6b", "#4ecdc4"]
-            },
-            "자원 풍부국": {
-                "description": "자원이 풍부하지만 환경 갈등이 잦고 산업 의존도가 높음",
-                "difficulty": "중",
-                "difficulty_stars": 2,
-                "initial_budget": 90,
-                "debt_limit": -40,
-                "flag_colors": ["#f39c12", "#27ae60"]
-            },
-            "기술 선진국": {
-                "description": "기술력이 뛰어나지만 시민 신뢰도가 낮고 윤리 갈등이 존재함",
-                "difficulty": "상",
-                "difficulty_stars": 3,
-                "initial_budget": 110,
-                "debt_limit": -60,
-                "flag_colors": ["#9b59b6", "#3498db"]
-            },
-            "신흥 개발국": {
-                "description": "성장 중인 국가로 인프라 부족과 사회 불균형이 문제",
-                "difficulty": "중",
-                "difficulty_stars": 2,
-                "initial_budget": 85,
-                "debt_limit": -35,
-                "flag_colors": ["#e74c3c", "#f1c40f"]
-            },
-            "위기국가": {
-                "description": "정치·사회·경제 모두 불안정한 상태에서 재건이 필요한 국가",
-                "difficulty": "상",
-                "difficulty_stars": 3,
-                "initial_budget": 60,
-                "debt_limit": -20,
-                "flag_colors": ["#2c3e50", "#e74c3c"]
-            }
-        };
+        // NATIONS_DATA 사용, 없으면 fallback
+        const nationsData = window.NATIONS_DATA || createFallbackNationsData();
 
         Object.entries(nationsData).forEach(([nationName, nationData]) => {
             const card = createNationCard(nationName, nationData);
@@ -544,9 +68,54 @@ function initializeStartScreen() {
         console.log('국가 카드 생성 완료:', Object.keys(nationsData).length + '개');
     } catch (error) {
         console.error('시작 화면 초기화 실패:', error);
-        // 에러가 발생해도 기본 카드라도 표시
         createFallbackCards();
     }
+}
+
+// 폴백 국가 데이터 생성
+function createFallbackNationsData() {
+    return {
+        "복지 강국": {
+            "description": "복지 수준이 높지만 재정 부담과 제도 피로도가 존재함",
+            "difficulty": "하",
+            "difficulty_stars": 1,
+            "initial_budget": 100,
+            "debt_limit": -70,
+            "flag_colors": ["#ff6b6b", "#4ecdc4"]
+        },
+        "자원 풍부국": {
+            "description": "자원이 풍부하지만 환경 갈등이 잦고 산업 의존도가 높음",
+            "difficulty": "중",
+            "difficulty_stars": 2,
+            "initial_budget": 90,
+            "debt_limit": -40,
+            "flag_colors": ["#f39c12", "#27ae60"]
+        },
+        "기술 선진국": {
+            "description": "기술력이 뛰어나지만 시민 신뢰도가 낮고 윤리 갈등이 존재함",
+            "difficulty": "상",
+            "difficulty_stars": 3,
+            "initial_budget": 110,
+            "debt_limit": -60,
+            "flag_colors": ["#9b59b6", "#3498db"]
+        },
+        "신흥 개발국": {
+            "description": "성장 중인 국가로 인프라 부족과 사회 불균형이 문제",
+            "difficulty": "중",
+            "difficulty_stars": 2,
+            "initial_budget": 85,
+            "debt_limit": -35,
+            "flag_colors": ["#e74c3c", "#f1c40f"]
+        },
+        "위기국가": {
+            "description": "정치사회경제 모두 불안정한 상태에서 재건이 필요한 국가",
+            "difficulty": "상",
+            "difficulty_stars": 3,
+            "initial_budget": 60,
+            "debt_limit": -20,
+            "flag_colors": ["#2c3e50", "#e74c3c"]
+        }
+    };
 }
 
 // 폴백 카드 생성 함수
@@ -556,18 +125,25 @@ function createFallbackCards() {
     
     const basicNations = ['복지 강국', '자원 풍부국', '기술 선진국', '신흥 개발국', '위기국가'];
     
+    nationsGrid.innerHTML = '';
     basicNations.forEach(name => {
         const card = document.createElement('div');
         card.className = 'nation-card';
         card.onclick = () => selectNation(name);
         card.innerHTML = `
             <div class="nation-flag" style="background: linear-gradient(45deg, #333, #666);"></div>
-            <div class="nation-name">${name}</div>
+            <div class="nation-name">${getNationIcon(name)} ${name}</div>
             <div class="difficulty-stars">★★☆</div>
             <div class="nation-description">국가 설명을 로딩 중...</div>
+            <div class="nation-stats">
+                <div class="stat-item">💰 예산: 100pt</div>
+                <div class="stat-item">📉 적자한도: -50pt</div>
+            </div>
         `;
         nationsGrid.appendChild(card);
     });
+    
+    console.log('폴백 카드 생성 완료');
 }
 
 // 국가 카드 생성
@@ -613,7 +189,7 @@ function getNationIcon(nationName) {
 function getSpecialFeature(nationName) {
     const features = {
         '복지 강국': '복지할인',
-        '자원 풍부국': '경제효과↑',
+        '자원 풍부국': '경제효과증가',
         '기술 선진국': '기술할인',
         '신흥 개발국': '균형보너스',
         '위기국가': '재건보너스'
@@ -631,8 +207,10 @@ function getDifficultyText(difficulty) {
     return texts[difficulty] || difficulty;
 }
 
-// 수정된 국가 선택 함수 - 이벤트 버블링 문제 해결
+// 수정된 국가 선택 함수
 function selectNation(nationName) {
+    console.log('국가 선택:', nationName);
+    
     // 이전 선택 해제
     document.querySelectorAll('.nation-card').forEach(card => {
         card.classList.remove('selected');
@@ -641,9 +219,12 @@ function selectNation(nationName) {
     // 현재 카드 찾기 및 선택 활성화
     const cards = document.querySelectorAll('.nation-card');
     cards.forEach(card => {
-        const cardNationName = card.querySelector('.nation-name').textContent.slice(2); // 이모지 제거
-        if (cardNationName === nationName) {
-            card.classList.add('selected');
+        const cardNationNameElement = card.querySelector('.nation-name');
+        if (cardNationNameElement) {
+            const cardNationName = cardNationNameElement.textContent.trim().substring(2); // 이모지 제거
+            if (cardNationName === nationName) {
+                card.classList.add('selected');
+            }
         }
     });
     
@@ -660,14 +241,16 @@ function selectNation(nationName) {
         gameUtils.showToast(`${nationName} 선택됨!`, 'success');
     }
     
-    console.log('국가 선택됨:', nationName);
+    console.log('국가 선택 완료:', nationName);
 }
 
-// 수정된 게임 시작 함수
+// 게임 시작
 function startGame() {
     if (!selectedNationName) {
         if (typeof gameUtils !== 'undefined') {
             gameUtils.showToast('국가를 먼저 선택해주세요!', 'error');
+        } else {
+            alert('국가를 먼저 선택해주세요!');
         }
         return;
     }
@@ -678,7 +261,6 @@ function startGame() {
 
     setTimeout(() => {
         try {
-            // gameAPI 존재 확인
             if (typeof gameAPI === 'undefined') {
                 throw new Error('게임 API가 로드되지 않았습니다');
             }
@@ -701,6 +283,8 @@ function startGame() {
             console.error('게임 시작 실패:', error);
             if (typeof gameUtils !== 'undefined') {
                 gameUtils.showToast(`게임 시작 실패: ${error.message}`, 'error');
+            } else {
+                alert(`게임 시작 실패: ${error.message}`);
             }
             updateStatusBar('게임 시작 실패');
         } finally {
@@ -759,15 +343,43 @@ function updateIndicators(indicators) {
     grid.innerHTML = '';
 
     Object.entries(indicators).forEach(([indicator, value]) => {
-        const info = GameData.getIndicatorInfo(indicator);
+        let info = null;
+        if (typeof GameData !== 'undefined' && GameData.getIndicatorInfo) {
+            info = GameData.getIndicatorInfo(indicator);
+        } else {
+            // 폴백 지표 정보
+            const fallbackIndicators = {
+                "경제": { name: "💰 경제" },
+                "기술": { name: "🚀 기술" },
+                "시민 반응": { name: "😊 시민반응" },
+                "환경": { name: "🌱 환경" },
+                "재정": { name: "💼 재정" },
+                "안정성": { name: "🛡️ 안정성" },
+                "복지": { name: "❤️ 복지" },
+                "외교": { name: "🤝 외교" }
+            };
+            info = fallbackIndicators[indicator];
+        }
+        
         if (!info) return;
 
         const item = document.createElement('div');
         item.className = 'indicator-item';
         
-        const barWidth = gameUtils.getIndicatorBarWidth(value);
-        const barClass = gameUtils.getIndicatorClass(value);
-        const displayValue = gameUtils.formatIndicatorValue(value);
+        let barWidth = 50;
+        let barClass = 'positive';
+        let displayValue = value.toString();
+        
+        if (typeof gameUtils !== 'undefined') {
+            barWidth = gameUtils.getIndicatorBarWidth(value);
+            barClass = gameUtils.getIndicatorClass(value);
+            displayValue = gameUtils.formatIndicatorValue(value);
+        } else {
+            barWidth = ((value + 5) / 10) * 100;
+            barWidth = Math.max(0, Math.min(100, barWidth));
+            barClass = value >= 0 ? 'positive' : 'negative';
+            displayValue = value > 0 ? `+${value}` : value.toString();
+        }
 
         item.innerHTML = `
             <div class="indicator-name">${info.name}</div>
@@ -786,12 +398,29 @@ function updateBudgetDisplay(budget, debtLimit) {
     const budgetElement = document.getElementById('budgetAmount');
     const statusElement = document.getElementById('budgetStatus');
     
-    if (budgetElement && typeof gameUtils !== 'undefined') {
-        budgetElement.textContent = gameUtils.formatBudget(budget);
+    if (budgetElement) {
+        if (typeof gameUtils !== 'undefined') {
+            budgetElement.textContent = gameUtils.formatBudget(budget);
+        } else {
+            budgetElement.textContent = budget >= 0 ? `💰 ${budget}pt` : `💸 ${budget}pt (적자)`;
+        }
     }
     
-    if (statusElement && typeof gameUtils !== 'undefined') {
-        const status = gameUtils.getBudgetStatus(budget, debtLimit);
+    if (statusElement) {
+        let status = { text: '✅ 안전', class: 'safe' };
+        
+        if (typeof gameUtils !== 'undefined') {
+            status = gameUtils.getBudgetStatus(budget, debtLimit);
+        } else {
+            if (budget < 0) {
+                if (budget >= debtLimit * 0.5) {
+                    status = { text: '⚠️ 주의', class: 'warning' };
+                } else {
+                    status = { text: '🚨 위험', class: 'danger' };
+                }
+            }
+        }
+        
         statusElement.textContent = status.text;
         statusElement.className = `budget-status ${status.class}`;
     }
@@ -800,7 +429,15 @@ function updateBudgetDisplay(budget, debtLimit) {
 // 카테고리별 정책 로드
 function loadPoliciesForCategory(category) {
     try {
-        const policies = GameData.getPoliciesByCategory(category);
+        let policies = [];
+        
+        if (typeof GameData !== 'undefined') {
+            policies = GameData.getPoliciesByCategory(category);
+        } else {
+            // 폴백 정책 데이터
+            policies = createFallbackPolicies(category);
+        }
+        
         const grid = document.getElementById('policiesGrid');
         const title = document.getElementById('categoryTitle');
         
@@ -824,24 +461,59 @@ function loadPoliciesForCategory(category) {
     }
 }
 
+// 폴백 정책 생성
+function createFallbackPolicies(category) {
+    const fallbackPolicies = {
+        '복지': [
+            { 정책명: '기본 복지 정책', 비용: 20, 정책_설명: '기본적인 복지 제도', 예상_시민반응: '좋은 정책이네요!', 효과: {'복지': 5}, 충돌정책: [], 시너지정책: [] }
+        ],
+        '경제': [
+            { 정책명: '경제 활성화', 비용: 25, 정책_설명: '경제 성장을 위한 정책', 예상_시민반응: '경제가 좋아질까요?', 효과: {'경제': 5}, 충돌정책: [], 시너지정책: [] }
+        ],
+        '환경': [
+            { 정책명: '환경 보호', 비용: 30, 정책_설명: '환경을 지키는 정책', 예상_시민반응: '지구를 지켜요!', 효과: {'환경': 5}, 충돌정책: [], 시너지정책: [] }
+        ],
+        '교육': [
+            { 정책명: '교육 개선', 비용: 20, 정책_설명: '교육 시스템 개선', 예상_시민반응: '미래를 위한 투자!', 효과: {'기술': 5}, 충돌정책: [], 시너지정책: [] }
+        ],
+        '외교': [
+            { 정책명: '외교 강화', 비용: 15, 정책_설명: '국제 관계 개선', 예상_시민반응: '평화로운 세상!', 효과: {'외교': 5}, 충돌정책: [], 시너지정책: [] }
+        ]
+    };
+    
+    return fallbackPolicies[category] || [];
+}
+
 // 정책 카드 생성
 function createPolicyCard(policy) {
-    const gameStatus = gameAPI.getGameStatus();
+    let gameStatus = { budget: 100, debtLimit: -50, indicators: {}, currentSelection: [], nation: '기본국가' };
+    
+    if (typeof gameAPI !== 'undefined') {
+        gameStatus = gameAPI.getGameStatus();
+    }
+    
     const cost = calculateAdjustedCost(policy, gameStatus.nation);
     const canAfford = gameStatus.budget - cost >= gameStatus.debtLimit;
-    const requirementsMet = gameUtils.checkPolicyRequirements(policy, gameStatus.indicators);
+    const requirementsMet = checkPolicyRequirementsLocal(policy, gameStatus.indicators);
     const isSelected = gameStatus.currentSelection.includes(policy.정책명);
 
     const card = document.createElement('div');
     card.className = `policy-card ${isSelected ? 'selected' : ''} ${!canAfford || !requirementsMet ? 'disabled' : ''}`;
     card.onclick = () => togglePolicySelection(policy.정책명);
 
-    const effectItems = Object.entries(policy.효과).map(([indicator, value]) => {
-        const info = GameData.getIndicatorInfo(indicator);
-        const sign = value > 0 ? '+' : '';
-        const effectClass = value > 0 ? 'positive' : 'negative';
-        return `<div class="effect-item ${effectClass}">${info.name} ${sign}${value}</div>`;
-    }).join('');
+    let effectItems = '';
+    if (policy.효과) {
+        effectItems = Object.entries(policy.효과).map(([indicator, value]) => {
+            let indicatorName = indicator;
+            if (typeof GameData !== 'undefined') {
+                const info = GameData.getIndicatorInfo(indicator);
+                if (info) indicatorName = info.name;
+            }
+            const sign = value > 0 ? '+' : '';
+            const effectClass = value > 0 ? 'positive' : 'negative';
+            return `<div class="effect-item ${effectClass}">${indicatorName} ${sign}${value}</div>`;
+        }).join('');
+    }
 
     const conflictText = (policy.충돌정책 && policy.충돌정책.length > 0) ? 
         `⚠️ 충돌: ${policy.충돌정책.join(', ')}` : '';
@@ -865,11 +537,10 @@ function createPolicyCard(policy) {
     return card;
 }
 
-// 정책 비용 계산 (간소화)
+// 정책 비용 계산 (로컬 버전)
 function calculateAdjustedCost(policy, nationName) {
     let cost = policy.비용;
     
-    // 간단한 국가별 조정
     if (nationName === '복지 강국' && policy.정책명.includes('복지')) {
         cost = Math.floor(cost * 0.85);
     } else if (nationName === '위기국가') {
@@ -879,15 +550,30 @@ function calculateAdjustedCost(policy, nationName) {
     return cost;
 }
 
+// 정책 요구조건 확인 (로컬 버전)
+function checkPolicyRequirementsLocal(policy, indicators) {
+    if (!policy.요구조건) return true;
+    
+    return Object.entries(policy.요구조건).every(([indicator, required]) => {
+        const current = indicators[indicator] || 0;
+        return current >= required;
+    });
+}
+
 // 정책 선택 토글
 function togglePolicySelection(policyName) {
+    if (typeof gameAPI === 'undefined') {
+        console.log('gameAPI 로드되지 않음 - 정책 선택:', policyName);
+        return;
+    }
+    
     const gameStatus = gameAPI.getGameStatus();
     
     if (gameStatus.currentSelection.includes(policyName)) {
         // 선택 해제
         const result = gameAPI.deselectPolicy(policyName);
         if (result.success) {
-            gameUtils.playSound('select');
+            if (typeof gameUtils !== 'undefined') gameUtils.playSound('select');
             updatePolicyCards();
             updateSelectionSummary();
         }
@@ -895,18 +581,24 @@ function togglePolicySelection(policyName) {
         // 선택
         const result = gameAPI.selectPolicy(policyName);
         if (result.success) {
-            gameUtils.playSound('select');
+            if (typeof gameUtils !== 'undefined') gameUtils.playSound('select');
             updatePolicyCards();
             updateSelectionSummary();
         } else {
-            gameUtils.showToast(result.error, 'error');
-            gameUtils.playSound('error');
+            if (typeof gameUtils !== 'undefined') {
+                gameUtils.showToast(result.error, 'error');
+                gameUtils.playSound('error');
+            } else {
+                alert(result.error);
+            }
         }
     }
 }
 
 // 정책 카드 상태 업데이트
 function updatePolicyCards() {
+    if (typeof gameAPI === 'undefined') return;
+    
     const gameStatus = gameAPI.getGameStatus();
     const cards = document.querySelectorAll('.policy-card');
     
@@ -919,7 +611,7 @@ function updatePolicyCards() {
 
     // 선택 정보 업데이트
     const selectionInfo = document.getElementById('selectionInfo');
-    if (selectionInfo) {
+    if (selectionInfo && typeof GAME_CONFIG !== 'undefined') {
         selectionInfo.textContent = 
             `${gameStatus.currentSelection.length}/${GAME_CONFIG.policies_per_turn} 선택됨`;
     }
@@ -927,6 +619,8 @@ function updatePolicyCards() {
 
 // 선택 요약 업데이트
 function updateSelectionSummary() {
+    if (typeof gameAPI === 'undefined') return;
+    
     const gameStatus = gameAPI.getGameStatus();
     const summary = document.getElementById('selectionSummary');
     const confirmBtn = document.getElementById('confirmBtn');
@@ -952,6 +646,11 @@ function updateSelectionSummary() {
     const interactionMessage = calculation.interactions.length > 0 ? 
         calculation.interactions[0].message : '정책 간 상호작용 없음';
 
+    let effectText = '효과 없음';
+    if (typeof gameUtils !== 'undefined') {
+        effectText = gameUtils.generateEffectText(calculation.totalEffects);
+    }
+
     summary.innerHTML = `
         <div class="summary-title">📋 선택 요약</div>
         <div class="summary-content">
@@ -964,7 +663,7 @@ function updateSelectionSummary() {
             </div>
             <div class="summary-effects">
                 <strong>예상 효과:</strong><br>
-                ${gameUtils.generateEffectText(calculation.totalEffects)}
+                ${effectText}
                 <br><br>
                 <strong>정책 상호작용:</strong><br>
                 ${interactionMessage}
@@ -975,26 +674,36 @@ function updateSelectionSummary() {
 
 // 정책 선택 초기화
 function clearSelection() {
+    if (typeof gameAPI === 'undefined') return;
+    
     const result = gameAPI.clearPolicySelection();
     if (result.success) {
         updatePolicyCards();
         updateSelectionSummary();
-        gameUtils.playSound('select');
+        if (typeof gameUtils !== 'undefined') gameUtils.playSound('select');
     }
 }
 
 // 정책 확정
 function confirmPolicies() {
+    if (typeof gameAPI === 'undefined') return;
+    
     const result = gameAPI.confirmPolicies();
     
     if (!result.success) {
-        gameUtils.showToast(result.error, 'error');
-        gameUtils.playSound('error');
+        if (typeof gameUtils !== 'undefined') {
+            gameUtils.showToast(result.error, 'error');
+            gameUtils.playSound('error');
+        } else {
+            alert(result.error);
+        }
         return;
     }
 
-    gameUtils.playSound('confirm');
-    gameUtils.showToast('정책이 확정되었습니다!', 'success');
+    if (typeof gameUtils !== 'undefined') {
+        gameUtils.playSound('confirm');
+        gameUtils.showToast('정책이 확정되었습니다!', 'success');
+    }
 
     // UI 업데이트
     updateIndicators(result.status.indicators);
@@ -1024,7 +733,12 @@ function showCitizenReactions(policies) {
     display.innerHTML = '';
     
     policies.forEach(policyName => {
-        const reaction = GameData.getMemeReaction(policyName);
+        let reaction = '시민들이 이 정책에 대해 이야기하고 있습니다 💬';
+        
+        if (typeof GameData !== 'undefined') {
+            reaction = GameData.getMemeReaction(policyName);
+        }
+        
         const memeItem = document.createElement('div');
         memeItem.className = 'meme-item fade-in';
         memeItem.innerHTML = `<strong>${policyName}:</strong><br>${reaction}`;
@@ -1040,10 +754,16 @@ function showCitizenReactions(policies) {
 
 // 다음 턴 진행
 function proceedToNextTurn() {
+    if (typeof gameAPI === 'undefined') return;
+    
     const result = gameAPI.advanceToNextTurn();
     
     if (!result.success) {
-        gameUtils.showToast(result.error, 'error');
+        if (typeof gameUtils !== 'undefined') {
+            gameUtils.showToast(result.error, 'error');
+        } else {
+            alert(result.error);
+        }
         return;
     }
 
@@ -1054,7 +774,10 @@ function proceedToNextTurn() {
         updateGameHeader(result.status);
         loadPoliciesForCategory(result.status.category);
         clearPolicySelection();
-        gameUtils.showToast(`턴 ${result.status.turn} 시작!`, 'info');
+        
+        if (typeof gameUtils !== 'undefined') {
+            gameUtils.showToast(`턴 ${result.status.turn} 시작!`, 'info');
+        }
     }
 }
 
@@ -1071,9 +794,16 @@ function showEventPopup(event) {
     // 기본 효과 표시
     const effectsDiv = document.getElementById('eventEffects');
     if (effectsDiv) {
+        let effectText = '효과 없음';
+        if (typeof gameUtils !== 'undefined') {
+            effectText = gameUtils.generateEffectText(event.effects);
+        } else {
+            effectText = Object.entries(event.effects).map(([k, v]) => `${k}: ${v > 0 ? '+' : ''}${v}`).join(', ');
+        }
+        
         effectsDiv.innerHTML = `
             <strong>즉시 효과:</strong><br>
-            ${gameUtils.generateEffectText(event.effects)}
+            ${effectText}
         `;
     }
     
@@ -1087,9 +817,17 @@ function showEventPopup(event) {
                 const button = document.createElement('button');
                 button.className = 'event-choice-btn';
                 button.onclick = () => selectEventChoice(choiceKey);
+                
+                let choiceEffectText = '효과 없음';
+                if (typeof gameUtils !== 'undefined') {
+                    choiceEffectText = gameUtils.generateEffectText(choiceEffects);
+                } else {
+                    choiceEffectText = Object.entries(choiceEffects).map(([k, v]) => `${k}: ${v > 0 ? '+' : ''}${v}`).join(', ');
+                }
+                
                 button.innerHTML = `
                     <strong>${choiceKey}</strong><br>
-                    효과: ${gameUtils.generateEffectText(choiceEffects)}
+                    효과: ${choiceEffectText}
                 `;
                 choicesDiv.appendChild(button);
             });
@@ -1107,6 +845,8 @@ function showEventPopup(event) {
 
 // 이벤트 선택지 선택
 function selectEventChoice(choiceKey) {
+    if (typeof gameAPI === 'undefined') return;
+    
     const result = gameAPI.applyEventChoice(currentEvent, choiceKey);
     
     if (result.success) {
@@ -1114,20 +854,40 @@ function selectEventChoice(choiceKey) {
         updateIndicators(result.status.indicators);
         
         const message = choiceKey ? `"${choiceKey}" 선택됨` : '이벤트 처리 완료';
-        gameUtils.showToast(message, 'success');
+        if (typeof gameUtils !== 'undefined') {
+            gameUtils.showToast(message, 'success');
+        }
         
         setTimeout(() => {
             proceedToNextTurn();
         }, 1000);
     } else {
-        gameUtils.showToast(result.error, 'error');
+        if (typeof gameUtils !== 'undefined') {
+            gameUtils.showToast(result.error, 'error');
+        } else {
+            alert(result.error);
+        }
     }
 }
 
 // 결과 화면 표시
 function showResultsScreen(gameResult) {
     try {
-        const stats = gameAPI.calculateGameStats();
+        let stats = null;
+        if (typeof gameAPI !== 'undefined') {
+            stats = gameAPI.calculateGameStats();
+        } else {
+            // 기본 통계
+            stats = {
+                totalScore: gameResult.totalScore || 0,
+                budgetUsed: 0,
+                budgetEfficiency: 0,
+                citizenSatisfaction: 0,
+                sustainability: 0,
+                policiesSelected: 0,
+                turnsCompleted: 5
+            };
+        }
         
         const finalTitle = document.getElementById('finalTitle');
         if (finalTitle) {
@@ -1146,22 +906,40 @@ function showResultsScreen(gameResult) {
         
         // 최종 통계
         const finalStats = document.getElementById('finalStats');
-        if (finalStats && gameState) {
+        if (finalStats && gameResult.finalIndicators) {
+            let indicatorRows = '';
+            
+            Object.entries(gameResult.finalIndicators).forEach(([indicator, value]) => {
+                let indicatorName = indicator;
+                let change = 0;
+                let changeText = '+0';
+                let changeClass = 'positive';
+                
+                // 지표 이름 가져오기
+                if (typeof GameData !== 'undefined') {
+                    const info = GameData.getIndicatorInfo(indicator);
+                    if (info) indicatorName = info.name;
+                }
+                
+                // 변화량 계산
+                if (typeof gameState !== 'undefined' && gameState.initialIndicators) {
+                    change = value - (gameState.initialIndicators[indicator] || 0);
+                    changeText = change >= 0 ? `+${change}` : change.toString();
+                    changeClass = change >= 0 ? 'positive' : 'negative';
+                }
+                
+                indicatorRows += `
+                    <div class="stat-row">
+                        <span>${indicatorName}</span>
+                        <span class="${changeClass}">${value} (${changeText})</span>
+                    </div>
+                `;
+            });
+            
             finalStats.innerHTML = `
                 <div class="stat-group">
                     <div class="stat-group-title">📊 종합 지표</div>
-                    ${Object.entries(gameResult.finalIndicators).map(([indicator, value]) => {
-                        const info = GameData.getIndicatorInfo(indicator);
-                        const change = value - (gameState.initialIndicators[indicator] || 0);
-                        const changeText = change >= 0 ? `+${change}` : change;
-                        const changeClass = change >= 0 ? 'positive' : 'negative';
-                        return `
-                            <div class="stat-row">
-                                <span>${info.name}</span>
-                                <span class="${changeClass}">${value} (${changeText})</span>
-                            </div>
-                        `;
-                    }).join('')}
+                    ${indicatorRows}
                 </div>
                 
                 <div class="stat-group">
@@ -1192,7 +970,7 @@ function showResultsScreen(gameResult) {
                     </div>
                     <div class="stat-row">
                         <span>완료한 턴</span>
-                        <span>${stats.turnsCompleted}/${GAME_CONFIG.total_turns}</span>
+                        <span>${stats.turnsCompleted}/${typeof GAME_CONFIG !== 'undefined' ? GAME_CONFIG.total_turns : 5}</span>
                     </div>
                 </div>
             `;
@@ -1214,7 +992,7 @@ function showResultsScreen(gameResult) {
         }
         
         showScreen('resultsScreen');
-        gameUtils.playSound('success');
+        if (typeof gameUtils !== 'undefined') gameUtils.playSound('success');
         updateStatusBar('게임 완료!');
         
         console.log('결과 화면 표시 완료');
@@ -1254,4 +1032,469 @@ function calculateAchievements(gameResult, stats) {
     return achievements;
 }
 
-//
+// 게임 재시작
+function restartGame() {
+    if (typeof gameAPI !== 'undefined') {
+        gameAPI.restartGame();
+    }
+    
+    selectedNationName = null;
+    currentEvent = null;
+    
+    const selectedNationElement = document.getElementById('selectedNation');
+    const startButton = document.getElementById('startBtn');
+    
+    if (selectedNationElement) {
+        selectedNationElement.textContent = '국가를 선택해주세요';
+    }
+    if (startButton) {
+        startButton.disabled = true;
+    }
+    
+    document.querySelectorAll('.nation-card').forEach(card => {
+        card.classList.remove('selected');
+    });
+    
+    showScreen('startScreen');
+    updateStatusBar('게임 준비 완료');
+    
+    if (typeof gameUtils !== 'undefined') {
+        gameUtils.showToast('게임이 초기화되었습니다', 'info');
+    }
+}
+
+// 결과 공유
+function shareResults() {
+    let shareText = '픽셀 정치 시뮬레이터 결과를 공유합니다!';
+    
+    if (typeof gameAPI !== 'undefined') {
+        try {
+            const gameStatus = gameAPI.getGameStatus();
+            const stats = gameAPI.calculateGameStats();
+            const finalTitle = document.getElementById('finalTitle');
+            
+            shareText = `
+🎮 픽셀 정치 시뮬레이터 결과 🎮
+
+🏛️ 국가: ${gameStatus.nation || selectedNationName}
+🏆 최종 등급: ${finalTitle ? finalTitle.textContent : '알 수 없음'}
+📊 총점: ${stats.totalScore}/40
+😊 시민 만족도: ${stats.citizenSatisfaction}
+🌱 지속가능성: ${stats.sustainability}
+
+나도 국가를 설계해보자! 
+#픽셀정치시뮬레이터 #국가설계게임
+            `.trim();
+        } catch (error) {
+            console.error('공유 텍스트 생성 실패:', error);
+        }
+    }
+    
+    if (navigator.share) {
+        navigator.share({
+            title: '픽셀 정치 시뮬레이터 결과',
+            text: shareText
+        });
+    } else if (navigator.clipboard) {
+        navigator.clipboard.writeText(shareText).then(() => {
+            if (typeof gameUtils !== 'undefined') {
+                gameUtils.showToast('결과가 클립보드에 복사되었습니다!', 'success');
+            } else {
+                alert('결과가 클립보드에 복사되었습니다!');
+            }
+        }).catch(() => {
+            alert('클립보드 복사에 실패했습니다.');
+        });
+    } else {
+        alert('공유 기능을 사용할 수 없습니다.');
+    }
+}
+
+// 결과 저장
+function saveResults() {
+    if (typeof gameUtils !== 'undefined') {
+        gameUtils.showToast('결과 저장 기능은 추후 구현 예정입니다', 'info');
+    } else {
+        alert('결과 저장 기능은 추후 구현 예정입니다');
+    }
+}
+
+// 도움말 관련 함수들
+function showHelp() {
+    showPopup('helpPopup');
+}
+
+function closeHelp() {
+    hidePopup('helpPopup');
+}
+
+function showHelpTab(tabName) {
+    // 모든 탭 숨기기
+    document.querySelectorAll('.help-tab-content').forEach(tab => {
+        tab.style.display = 'none';
+    });
+    
+    // 모든 탭 버튼 비활성화
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    
+    // 선택된 탭 표시
+    const selectedTab = document.getElementById(`helpTab${tabName.charAt(0).toUpperCase() + tabName.slice(1)}`);
+    if (selectedTab) {
+        selectedTab.style.display = 'block';
+    }
+    
+    // 선택된 버튼 활성화
+    event.target.classList.add('active');
+}
+
+function showPolicyHelp() {
+    showPopup('policyHelpPopup');
+}
+
+function closePolicyHelp() {
+    hidePopup('policyHelpPopup');
+}
+
+function showCredits() {
+    showPopup('creditsPopup');
+}
+
+function closeCredits() {
+    hidePopup('creditsPopup');
+}
+
+// 시민 패널 숨김
+function hideCitizenPanel() {
+    const panel = document.getElementById('citizenPanel');
+    if (panel) {
+        panel.classList.remove('active');
+    }
+}
+
+// 상태 바 업데이트
+function updateStatusBar(message) {
+    const statusElement = document.getElementById('gameStatus');
+    if (statusElement) {
+        statusElement.textContent = message;
+    }
+}
+
+// 교착상태 관련 함수들
+function checkForDeadlock() {
+    if (typeof gameAPI === 'undefined') return;
+    
+    const progressCheck = gameAPI.checkTurnProgress();
+    
+    if (progressCheck.success && !progressCheck.hasSelectablePolicies) {
+        showDeadlockWarning();
+    } else {
+        hideDeadlockWarning();
+    }
+}
+
+function showDeadlockWarning() {
+    // 기존 경고가 있으면 제거
+    const existingWarning = document.getElementById('deadlockWarning');
+    if (existingWarning) {
+        existingWarning.remove();
+    }
+    
+    const warning = document.createElement('div');
+    warning.id = 'deadlockWarning';
+    warning.className = 'deadlock-warning';
+    warning.innerHTML = `
+        <div class="warning-content">
+            <h3>⚠️ 선택 가능한 정책이 없습니다!</h3>
+            <p>현재 예산이나 요구조건으로는 어떤 정책도 선택할 수 없습니다.</p>
+            <p>이런 경우 턴을 스킵할 수 있지만, 시민 반응과 안정성이 감소합니다.</p>
+            <div class="warning-buttons">
+                <button class="pixel-btn danger" onclick="skipTurn()">
+                    ⏭️ 턴 스킵 (페널티 적용)
+                </button>
+                <button class="pixel-btn secondary" onclick="showEmergencyOptions()">
+                    🆘 비상 옵션
+                </button>
+            </div>
+        </div>
+    `;
+    
+    const policySection = document.querySelector('.policy-section');
+    if (policySection) {
+        policySection.appendChild(warning);
+    }
+}
+
+function hideDeadlockWarning() {
+    const warning = document.getElementById('deadlockWarning');
+    if (warning) {
+        warning.remove();
+    }
+}
+
+function skipTurn() {
+    if (typeof gameAPI === 'undefined') return;
+    
+    const result = gameAPI.skipCurrentTurn();
+    
+    if (result.success) {
+        if (typeof gameUtils !== 'undefined') {
+            gameUtils.playSound('error');
+            gameUtils.showToast('턴이 스킵되었습니다. 페널티가 적용됩니다.', 'warning');
+        } else {
+            alert('턴이 스킵되었습니다. 페널티가 적용됩니다.');
+        }
+        
+        // UI 업데이트
+        const gameStatus = gameAPI.getGameStatus();
+        updateIndicators(gameStatus.indicators);
+        
+        // 시민 반응 표시
+        showCitizenReactions(['턴 스킵']);
+        
+        setTimeout(() => {
+            proceedToNextTurn();
+        }, 2000);
+    } else {
+        if (typeof gameUtils !== 'undefined') {
+            gameUtils.showToast(result.error, 'error');
+        } else {
+            alert(result.error);
+        }
+    }
+}
+
+function showEmergencyOptions() {
+    const popup = document.createElement('div');
+    popup.className = 'popup-overlay active';
+    popup.innerHTML = `
+        <div class="popup-content">
+            <div class="popup-header">
+                <h3>🆘 비상 상황 대처법</h3>
+                <button class="close-btn" onclick="closeEmergencyOptions()">✖</button>
+            </div>
+            <div class="popup-body">
+                <h4>💡 상황 해결 방법</h4>
+                <ul>
+                    <li><strong>턴 스킵:</strong> 이번 턴을 건너뛰고 다음 턴으로 진행 (페널티 적용)</li>
+                    <li><strong>예산 부족:</strong> 이전 턴에서 비용이 낮은 정책을 선택했어야 합니다</li>
+                    <li><strong>요구조건 미달:</strong> 지표를 개선하는 정책을 먼저 선택했어야 합니다</li>
+                </ul>
+                
+                <h4>🎯 게임 팁</h4>
+                <ul>
+                    <li>항상 다음 턴을 고려해서 예산을 관리하세요</li>
+                    <li>지표 균형을 맞춰서 요구조건을 충족하세요</li>
+                    <li>국가별 특성을 활용해서 비용을 절약하세요</li>
+                </ul>
+                
+                <div style="text-align: center; margin-top: 20px;">
+                    <button class="pixel-btn danger" onclick="skipTurn(); closeEmergencyOptions();">
+                        ⏭️ 턴 스킵하기
+                    </button>
+                    <button class="pixel-btn secondary" onclick="restartGame();">
+                        🔄 게임 재시작
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(popup);
+}
+
+function closeEmergencyOptions() {
+    const popup = document.querySelector('.popup-overlay');
+    if (popup && popup.parentNode) {
+        popup.parentNode.removeChild(popup);
+    }
+}
+
+// 이벤트 리스너들
+document.addEventListener('keydown', function(event) {
+    if (event.key === 'Escape') {
+        // ESC 키로 팝업 닫기
+        document.querySelectorAll('.popup-overlay.active').forEach(popup => {
+            popup.classList.remove('active');
+        });
+    } else if (event.key === 'Enter') {
+        // Enter 키로 확인 버튼 클릭
+        const confirmBtn = document.getElementById('confirmBtn');
+        if (confirmBtn && !confirmBtn.disabled && confirmBtn.style.display !== 'none') {
+            confirmPolicies();
+        }
+    } else if (event.key >= '1' && event.key <= '5') {
+        // 숫자 키로 정책 선택 (게임 화면에서만)
+        const gameScreen = document.getElementById('gameScreen');
+        if (gameScreen && gameScreen.classList.contains('active')) {
+            const policyCards = document.querySelectorAll('.policy-card:not(.disabled)');
+            const index = parseInt(event.key) - 1;
+            if (index < policyCards.length) {
+                policyCards[index].click();
+            }
+        }
+    }
+});
+
+// 화면 크기 변경 감지
+window.addEventListener('resize', function() {
+    const citizenPanel = document.getElementById('citizenPanel');
+    if (citizenPanel) {
+        if (window.innerWidth <= 768) {
+            citizenPanel.style.position = 'relative';
+            citizenPanel.style.right = 'auto';
+            citizenPanel.style.top = 'auto';
+            citizenPanel.style.transform = 'none';
+        } else {
+            citizenPanel.style.position = 'fixed';
+            citizenPanel.style.right = '20px';
+            citizenPanel.style.top = '50%';
+            citizenPanel.style.transform = 'translateY(-50%)';
+        }
+    }
+});
+
+// 페이지 종료 전 경고
+window.addEventListener('beforeunload', function(event) {
+    if (typeof gameAPI !== 'undefined') {
+        const gameStatus = gameAPI.getGameStatus();
+        if (gameStatus.active && gameStatus.turn > 1) {
+            event.preventDefault();
+            event.returnValue = '게임이 진행 중입니다. 정말 나가시겠습니까?';
+            return event.returnValue;
+        }
+    }
+});
+
+// 자동 저장
+setInterval(() => {
+    if (typeof gameAPI !== 'undefined') {
+        const gameStatus = gameAPI.getGameStatus();
+        if (gameStatus.active) {
+            gameAPI.saveGameToStorage();
+        }
+    }
+}, 5000);
+
+// 저장된 게임 확인
+window.addEventListener('load', function() {
+    if (typeof gameAPI !== 'undefined') {
+        const savedGame = gameAPI.loadGameFromStorage();
+        if (savedGame && savedGame.gameState && savedGame.gameState.gameActive) {
+            if (confirm('저장된 게임을 발견했습니다. 이어서 하시겠습니까?')) {
+                if (typeof gameUtils !== 'undefined') {
+                    gameUtils.showToast('저장된 게임 로드 기능은 추후 구현 예정입니다', 'info');
+                }
+            }
+        }
+    }
+});
+
+// 성능 모니터링
+let frameCount = 0;
+let lastTime = performance.now();
+
+function updatePerformance() {
+    frameCount++;
+    const currentTime = performance.now();
+    
+    if (currentTime - lastTime >= 1000) {
+        const fps = Math.round((frameCount * 1000) / (currentTime - lastTime));
+        const systemStatus = document.getElementById('systemStatus');
+        if (systemStatus) {
+            systemStatus.textContent = `FPS: ${fps}`;
+        }
+        frameCount = 0;
+        lastTime = currentTime;
+    }
+    
+    requestAnimationFrame(updatePerformance);
+}
+
+requestAnimationFrame(updatePerformance);
+
+// 터치 이벤트
+let touchStartY = 0;
+document.addEventListener('touchstart', function(event) {
+    touchStartY = event.touches[0].clientY;
+});
+
+document.addEventListener('touchend', function(event) {
+    const touchEndY = event.changedTouches[0].clientY;
+    const diff = touchStartY - touchEndY;
+    
+    if (Math.abs(diff) > 50) {
+        const citizenPanel = document.getElementById('citizenPanel');
+        if (citizenPanel) {
+            if (diff > 0) {
+                citizenPanel.classList.remove('active');
+            } else {
+                if (typeof gameAPI !== 'undefined') {
+                    const gameStatus = gameAPI.getGameStatus();
+                    if (gameStatus.active) {
+                        citizenPanel.classList.add('active');
+                    }
+                }
+            }
+        }
+    }
+});
+
+// 디버그 모드
+window.debugMode = false;
+window.toggleDebug = function() {
+    window.debugMode = !window.debugMode;
+    if (window.debugMode) {
+        console.log('디버그 모드 활성화');
+        if (typeof gameAPI !== 'undefined') {
+            console.log('게임 상태:', gameAPI.getDebugInfo());
+        }
+        
+        let debugPanel = document.getElementById('debugPanel');
+        if (!debugPanel) {
+            debugPanel = document.createElement('div');
+            debugPanel.id = 'debugPanel';
+            debugPanel.style.cssText = `
+                position: fixed; top: 10px; left: 10px; 
+                background: rgba(0,0,0,0.8); color: #00ff88; 
+                padding: 10px; font-size: 8px; z-index: 9999;
+                border: 1px solid #00ff88; max-width: 200px;
+            `;
+            document.body.appendChild(debugPanel);
+        }
+        
+        const updateDebug = () => {
+            if (window.debugMode && debugPanel && typeof gameAPI !== 'undefined') {
+                const info = gameAPI.getDebugInfo();
+                debugPanel.innerHTML = `
+                    <strong>DEBUG MODE</strong><br>
+                    Active: ${info.gameActive || false}<br>
+                    Turn: ${info.currentTurn || 0}/${typeof GAME_CONFIG !== 'undefined' ? GAME_CONFIG.total_turns : 5}<br>
+                    Nation: ${info.currentNation || 'None'}<br>
+                    Budget: ${info.budget || 0}<br>
+                    Selection: ${info.currentSelection?.length || 0}
+                `;
+            }
+        };
+        
+        setInterval(updateDebug, 1000);
+    } else {
+        console.log('디버그 모드 비활성화');
+        const debugPanel = document.getElementById('debugPanel');
+        if (debugPanel) {
+            debugPanel.remove();
+        }
+    }
+};
+
+// 개발자 도구 안내
+console.log(`
+🎮 픽셀 정치 시뮬레이터 개발자 도구
+- window.toggleDebug() : 디버그 모드 토글
+- gameAPI : 게임 API 접근
+- gameUtils : 유틸리티 함수들
+- GameData : 게임 데이터 접근
+`);
+
+console.log('🎨 UI 시스템 로딩 완료!');
