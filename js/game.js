@@ -13,6 +13,13 @@ class GameState {
         this.turnHistory = [];
         this.currentSelection = [];
         this.gameActive = false;
+        this.categoryStats = {
+        '복지': 0,
+        '경제': 0, 
+        '환경': 0,
+        '교육': 0,
+        '외교': 0
+    };
     }
 
     // 새 게임 시작
@@ -33,33 +40,77 @@ class GameState {
         this.turnHistory = [];
         this.currentSelection = [];
         this.gameActive = true;
+         this.categoryStats = {
+        '복지': 0,
+        '경제': 0,
+        '환경': 0, 
+        '교육': 0,
+        '외교': 0
+     };
 
-        console.log(`새 게임 시작: ${nationName}`);
-        console.log(`초기 예산: ${this.budget}pt`);
-        console.log(`초기 지표:`, this.indicators);
+       console.log(`새 게임 시작: ${nationName}`);
+       console.log(`초기 예산: ${this.budget}pt`);
+       console.log(`초기 지표:`, this.indicators);
     }
 
     // 현재 카테고리 가져오기
-    getCurrentCategory() {
-        if (this.currentTurn <= GAME_CONFIG.category_order.length) {
-            return GAME_CONFIG.category_order[this.currentTurn - 1];
-        }
+    getCurrentAvailableCategories() {
+    return ['복지', '경제', '환경', '교육', '외교'];
+    }
         return null;
     }
 
+    // 카테고리에서 선택 가능한지 확인
+    canSelectFromCategory(category) {
+    // 규칙: 한 카테고리에서 게임 전체에 최대 4개까지
+    return this.categoryStats[category] < 4;
+    }
+
+   / 정책이 속한 카테고리 찾기
+findPolicyCategory(policyName) {
+    // 기본 정책에서 찾기
+    for (const [category, policies] of Object.entries(POLICIES_DATA)) {
+        if (policies.some(p => p.정책명 === policyName)) {
+            return category;
+        }
+    }
+    
+    // 긴급정책에서 찾기
+    if (typeof EMERGENCY_POLICIES !== 'undefined') {
+        for (const [category, policies] of Object.entries(EMERGENCY_POLICIES)) {
+            if (policies.some(p => p.정책명 === policyName)) {
+                return category;
+            }
+        }
+    }
+    
+    return null;
+}
+
     // 정책 선택
     selectPolicy(policyName) {
-        if (this.currentSelection.length >= GAME_CONFIG.policies_per_turn) {
-            throw new Error(`최대 ${GAME_CONFIG.policies_per_turn}개까지만 선택 가능합니다`);
-        }
-
-        if (this.currentSelection.includes(policyName)) {
-            throw new Error('이미 선택된 정책입니다');
-        }
-
-        this.currentSelection.push(policyName);
-        console.log(`정책 선택: ${policyName}`);
+    if (this.currentSelection.length >= GAME_CONFIG.policies_per_turn) {
+        throw new Error(`최대 ${GAME_CONFIG.policies_per_turn}개까지만 선택 가능합니다`);
     }
+
+    if (this.currentSelection.includes(policyName)) {
+        throw new Error('이미 선택된 정책입니다');
+    }
+
+    // 정책이 속한 카테고리 찾기
+    const category = this.findPolicyCategory(policyName);
+    if (!category) {
+        throw new Error('정책을 찾을 수 없습니다');
+    }
+
+    // 카테고리 선택 제한 확인
+    if (!this.canSelectFromCategory(category)) {
+        throw new Error(`${category} 카테고리는 더 이상 선택할 수 없습니다 (최대 4개)`);
+    }
+
+    this.currentSelection.push(policyName);
+    console.log(`정책 선택: ${policyName} (${category})`);
+}
 
     // 정책 선택 취소
     deselectPolicy(policyName) {
@@ -134,43 +185,52 @@ class GameState {
 
     // 정책 확정
     confirmPolicies() {
-        if (this.currentSelection.length === 0) {
-            throw new Error('선택된 정책이 없습니다');
-        }
-
-        try {
-            const result = this.calculatePolicyEffects(this.currentSelection);
-            
-            // 예산 차감
-            this.budget -= result.totalCost;
-            
-            // 지표 적용
-            this.applyEffects(result.totalEffects);
-            
-            // 예산 페널티 별도 확인
-            this.checkAndApplyBudgetPenalty();
-            
-            // 기록
-            this.turnHistory.push({
-                turn: this.currentTurn,
-                category: this.getCurrentCategory(),
-                policies: [...this.currentSelection],
-                cost: result.totalCost,
-                effects: result.totalEffects,
-                budgetAfter: this.budget
-            });
-
-            this.selectedPolicies.push(...this.currentSelection);
-            this.currentSelection = [];
-
-            console.log(`턴 ${this.currentTurn} 정책 확정:`, result);
-            
-            return result;
-        } catch (error) {
-            console.error('정책 확정 중 오류:', error);
-            throw error;
-        }
+    if (this.currentSelection.length === 0) {
+        throw new Error('선택된 정책이 없습니다');
     }
+
+    try {
+        const result = this.calculatePolicyEffects(this.currentSelection);
+        
+        // 예산 차감
+        this.budget -= result.totalCost;
+        
+        // 지표 적용
+        this.applyEffects(result.totalEffects);
+        
+        // 예산 페널티 별도 확인
+        this.checkAndApplyBudgetPenalty();
+        
+        // 카테고리별 통계 업데이트 (새로 추가)
+        this.currentSelection.forEach(policyName => {
+            const category = this.findPolicyCategory(policyName);
+            if (category) {
+                this.categoryStats[category]++;
+            }
+        });
+        
+        // 기록 (getCurrentCategory() 부분 수정)
+        this.turnHistory.push({
+            turn: this.currentTurn,
+            category: '자유선택', // 수정된 부분
+            policies: [...this.currentSelection],
+            cost: result.totalCost,
+            effects: result.totalEffects,
+            budgetAfter: this.budget
+        });
+
+        this.selectedPolicies.push(...this.currentSelection);
+        this.currentSelection = [];
+
+        console.log(`턴 ${this.currentTurn} 정책 확정:`, result);
+        console.log('카테고리별 선택 현황:', this.categoryStats);
+        
+        return result;
+    } catch (error) {
+        console.error('정책 확정 중 오류:', error);
+        throw error;
+    }
+}
 
     // 정책 효과 계산
     calculatePolicyEffects(policyNames) {
@@ -397,11 +457,12 @@ class GameState {
             nation: this.currentNation,
             turn: this.currentTurn,
             maxTurns: this.maxTurns,
-            category: this.getCurrentCategory(),
+            category: '자유선택',
             budget: this.budget,
             debtLimit: this.debtLimit,
             indicators: { ...this.indicators },
             currentSelection: [...this.currentSelection],
+            categoryStats: { ...this.categoryStats },
             gameActive: this.gameActive,
             totalScore: Object.values(this.indicators).reduce((sum, val) => sum + val, 0)
         };
@@ -844,3 +905,4 @@ window.gameUtils = {
     addAnimation,
     playSound
 };
+
