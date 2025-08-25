@@ -57,8 +57,6 @@ class GameState {
     getCurrentAvailableCategories() {
     return ['복지', '경제', '환경', '교육', '외교'];
     }
-        return null;
-    }
 
     // 카테고리에서 선택 가능한지 확인
     canSelectFromCategory(category) {
@@ -924,5 +922,6 @@ window.gameUtils = {
     addAnimation,
     playSound
 };
+
 
 
