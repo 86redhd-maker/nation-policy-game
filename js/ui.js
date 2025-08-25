@@ -55,9 +55,7 @@ function initializeStartScreen() {
     try {
         console.log('시작 화면 초기화 시작');
         
-        // 이 함수는 국가 선택 UI를 보여주는 역할만 수행해야 합니다.
-        // 게임 상태에 의존하는 코드는 이곳에 있으면 안 됩니다.
-        
+        // 이 함수는 단순히 'startScreen'을 활성화하는 역할만 수행해야 합니다.
         showScreen('startScreen');
         
         console.log('시작 화면 초기화 완료');
@@ -1689,6 +1687,7 @@ console.log(`
 `);
 
 console.log('🎨 UI 시스템 로딩 완료!');
+
 
 
 
