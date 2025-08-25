@@ -77,16 +77,17 @@ const NATIONS_DATA = {
     "description": "정치·사회·경제 모두 불안정한 상태에서 재건이 필요한 국가",
     "difficulty": "상",
     "difficulty_stars": 3,
-    "initial_budget": 60,
-    "debt_limit": -20,
+    "initial_budget": 70,
+    "debt_limit": -25,
     "budget_description": "극도로 제한된 예산. 모든 선택이 생존과 직결됨. 진정한 하드모드",
     "initialIndicators": {
       "경제": -2, "기술": -1, "시민 반응": -3, "환경": -1,
       "재정": -2, "안정성": -3, "복지": -1, "외교": -1
     },
     "special_features": [
-      "모든 정책 비용 +20% (높은 사회적 저항과 인프라 부족)",
-      "적자 허용도 매우 낮음 (-20pt만 허용)",
+      "위기국가 전용 긴급정책 접근 가능",
+      "모든 정책 비용 +20% (하지만 긴급정책은 할인)",
+      "적자 허용도 낮음 (-25pt만 허용)",
       "재건 관련 특별 이벤트 확률 +60%",
       "국제 원조 관련 이벤트 확률 +40%"
     ],
@@ -834,14 +835,25 @@ const GameData = {
   // 정책 데이터 가져오기
   getPoliciesByCategory: (category) => POLICIES_DATA[category] || [],
   
-  // 정책 찾기
-  findPolicy: (policyName) => {
-    for (const category in POLICIES_DATA) {
-      const policy = POLICIES_DATA[category].find(p => p.정책명 === policyName);
-      if (policy) return policy;
-    }
-    return null;
-  },
+  // 긴급정책 가져오기 (위기국가 전용)
+getEmergencyPolicies: (category) => EMERGENCY_POLICIES[category] || [],
+
+// 정책 찾기 (긴급정책 포함)
+findPolicyIncludingEmergency: (policyName) => {
+  // 기본 정책에서 찾기
+  for (const category in POLICIES_DATA) {
+    const policy = POLICIES_DATA[category].find(p => p.정책명 === policyName);
+    if (policy) return policy;
+  }
+  
+  // 긴급정책에서 찾기
+  for (const category in EMERGENCY_POLICIES) {
+    const policy = EMERGENCY_POLICIES[category].find(p => p.정책명 === policyName);
+    if (policy) return policy;
+  }
+  
+  return null;
+},
   
   // 지표 정보 가져오기
   getIndicatorInfo: (indicator) => INDICATORS_INFO[indicator],
@@ -949,6 +961,107 @@ const GameData = {
     return combinations;
   }
 };
+   // 위기국가 전용 긴급정책
+   const EMERGENCY_POLICIES = {
+  "복지": [
+    {
+      "정책명": "🆘 긴급구호 배급소 운영",
+      "비용": 15,
+      "효과": {"복지": 8, "시민 반응": 6, "안정성": 2},
+      "요구조건": {},
+      "충돌정책": [],
+      "시너지정책": ["국제사회 긴급지원 요청"],
+      "정책_설명": "생존에 필요한 최소한의 식량과 의료품을 무료로 배급",
+      "예상_시민반응": "목숨을 구해주셔서 감사합니다... 😢🙏",
+      "emergency_only": true
+    },
+    {
+      "정책명": "🏥 야전 의료소 설치",
+      "비용": 20,
+      "효과": {"복지": 6, "안정성": 3, "시민 반응": 4},
+      "요구조건": {"안정성": -4},
+      "충돌정책": [],
+      "시너지정책": ["긴급구호 배급소 운영"],
+      "정책_설명": "천막으로라도 응급처치가 가능한 의료소를 설치",
+      "예상_시민반응": "간단한 치료라도 받을 수 있어서 다행이에요 🩹",
+      "emergency_only": true
+    }
+  ],
+  "경제": [
+    {
+      "정책명": "🔨 폐허 정리 공공근로",
+      "비용": 18,
+      "효과": {"경제": 6, "복지": 4, "환경": 3, "시민 반응": 3},
+      "요구조건": {},
+      "충돌정책": [],
+      "시너지정책": [],
+      "정책_설명": "무너진 건물 잔해 정리하며 일자리 제공",
+      "예상_시민반응": "일이라도 있어서 다행... 다시 시작해볼게요 💪",
+      "emergency_only": true
+    },
+    {
+      "정책명": "💰 생계비 긴급지원",
+      "비용": 25,
+      "효과": {"경제": 4, "복지": 6, "시민 반응": 8},
+      "요구조건": {"경제": -3},
+      "충돌정책": [],
+      "시너지정책": ["긴급구호 배급소 운영"],
+      "정책_설명": "최소 생계유지를 위한 현금 직접 지원",
+      "예상_시민반응": "당장의 생존이라도... 정말 감사합니다 😭💰",
+      "emergency_only": true
+    }
+  ],
+  "환경": [
+    {
+      "정책명": "🚰 식수 공급 시설 응급복구",
+      "비용": 12,
+      "효과": {"환경": 6, "복지": 8, "안정성": 4},
+      "요구조건": {},
+      "충돌정책": [],
+      "시너지정책": [],
+      "정책_설명": "최소한의 깨끗한 식수라도 공급할 수 있도록 긴급 복구",
+      "예상_시민반응": "깨끗한 물이 나와요! 이제 살 수 있겠어요 💧✨",
+      "emergency_only": true
+    }
+  ],
+  "교육": [
+    {
+      "정책명": "📚 천막학교 긴급 운영",
+      "비용": 10,
+      "효과": {"기술": 4, "복지": 6, "시민 반응": 8},
+      "요구조건": {},
+      "충돌정책": [],
+      "시너지정책": [],
+      "정책_설명": "천막이라도 아이들이 배울 수 있는 공간 마련",
+      "예상_시민반응": "우리 아이들에게 미래가... 희망이 보여요! 📖😊",
+      "emergency_only": true
+    }
+  ],
+  "외교": [
+    {
+      "정책명": "🌍 국제사회 긴급지원 요청",
+      "비용": 5,
+      "효과": {"외교": 6, "재정": 15, "경제": 4},
+      "요구조건": {},
+      "충돌정책": [],
+      "시너지정책": [],
+      "정책_설명": "자존심을 버리고 국제사회에 인도적 지원 요청",
+      "예상_시민반응": "자존심보다 생존이 우선이죠... 🙏🌍",
+      "emergency_only": true
+    },
+    {
+      "정책명": "🤝 해외동포 지원금 수용",
+      "비용": 8,
+      "효과": {"외교": 4, "재정": 12, "시민 반응": 6},
+      "요구조건": {"외교": -2},
+      "충돌정책": [],
+      "시너지정책": ["국제사회 긴급지원 요청"],
+      "정책_설명": "해외에 거주하는 동포들의 모금 지원금 수용",
+      "예상_시민반응": "멀리 있어도 우리를 생각해주는 분들이... 😭❤️",
+      "emergency_only": true
+    }
+  ]
+};
 
 // 전역 변수로 내보내기
 window.GameData = GameData;
@@ -962,3 +1075,5 @@ window.BUDGET_PENALTIES = BUDGET_PENALTIES;
 window.ENDINGS_DATA = ENDINGS_DATA;
 window.SPECIAL_ENDINGS = SPECIAL_ENDINGS;
 window.POLICY_COMBINATIONS = POLICY_COMBINATIONS;
+window.EMERGENCY_POLICIES = EMERGENCY_POLICIES;
+
