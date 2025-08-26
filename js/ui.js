@@ -1186,26 +1186,6 @@ function showResultsScreen(gameResult) {
         
         console.log('새 결과 화면 생성 완료!');
         
-        // ⭐ 강제 테스트 코드 추가 ⭐
-        setTimeout(() => {
-            document.getElementById('finalTitle').innerHTML = '🏆 강제 테스트!<br>게임 완료!';
-            document.getElementById('endingInfo').innerHTML = `
-                <div class="ending-title">테스트 성공!</div>
-                <div class="ending-description">JS 파일 수정으로 결과화면 표시</div>
-                <div class="final-score"><strong>최종 점수: 테스트/40점</strong></div>
-            `;
-            document.getElementById('finalStats').innerHTML = `
-                <div class="stat-group">
-                    <div class="stat-group-title">📊 강제 테스트 통계</div>
-                    <div class="stat-row"><span>테스트 결과</span><span>성공</span></div>
-                </div>
-            `;
-            document.getElementById('achievements').innerHTML = `
-                <div class="achievements-title">🏆 달성한 업적</div>
-                <div class="achievement-item">🎖️ JS 파일 수정 성공!</div>
-            `;
-        }, 100);
-        
         // 게임 결과가 없으면 기본값 생성
         if (!gameResult) {
             console.log('gameResult가 없음, 기본값 생성');
@@ -1921,6 +1901,7 @@ console.log(`
 `);
 
 console.log('🎨 UI 시스템 로딩 완료!');
+
 
 
 
