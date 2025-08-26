@@ -336,7 +336,30 @@
     <script src="js/data.js"></script>
     <script src="js/game.js"></script>
     <script src="js/ui.js"></script>
+        
+    <!-- 이벤트 팝업 -->
+<div id="eventPopup" class="popup-overlay">
+    <div class="popup-content">
+        <div class="popup-header">
+            <h3 id="eventTitle">🎯 이벤트 발생!</h3>
+            <button class="close-btn" onclick="hidePopup('eventPopup')">✖</button>
+        </div>
+        <div class="popup-body">
+            <div id="eventDescription" style="margin-bottom: 1rem; font-size: 1rem; line-height: 1.5;">
+                이벤트 설명이 여기에 표시됩니다.
+            </div>
+            <div class="event-effects" id="eventEffects" style="background: rgba(255, 107, 157, 0.1); padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
+                <strong>즉시 효과:</strong><br>
+                효과 내용이 여기에 표시됩니다.
+            </div>
+            <div class="event-choices" id="eventChoices" style="display: flex; flex-direction: column; gap: 0.5rem;">
+                <!-- 선택지 버튼들이 여기에 동적으로 생성됩니다 -->
+            </div>
+        </div>
+    </div>
+</div>
 </body>
 </html>
+
 
 
