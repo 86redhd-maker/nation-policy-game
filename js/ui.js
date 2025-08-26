@@ -1132,6 +1132,59 @@ function selectEventChoice(choiceKey) {
 function showResultsScreen(gameResult) {
     try {
         console.log('결과 화면 표시 시작:', gameResult);
+
+        // ⭐ 기존 문제 있는 resultsScreen 제거하고 새로 만들기 ⭐
+        const oldResultsScreen = document.getElementById('resultsScreen');
+        if (oldResultsScreen) {
+            oldResultsScreen.remove();
+        }
+        
+        // 완전히 새로운 결과 화면 생성
+        const newResultsScreen = document.createElement('div');
+        newResultsScreen.id = 'resultsScreen';
+        newResultsScreen.className = 'screen active';
+        newResultsScreen.innerHTML = `
+            <div class="results-container" style="padding: 2rem; min-height: 100vh;">
+                <div class="final-title" id="finalTitle">🏆 게임 완료!</div>
+                <div class="ending-info" id="endingInfo">
+                    <div class="ending-title">게임 결과</div>
+                    <div class="ending-description">게임을 완주하셨습니다!</div>
+                    <div class="final-score">최종 점수: 계산 중...</div>
+                </div>
+                <div class="final-stats" id="finalStats">
+                    <div class="stat-group">
+                        <div class="stat-group-title">📊 게임 통계</div>
+                        <div class="stat-row"><span>통계</span><span>로딩 중...</span></div>
+                    </div>
+                </div>
+                <div class="achievements" id="achievements">
+                    <div class="achievements-title">🏆 달성 업적</div>
+                    <div class="achievement-item">🎯 게임 완주!</div>
+                </div>
+                <div class="replay-buttons">
+                    <button class="pixel-btn" onclick="restartGame()">🔄 다시 플레이</button>
+                    <button class="pixel-btn secondary" onclick="shareResults()">📤 결과 공유</button>
+                </div>
+            </div>
+        `;
+        
+        newResultsScreen.style.cssText = `
+            display: block !important;
+            visibility: visible !important;
+            position: relative !important;
+            z-index: 1 !important;
+        `;
+        
+        // body에 추가
+        document.body.appendChild(newResultsScreen);
+        
+        // 다른 화면들 숨기기
+        document.querySelectorAll('.screen:not(#resultsScreen)').forEach(screen => {
+            screen.classList.remove('active');
+            screen.style.display = 'none';
+        });
+        
+        console.log('새 결과 화면 생성 완료!');
         
         // ⭐ 강제 테스트 코드 추가 ⭐
         setTimeout(() => {
@@ -1868,6 +1921,7 @@ console.log(`
 `);
 
 console.log('🎨 UI 시스템 로딩 완료!');
+
 
 
 
