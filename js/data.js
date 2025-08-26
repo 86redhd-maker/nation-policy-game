@@ -1078,6 +1078,7 @@ const MEME_REACTIONS = {
     "정치 공백 상태... 불안해요 😰",
     "국정 운영이 멈췄네요... 답답해요 😤"
   ]
+};
 
 // 이벤트 데이터 (events_detailed.json 기반)
 const EVENTS_DATA = {
@@ -1658,6 +1659,7 @@ window.ENDINGS_DATA = ENDINGS_DATA;
 window.SPECIAL_ENDINGS = SPECIAL_ENDINGS;
 window.POLICY_COMBINATIONS = POLICY_COMBINATIONS;
 window.EMERGENCY_POLICIES = EMERGENCY_POLICIES;
+
 
 
 
