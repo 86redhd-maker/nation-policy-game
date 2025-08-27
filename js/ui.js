@@ -59,11 +59,19 @@ function showScreen(screenId) {
 }
 // 팝업 표시/숨김
 function showPopup(popupId) {
-    document.getElementById(popupId).classList.add('active');
+  const el = document.getElementById(popupId);
+  if (!el) return;
+  document.body.classList.add('modal-open');   // 팝업 동안 transform/스크롤 제어
+  el.classList.add('active');                  // .popup-overlay.active { display:flex; }
+  el.setAttribute('aria-hidden', 'false');
 }
 
 function hidePopup(popupId) {
-    document.getElementById(popupId).classList.remove('active');
+  const el = document.getElementById(popupId);
+  if (!el) return;
+  el.classList.remove('active');
+  el.setAttribute('aria-hidden', 'true');
+  document.body.classList.remove('modal-open');
 }
 
 // 페이지 로드 시 초기화
@@ -1897,31 +1905,25 @@ function closeHelp() {
     hidePopup('helpPopup');
 }
 
-function showHelpTab(tabName) {
-    // 모든 탭 버튼 비활성화
-    document.querySelectorAll('.help-tab-btn').forEach(btn => {
-        btn.classList.remove('active');
-    });
-    
-    // 모든 탭 내용 숨기기
-    document.querySelectorAll('.help-tab-content').forEach(content => {
-        content.classList.remove('active');
-    });
-    
-    // 클릭된 탭 버튼 활성화
-    const clickedButton = event.target;
+function showHelpTab(tabName, evt) {
+  // 버튼/콘텐츠 초기화
+  document.querySelectorAll('.help-tab-btn').forEach(btn => btn.classList.remove('active'));
+  document.querySelectorAll('.help-tab-content').forEach(content => content.classList.remove('active'));
+
+  // 클릭된 버튼 활성화 (inline onclick일 때는 window.event로 백업)
+  const e = evt || window.event;
+  const clickedButton = (e && e.currentTarget) || (e && e.target);
+  if (clickedButton && clickedButton.classList) {
     clickedButton.classList.add('active');
-    
-    // 해당 탭 내용 표시
-    const targetTab = document.getElementById(`helpTab${tabName.charAt(0).toUpperCase() + tabName.slice(1)}`);
-    if (targetTab) {
-        targetTab.classList.add('active');
-    }
-    
-    // 소리 효과
-    if (typeof gameUtils !== 'undefined') {
-        gameUtils.playSound('select');
-    }
+  }
+
+  // 탭 표시
+  const targetId = `helpTab${tabName.charAt(0).toUpperCase()}${tabName.slice(1)}`;
+  const targetTab = document.getElementById(targetId);
+  if (targetTab) targetTab.classList.add('active');
+
+  // 효과음(옵션)
+  if (typeof gameUtils !== 'undefined') gameUtils.playSound('select');
 }
 
 function showPolicyHelp() {
@@ -2520,6 +2522,7 @@ console.log(`
 `);
 
 console.log('🎨 UI 시스템 로딩 완료!');
+
 
 
 
