@@ -2296,10 +2296,6 @@ function showHelp() {
   document.body.appendChild(newPopup);
   console.log('완전판 도움말 팝업 생성 완료');
 }
-  
-  document.body.appendChild(newPopup);
-  console.log('새 팝업 생성 완료');
-}
 
 function closeHelp() {
   console.log('도움말 팝업 닫기');
@@ -3083,6 +3079,7 @@ function bindHelpButtons() {
         }
     });
 }
+
 
 
 
