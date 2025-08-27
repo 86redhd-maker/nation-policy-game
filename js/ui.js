@@ -1905,6 +1905,12 @@ function closeHelp() {
     hidePopup('helpPopup');
 }
 
+// 버튼에 onclick이 없다면 DOM 로드 시 강제로 연결
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('#btn-howto, .btn-help, [data-open-help]')
+    .forEach(btn => btn.addEventListener('click', showHelp));
+});
+
 function showHelpTab(tabName, evt) {
   // 버튼/콘텐츠 초기화
   document.querySelectorAll('.help-tab-btn').forEach(btn => btn.classList.remove('active'));
@@ -2522,6 +2528,7 @@ console.log(`
 `);
 
 console.log('🎨 UI 시스템 로딩 완료!');
+
 
 
 
