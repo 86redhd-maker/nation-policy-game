@@ -2529,6 +2529,64 @@ console.log(`
 
 console.log('🎨 UI 시스템 로딩 완료!');
 
+// ===== 도움말/크레딧 버튼 강제 바인딩 + 진단 로그 (캡처 단계) =====
+(function ensureHelpCreditBinding(){
+  // inline onclick이 전역을 찾을 수 있게 노출 (안전망)
+  if (typeof showHelp === 'function')   window.showHelp   = showHelp;
+  if (typeof closeHelp === 'function')  window.closeHelp  = closeHelp;
+  if (typeof showCredits === 'function')window.showCredits= showCredits;
+  if (typeof closeCredits==='function') window.closeCredits= closeCredits;
+
+  // 어떤 상위 레이어가 클릭을 먹어도 캡처 단계에서 먼저 잡아서 실행
+  document.addEventListener('click', (e) => {
+    const t = e.target;
+    if (t.closest && t.closest('#btn-howto')) {
+      e.preventDefault(); e.stopPropagation();
+      console.debug('[click] help');
+      window.showHelp?.();
+    }
+    if (t.closest && t.closest('#btn-credits')) {
+      e.preventDefault(); e.stopPropagation();
+      console.debug('[click] credits');
+      window.showCredits?.();
+    }
+  }, true);
+
+  // 동적으로 버튼이 다시 그려져도 연결 유지
+  function scan(){
+    // 도움말
+    document.querySelectorAll('#btn-howto, [data-open-help], .btn-help')
+      .forEach(el => {
+        if (el.__helpBound) return;
+        el.__helpBound = true;
+        el.addEventListener('click', (e)=>{
+          e.preventDefault(); e.stopPropagation();
+          console.debug('[bound] help -> showHelp()');
+          window.showHelp?.();
+        }, { capture:true });
+        console.debug('[help] bound:', el);
+      });
+    // 크레딧
+    document.querySelectorAll('#btn-credits, [data-open-credits]')
+      .forEach(el => {
+        if (el.__creditBound) return;
+        el.__creditBound = true;
+        el.addEventListener('click', (e)=>{
+          e.preventDefault(); e.stopPropagation();
+          console.debug('[bound] credits -> showCredits()');
+          window.showCredits?.();
+        }, { capture:true });
+        console.debug('[credits] bound:', el);
+      });
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', scan, { once:true });
+  } else {
+    scan();
+  }
+  new MutationObserver(scan).observe(document.documentElement, { childList:true, subtree:true });
+})();
+
 
 
 
