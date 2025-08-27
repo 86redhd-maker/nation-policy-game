@@ -1898,24 +1898,30 @@ function closeHelp() {
 }
 
 function showHelpTab(tabName) {
-    // 모든 탭 숨기기
-    document.querySelectorAll('.help-tab-content').forEach(tab => {
-        tab.style.display = 'none';
-    });
-    
     // 모든 탭 버튼 비활성화
-    document.querySelectorAll('.tab-btn').forEach(btn => {
+    document.querySelectorAll('.help-tab-btn').forEach(btn => {
         btn.classList.remove('active');
     });
     
-    // 선택된 탭 표시
-    const selectedTab = document.getElementById(`helpTab${tabName.charAt(0).toUpperCase() + tabName.slice(1)}`);
-    if (selectedTab) {
-        selectedTab.style.display = 'block';
+    // 모든 탭 내용 숨기기
+    document.querySelectorAll('.help-tab-content').forEach(content => {
+        content.classList.remove('active');
+    });
+    
+    // 클릭된 탭 버튼 활성화
+    const clickedButton = event.target;
+    clickedButton.classList.add('active');
+    
+    // 해당 탭 내용 표시
+    const targetTab = document.getElementById(`helpTab${tabName.charAt(0).toUpperCase() + tabName.slice(1)}`);
+    if (targetTab) {
+        targetTab.classList.add('active');
     }
     
-    // 선택된 버튼 활성화
-    event.target.classList.add('active');
+    // 소리 효과
+    if (typeof gameUtils !== 'undefined') {
+        gameUtils.playSound('select');
+    }
 }
 
 function showPolicyHelp() {
@@ -2514,6 +2520,7 @@ console.log(`
 `);
 
 console.log('🎨 UI 시스템 로딩 완료!');
+
 
 
 
