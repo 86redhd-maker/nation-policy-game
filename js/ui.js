@@ -952,6 +952,20 @@ function showAllPoliciesOverview() {
 function confirmPolicies() {
     if (typeof gameAPI === 'undefined') return;
     
+    // 🔧 선택된 정책 확인 로직 강화
+    const gameStatus = gameAPI.getGameStatus();
+    console.log('확정 시도 - 현재 선택:', gameStatus.currentSelection);
+    
+    if (!gameStatus.currentSelection || gameStatus.currentSelection.length === 0) {
+        if (typeof gameUtils !== 'undefined') {
+            gameUtils.showToast('선택된 정책이 없습니다!', 'error');
+            gameUtils.playSound('error');
+        } else {
+            alert('선택된 정책이 없습니다!');
+        }
+        return;
+    }
+    
     const result = gameAPI.confirmPolicies();
     
     if (!result.success) {
@@ -972,6 +986,13 @@ function confirmPolicies() {
     // UI 업데이트
     updateIndicators(result.status.indicators);
     updateBudgetDisplay(result.status.budget, result.status.debtLimit);
+    
+    // 🔧 확정 후 즉시 미리보기 초기화
+    const previewContainer = document.getElementById('currentSelectionPreview');
+    if (previewContainer) {
+        previewContainer.style.display = 'none';
+        previewContainer.classList.remove('active');
+    }
     
     // 시민 반응 표시
     showCitizenReactions(result.policies);
@@ -1009,28 +1030,64 @@ function showCitizenReactions(policies) {
         display.appendChild(memeItem);
     });
     
-    // 🔧 모바일에서는 팝업으로, 데스크톱에서는 사이드 패널로 표시
+    // 🔧 모바일에서 하단 고정으로 표시
     if (window.innerWidth <= 768) {
-        // 모바일: 중앙 팝업으로 표시
+        // 모바일: 하단 고정 패널
         panel.style.position = 'fixed';
-        panel.style.top = '50%';
-        panel.style.left = '50%';
-        panel.style.right = 'auto';
-        panel.style.transform = 'translate(-50%, -50%)';
-        panel.style.width = '90vw';
-        panel.style.maxWidth = '400px';
-        panel.style.zIndex = '2000';
+        panel.style.bottom = '0';
+        panel.style.left = '0';
+        panel.style.right = '0';
+        panel.style.top = 'auto';
+        panel.style.transform = 'none';
+        panel.style.width = '100%';
+        panel.style.maxWidth = 'none';
+        panel.style.zIndex = '3000';
         panel.style.backgroundColor = 'rgba(255, 255, 255, 0.98)';
-        panel.style.boxShadow = '0 20px 60px rgba(0, 0, 0, 0.3)';
+        panel.style.boxShadow = '0 -10px 30px rgba(0, 0, 0, 0.2)';
+        panel.style.borderRadius = '16px 16px 0 0';
+        panel.style.maxHeight = '40vh';
+        panel.style.overflowY = 'auto';
+        panel.style.borderTop = '3px solid var(--primary-color)';
+        
+        // 패널 헤더 스타일 조정
+        const header = panel.querySelector('.panel-header');
+        if (header) {
+            header.style.background = 'linear-gradient(135deg, var(--primary-color), var(--primary-dark))';
+            header.style.color = 'white';
+            header.style.margin = '-1.5rem -1.5rem 1rem -1.5rem';
+            header.style.padding = '1rem 1.5rem';
+            header.style.borderRadius = '16px 16px 0 0';
+            header.style.display = 'flex';
+            header.style.justifyContent = 'space-between';
+            header.style.alignItems = 'center';
+        }
     } else {
         // 데스크톱: 기존 사이드 패널
         panel.style.position = 'fixed';
         panel.style.right = '20px';
         panel.style.top = '50%';
         panel.style.left = 'auto';
+        panel.style.bottom = 'auto';
         panel.style.transform = 'translateY(-50%)';
         panel.style.width = '300px';
         panel.style.zIndex = '100';
+        panel.style.backgroundColor = 'rgba(255, 255, 255, 0.95)';
+        panel.style.boxShadow = '0 10px 30px rgba(0, 0, 0, 0.15)';
+        panel.style.borderRadius = '16px';
+        panel.style.maxHeight = 'none';
+        panel.style.overflowY = 'visible';
+        panel.style.border = 'none';
+        
+        // 데스크톱에서 헤더 스타일 리셋
+        const header = panel.querySelector('.panel-header');
+        if (header) {
+            header.style.background = 'none';
+            header.style.color = 'var(--primary-color)';
+            header.style.margin = '0 0 1rem 0';
+            header.style.padding = '0';
+            header.style.borderRadius = '0';
+            header.style.display = 'block';
+        }
     }
     
     panel.classList.add('active');
@@ -1071,13 +1128,27 @@ function proceedToNextTurn() {
         updateCategoryStats(result.status);
         updateTurnInfo(result.status);
         loadPoliciesForCategory(currentActiveCategory);
-        clearPolicySelection(); // 🔧 이미 미리보기 초기화 포함
+        clearSelection(); // 🔧 이미 미리보기 초기화 포함
+        
+        // 🔧 미리보기 강제 초기화 추가
+        const previewContainer = document.getElementById('currentSelectionPreview');
+        if (previewContainer) {
+            previewContainer.style.display = 'none';
+            previewContainer.classList.remove('active');
+        }
+        
+        // 🔧 미리보기 내용도 비우기
+        const previewPolicies = document.getElementById('previewPolicies');
+        if (previewPolicies) {
+            previewPolicies.innerHTML = '';
+        }
         
         if (typeof gameUtils !== 'undefined') {
             gameUtils.showToast(`턴 ${result.status.turn} 시작!`, 'info');
         }
     }
 }
+
 
 // 이벤트 팝업 표시
 function showEventPopup(event) {
@@ -1810,21 +1881,22 @@ window.addEventListener('resize', function() {
     const citizenPanel = document.getElementById('citizenPanel');
     if (citizenPanel) {
         if (window.innerWidth <= 768) {
-            // 모바일: 중앙 팝업 스타일
+            // 모바일: 하단 고정 스타일
             citizenPanel.style.position = 'fixed';
-            citizenPanel.style.top = '50%';
-            citizenPanel.style.left = '50%';
-            citizenPanel.style.right = 'auto';
-            citizenPanel.style.transform = 'translate(-50%, -50%)';
-            citizenPanel.style.width = '90vw';
-            citizenPanel.style.maxWidth = '400px';
-            citizenPanel.style.zIndex = '2000';
+            citizenPanel.style.bottom = '0';
+            citizenPanel.style.left = '0';
+            citizenPanel.style.right = '0';
+            citizenPanel.style.top = 'auto';
+            citizenPanel.style.transform = 'none';
+            citizenPanel.style.width = '100%';
+            citizenPanel.style.zIndex = '3000';
         } else {
             // 데스크톱: 사이드 패널 스타일
             citizenPanel.style.position = 'fixed';
             citizenPanel.style.right = '20px';
             citizenPanel.style.top = '50%';
             citizenPanel.style.left = 'auto';
+            citizenPanel.style.bottom = 'auto';
             citizenPanel.style.transform = 'translateY(-50%)';
             citizenPanel.style.width = '300px';
             citizenPanel.style.zIndex = '100';
@@ -1975,6 +2047,7 @@ console.log(`
 `);
 
 console.log('🎨 UI 시스템 로딩 완료!');
+
 
 
 
