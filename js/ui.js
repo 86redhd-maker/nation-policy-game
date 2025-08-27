@@ -59,19 +59,37 @@ function showScreen(screenId) {
 }
 // 팝업 표시/숨김
 function showPopup(popupId) {
+  console.log('팝업 열기 시도:', popupId);
   const el = document.getElementById(popupId);
-  if (!el) return;
-  document.body.classList.add('modal-open');   // 팝업 동안 transform/스크롤 제어
-  el.classList.add('active');                  // .popup-overlay.active { display:flex; }
+  if (!el) {
+    console.error('팝업 요소를 찾을 수 없음:', popupId);
+    return;
+  }
+  
+  // 다른 활성 팝업들 모두 닫기
+  document.querySelectorAll('.popup-overlay.active').forEach(popup => {
+    popup.classList.remove('active');
+    popup.setAttribute('aria-hidden', 'true');
+  });
+  
+  document.body.classList.add('modal-open');
+  el.classList.add('active');
   el.setAttribute('aria-hidden', 'false');
+  console.log('팝업 열기 완료:', popupId);
 }
 
 function hidePopup(popupId) {
+  console.log('팝업 닫기 시도:', popupId);
   const el = document.getElementById(popupId);
-  if (!el) return;
+  if (!el) {
+    console.error('팝업 요소를 찾을 수 없음:', popupId);
+    return;
+  }
+  
   el.classList.remove('active');
   el.setAttribute('aria-hidden', 'true');
   document.body.classList.remove('modal-open');
+  console.log('팝업 닫기 완료:', popupId);
 }
 
 // 페이지 로드 시 초기화
@@ -1898,38 +1916,73 @@ function adjustMobileLayout() {
 
 // 도움말 관련 함수들
 function showHelp() {
-    showPopup('helpPopup');
+  console.log('도움말 팝업 열기');
+  showPopup('helpPopup');
 }
 
 function closeHelp() {
-    hidePopup('helpPopup');
+  console.log('도움말 팝업 닫기');
+  hidePopup('helpPopup');
 }
 
-// 버튼에 onclick이 없다면 DOM 로드 시 강제로 연결
-document.addEventListener('DOMContentLoaded', () => {
-  document.querySelectorAll('#btn-howto, .btn-help, [data-open-help]')
-    .forEach(btn => btn.addEventListener('click', showHelp));
-});
+function showCredits() {
+  console.log('크레딧 팝업 열기');
+  showPopup('creditsPopup');
+}
+
+function closeCredits() {
+  console.log('크레딧 팝업 닫기');
+  hidePopup('creditsPopup');
+}
+
+function showPolicyHelp() {
+  console.log('정책 도움말 팝업 열기');
+  showPopup('policyHelpPopup');
+}
+
+function closePolicyHelp() {
+  console.log('정책 도움말 팝업 닫기');
+  hidePopup('policyHelpPopup');
+}
 
 function showHelpTab(tabName, evt) {
-  // 버튼/콘텐츠 초기화
-  document.querySelectorAll('.help-tab-btn').forEach(btn => btn.classList.remove('active'));
-  document.querySelectorAll('.help-tab-content').forEach(content => content.classList.remove('active'));
+  console.log('도움말 탭 전환:', tabName);
+  
+  // 모든 탭 버튼 비활성화
+  document.querySelectorAll('.help-tab-btn').forEach(btn => {
+    btn.classList.remove('active');
+  });
+  
+  // 모든 탭 컨텐츠 숨기기
+  document.querySelectorAll('.help-tab-content').forEach(content => {
+    content.classList.remove('active');
+  });
 
-  // 클릭된 버튼 활성화 (inline onclick일 때는 window.event로 백업)
-  const e = evt || window.event;
-  const clickedButton = (e && e.currentTarget) || (e && e.target);
-  if (clickedButton && clickedButton.classList) {
-    clickedButton.classList.add('active');
+  // 클릭된 버튼 활성화
+  if (evt && evt.currentTarget) {
+    evt.currentTarget.classList.add('active');
+  } else if (evt && evt.target) {
+    evt.target.classList.add('active');
+  } else {
+    // 직접 버튼 찾아서 활성화
+    const button = document.querySelector(`[onclick*="${tabName}"]`);
+    if (button) button.classList.add('active');
   }
 
-  // 탭 표시
+  // 해당 탭 컨텐츠 표시
   const targetId = `helpTab${tabName.charAt(0).toUpperCase()}${tabName.slice(1)}`;
   const targetTab = document.getElementById(targetId);
-  if (targetTab) targetTab.classList.add('active');
+  if (targetTab) {
+    targetTab.classList.add('active');
+    console.log('탭 전환 완료:', targetId);
+  } else {
+    console.error('탭을 찾을 수 없음:', targetId);
+  }
 
-  // 효과음(옵션)
-  if (typeof gameUtils !== 'undefined') gameUtils.playSound('select');
+  // 효과음
+  if (typeof gameUtils !== 'undefined') {
+    gameUtils.playSound('select');
+  }
 }
 
 function showPolicyHelp() {
@@ -2529,87 +2582,75 @@ console.log(`
 
 console.log('🎨 UI 시스템 로딩 완료!');
 
-// ===== 도움말/크레딧 버튼 강제 바인딩 + 진단 로그 (캡처 단계) =====
-(function ensureHelpCreditBinding(){
-  // inline onclick이 전역을 찾을 수 있게 노출 (안전망)
-  if (typeof showHelp === 'function')   window.showHelp   = showHelp;
-  if (typeof closeHelp === 'function')  window.closeHelp  = closeHelp;
-  if (typeof showCredits === 'function')window.showCredits= showCredits;
-  if (typeof closeCredits==='function') window.closeCredits= closeCredits;
-
-  // 어떤 상위 레이어가 클릭을 먹어도 캡처 단계에서 먼저 잡아서 실행
-  document.addEventListener('click', (e) => {
-    const t = e.target;
-    if (t.closest && t.closest('#btn-howto')) {
-      e.preventDefault(); e.stopPropagation();
-      console.debug('[click] help');
-(function forceOpenHelp(){
-  const el = document.getElementById('helpPopup');
-  if (!el) { console.error('[popup] helpPopup not found'); return; }
-  document.body.classList.add('modal-open');
-  el.classList.add('active');
-  el.style.display = 'flex';
-  el.setAttribute('aria-hidden', 'false');
-  console.debug('[popup] opened: helpPopup');
-})();
-    }
-    if (t.closest && t.closest('#btn-credits')) {
-      e.preventDefault(); e.stopPropagation();
-      console.debug('[click] credits');
-      window.showCredits?.();
-    }
-  }, true);
-
-  // 동적으로 버튼이 다시 그려져도 연결 유지
-  function scan(){
-    // 도움말
-    document.querySelectorAll('#btn-howto, [data-open-help], .btn-help')
-      .forEach(el => {
-        if (el.__helpBound) return;
-        el.__helpBound = true;
-        el.addEventListener('click', (e)=>{
-          e.preventDefault(); e.stopPropagation();
-          console.debug('[bound] help -> showHelp()');
-          window.showHelp?.();
-        }, { capture:true });
-        console.debug('[help] bound:', el);
-      });
-    // 크레딧
-    document.querySelectorAll('#btn-credits, [data-open-credits]')
-      .forEach(el => {
-        if (el.__creditBound) return;
-        el.__creditBound = true;
-        el.addEventListener('click', (e)=>{
-          e.preventDefault(); e.stopPropagation();
-          console.debug('[bound] credits -> showCredits()');
-          window.showCredits?.();
-        }, { capture:true });
-        console.debug('[credits] bound:', el);
-      });
-  }
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', scan, { once:true });
-  } else {
-    scan();
-  }
-  new MutationObserver(scan).observe(document.documentElement, { childList:true, subtree:true });
-})();
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOM 로드 완료 - 버튼 바인딩 시작');
+    
+    // 전역 함수로 등록
+    window.showHelp = showHelp;
+    window.closeHelp = closeHelp;
+    window.showCredits = showCredits;
+    window.closeCredits = closeCredits;
+    window.showHelpTab = showHelpTab;
+    
+    // 도움말 버튼 바인딩
+    const helpButtons = document.querySelectorAll('#btn-howto, [data-open-help], .btn-help');
+    helpButtons.forEach(btn => {
+        if (btn) {
+            // 기존 이벤트 제거
+            btn.onclick = null;
+            
+            // 새 이벤트 추가
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log('도움말 버튼 클릭됨');
+                showHelp();
+            });
+            
+            console.log('도움말 버튼 바인딩 완료:', btn.id || btn.className);
+        }
+    });
+    
+    // 크레딧 버튼 바인딩
+    const creditButtons = document.querySelectorAll('#btn-credits, [data-open-credits]');
+    creditButtons.forEach(btn => {
+        if (btn) {
+            // 기존 이벤트 제거
+            btn.onclick = null;
+            
+            // 새 이벤트 추가
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log('크레딧 버튼 클릭됨');
+                showCredits();
+            });
+            
+            console.log('크레딧 버튼 바인딩 완료:', btn.id || btn.className);
+        }
+    });
+    
+    // 팝업 외부 클릭으로 닫기
+    document.querySelectorAll('.popup-overlay').forEach(popup => {
+        popup.addEventListener('click', function(e) {
+            if (e.target === this) {
+                const popupId = this.id;
+                console.log('팝업 외부 클릭으로 닫기:', popupId);
+                hidePopup(popupId);
+            }
+        });
+    });
+    
+    // ESC 키로 팝업 닫기
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            const activePopup = document.querySelector('.popup-overlay.active');
+            if (activePopup) {
+                console.log('ESC 키로 팝업 닫기:', activePopup.id);
+                hidePopup(activePopup.id);
+            }
+        }
+    });
+    
+    console.log('버튼 바인딩 완료');
+});
