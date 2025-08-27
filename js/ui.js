@@ -139,6 +139,7 @@ function initializeStartScreen() {
         });
         
         console.log('국가 카드 생성 완료:', Object.keys(nationsData).length + '개');
+        bindHelpButtons();
     } catch (error) {
         console.error('시작 화면 초기화 실패:', error);
         createFallbackCards();
@@ -2591,44 +2592,10 @@ document.addEventListener('DOMContentLoaded', function() {
     window.showCredits = showCredits;
     window.closeCredits = closeCredits;
     window.showHelpTab = showHelpTab;
+    window.bindHelpButtons = bindHelpButtons; // 🔧 추가
     
-    // 도움말 버튼 바인딩
-    const helpButtons = document.querySelectorAll('#btn-howto, [data-open-help], .btn-help');
-    helpButtons.forEach(btn => {
-        if (btn) {
-            // 기존 이벤트 제거
-            btn.onclick = null;
-            
-            // 새 이벤트 추가
-            btn.addEventListener('click', function(e) {
-                e.preventDefault();
-                e.stopPropagation();
-                console.log('도움말 버튼 클릭됨');
-                showHelp();
-            });
-            
-            console.log('도움말 버튼 바인딩 완료:', btn.id || btn.className);
-        }
-    });
-    
-    // 크레딧 버튼 바인딩
-    const creditButtons = document.querySelectorAll('#btn-credits, [data-open-credits]');
-    creditButtons.forEach(btn => {
-        if (btn) {
-            // 기존 이벤트 제거
-            btn.onclick = null;
-            
-            // 새 이벤트 추가
-            btn.addEventListener('click', function(e) {
-                e.preventDefault();
-                e.stopPropagation();
-                console.log('크레딧 버튼 클릭됨');
-                showCredits();
-            });
-            
-            console.log('크레딧 버튼 바인딩 완료:', btn.id || btn.className);
-        }
-    });
+    // 초기 바인딩
+    bindHelpButtons();
     
     // 팝업 외부 클릭으로 닫기
     document.querySelectorAll('.popup-overlay').forEach(popup => {
@@ -2652,5 +2619,87 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     
+    // 🔧 DOM 변화 감지해서 버튼 다시 바인딩
+    const observer = new MutationObserver(function(mutations) {
+        let shouldRebind = false;
+        mutations.forEach(function(mutation) {
+            if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
+                // 새로운 버튼이 추가되었는지 확인
+                for (let node of mutation.addedNodes) {
+                    if (node.nodeType === 1) { // Element node
+                        if (node.querySelector && (
+                            node.querySelector('#btn-howto') || 
+                            node.querySelector('#btn-credits') ||
+                            node.id === 'btn-howto' ||
+                            node.id === 'btn-credits'
+                        )) {
+                            shouldRebind = true;
+                            break;
+                        }
+                    }
+                }
+            }
+        });
+        
+        if (shouldRebind) {
+            console.log('DOM 변화 감지 - 버튼 재바인딩');
+            setTimeout(bindHelpButtons, 100); // 약간의 지연 후 실행
+        }
+    });
+    
+    observer.observe(document.body, {
+        childList: true,
+        subtree: true
+    });
+    
     console.log('버튼 바인딩 완료');
 });
+
+// 도움말 버튼 바인딩 함수 (별도로 분리)
+function bindHelpButtons() {
+    console.log('도움말 버튼 바인딩 실행');
+    
+    // 도움말 버튼들
+    const helpButtons = document.querySelectorAll('#btn-howto, [data-open-help], .btn-help');
+    helpButtons.forEach(btn => {
+        if (btn && !btn.__helpBound) {
+            btn.__helpBound = true; // 중복 바인딩 방지
+            
+            // 기존 onclick 제거
+            btn.removeAttribute('onclick');
+            btn.onclick = null;
+            
+            // 새 이벤트 추가
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log('도움말 버튼 클릭됨 (새 바인딩)');
+                showHelp();
+            }, true); // capture 단계에서 처리
+            
+            console.log('도움말 버튼 바인딩:', btn.id);
+        }
+    });
+    
+    // 크레딧 버튼들
+    const creditButtons = document.querySelectorAll('#btn-credits, [data-open-credits]');
+    creditButtons.forEach(btn => {
+        if (btn && !btn.__creditBound) {
+            btn.__creditBound = true; // 중복 바인딩 방지
+            
+            // 기존 onclick 제거
+            btn.removeAttribute('onclick');
+            btn.onclick = null;
+            
+            // 새 이벤트 추가
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log('크레딧 버튼 클릭됨 (새 바인딩)');
+                showCredits();
+            }, true); // capture 단계에서 처리
+            
+            console.log('크레딧 버튼 바인딩:', btn.id);
+        }
+    });
+}
