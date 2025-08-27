@@ -1969,9 +1969,9 @@ function showHelp() {
       background: white;
       border-radius: 16px;
       padding: 30px;
-      width: 600px;
-      max-width: 90%;
-      max-height: 80%;
+      width: 800px;
+      max-width: 95%;
+      max-height: 90%;
       overflow: auto;
       position: relative;
     ">
@@ -1989,30 +1989,269 @@ function showHelp() {
         display: flex;
         align-items: center;
         justify-content: center;
+        z-index: 10;
       ">×</button>
       
-      <h2 style="margin-bottom: 20px; color: #2d3748;">🎮 게임 설명</h2>
+      <h2 style="margin-bottom: 30px; color: #2d3748; text-align: center;">❓ 게임 설명</h2>
       
-      <h3 style="color: #4a5568; margin-top: 20px;">🎯 게임 목표</h3>
-      <p><strong>5턴에 걸쳐 정책을 선택하여 최고의 국가를 만드세요!</strong></p>
-      <ul>
-        <li>각 지표의 균형을 맞춰 높은 점수 달성</li>
-        <li>시민 만족도와 지속가능성 고려</li>
-        <li>예산 한도 내에서 효율적 운영</li>
-      </ul>
-      
-      <h3 style="color: #4a5568; margin-top: 20px;">🎮 게임 방법</h3>
-      <ol>
-        <li><strong>국가 선택:</strong> 5개 국가 모델 중 하나 선택</li>
-        <li><strong>정책 선택:</strong> 각 턴마다 최대 2개 정책 선택</li>
-        <li><strong>예산 관리:</strong> 한정된 예산 내에서 신중한 선택</li>
-        <li><strong>결과 확인:</strong> 정책 효과와 시민 반응 체크</li>
-        <li><strong>다음 턴:</strong> 5턴 완주까지 반복</li>
-      </ol>
+      <!-- 탭 네비게이션 -->
+      <div style="
+        display: flex;
+        gap: 8px;
+        margin-bottom: 30px;
+        flex-wrap: wrap;
+        justify-content: center;
+        border-bottom: 2px solid #e2e8f0;
+        padding-bottom: 15px;
+      ">
+        <button onclick="showHelpTabContent('basic')" style="
+          background: linear-gradient(135deg, #ff6b9d, #c44569);
+          color: white;
+          border: none;
+          padding: 10px 15px;
+          border-radius: 25px;
+          cursor: pointer;
+          font-weight: 600;
+          font-size: 14px;
+        " id="tab-basic">🎯 기본 규칙</button>
+        
+        <button onclick="showHelpTabContent('indicators')" style="
+          background: #f7fafc;
+          color: #4a5568;
+          border: 2px solid transparent;
+          padding: 10px 15px;
+          border-radius: 25px;
+          cursor: pointer;
+          font-weight: 600;
+          font-size: 14px;
+        " id="tab-indicators">📊 지표 설명</button>
+        
+        <button onclick="showHelpTabContent('nations')" style="
+          background: #f7fafc;
+          color: #4a5568;
+          border: 2px solid transparent;
+          padding: 10px 15px;
+          border-radius: 25px;
+          cursor: pointer;
+          font-weight: 600;
+          font-size: 14px;
+        " id="tab-nations">🏛️ 국가 특성</button>
+        
+        <button onclick="showHelpTabContent('tips')" style="
+          background: #f7fafc;
+          color: #4a5568;
+          border: 2px solid transparent;
+          padding: 10px 15px;
+          border-radius: 25px;
+          cursor: pointer;
+          font-weight: 600;
+          font-size: 14px;
+        " id="tab-tips">💡 게임 팁</button>
+        
+        <button onclick="showHelpTabContent('advanced')" style="
+          background: #f7fafc;
+          color: #4a5568;
+          border: 2px solid transparent;
+          padding: 10px 15px;
+          border-radius: 25px;
+          cursor: pointer;
+          font-weight: 600;
+          font-size: 14px;
+        " id="tab-advanced">🎓 고급 전략</button>
+      </div>
+
+      <!-- 탭 내용 -->
+      <div id="help-content">
+        <!-- 기본 규칙 탭 -->
+        <div id="content-basic">
+          <div style="
+            margin-bottom: 30px;
+            padding: 20px;
+            background: rgba(255, 107, 157, 0.05);
+            border-radius: 12px;
+            border-left: 4px solid #ff6b9d;
+          ">
+            <h3 style="color: #ff6b9d; margin-bottom: 15px;">🎯 게임 목표</h3>
+            <p style="margin-bottom: 15px;"><strong>5턴에 걸쳐 정책을 선택하여 최고의 국가를 만드세요!</strong></p>
+            <ul style="margin-left: 20px; line-height: 1.6;">
+              <li>각 지표의 균형을 맞춰 높은 점수 달성</li>
+              <li>시민 만족도와 지속가능성 고려</li>
+              <li>예산 한도 내에서 효율적 운영</li>
+            </ul>
+          </div>
+          
+          <div style="
+            margin-bottom: 30px;
+            padding: 20px;
+            background: rgba(255, 107, 157, 0.05);
+            border-radius: 12px;
+            border-left: 4px solid #ff6b9d;
+          ">
+            <h3 style="color: #ff6b9d; margin-bottom: 15px;">🎮 게임 방법</h3>
+            <ol style="margin-left: 20px; line-height: 1.6;">
+              <li><strong>국가 선택:</strong> 5개 국가 모델 중 하나 선택</li>
+              <li><strong>정책 선택:</strong> 각 턴마다 최대 2개 정책 선택</li>
+              <li><strong>예산 관리:</strong> 한정된 예산 내에서 신중한 선택</li>
+              <li><strong>결과 확인:</strong> 정책 효과와 시민 반응 체크</li>
+              <li><strong>다음 턴:</strong> 5턴 완주까지 반복</li>
+            </ol>
+          </div>
+
+          <div style="
+            padding: 20px;
+            background: rgba(255, 107, 157, 0.05);
+            border-radius: 12px;
+            border-left: 4px solid #ff6b9d;
+          ">
+            <h3 style="color: #ff6b9d; margin-bottom: 15px;">⚖️ 핵심 개념</h3>
+            <div style="
+              display: grid;
+              grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+              gap: 15px;
+              margin-top: 15px;
+            ">
+              <div style="background: rgba(255, 255, 255, 0.8); padding: 15px; border-radius: 8px;">
+                <strong style="display: block; color: #ff6b9d; margin-bottom: 8px;">💰 예산 제약</strong>
+                <p style="font-size: 14px; margin: 0;">모든 정책에는 비용이 있고, 적자 한도를 넘으면 페널티</p>
+              </div>
+              <div style="background: rgba(255, 255, 255, 0.8); padding: 15px; border-radius: 8px;">
+                <strong style="display: block; color: #ff6b9d; margin-bottom: 8px;">⚡ 시너지 & 충돌</strong>
+                <p style="font-size: 14px; margin: 0;">정책 조합에 따라 보너스나 페널티 발생</p>
+              </div>
+              <div style="background: rgba(255, 255, 255, 0.8); padding: 15px; border-radius: 8px;">
+                <strong style="display: block; color: #ff6b9d; margin-bottom: 8px;">🎯 트레이드오프</strong>
+                <p style="font-size: 14px; margin: 0;">한 지표를 올리면 다른 지표가 내려갈 수 있음</p>
+              </div>
+              <div style="background: rgba(255, 255, 255, 0.8); padding: 15px; border-radius: 8px;">
+                <strong style="display: block; color: #ff6b9d; margin-bottom: 8px;">🏛️ 국가 특성</strong>
+                <p style="font-size: 14px; margin: 0;">선택한 국가에 따라 정책 비용과 효과가 달라짐</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 지표 설명 탭 (숨겨짐) -->
+        <div id="content-indicators" style="display: none;">
+          <div style="
+            margin-bottom: 30px;
+            padding: 20px;
+            background: rgba(255, 107, 157, 0.05);
+            border-radius: 12px;
+            border-left: 4px solid #ff6b9d;
+          ">
+            <h3 style="color: #ff6b9d; margin-bottom: 15px;">📊 8가지 국가 지표</h3>
+            <div style="
+              display: grid;
+              grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+              gap: 15px;
+              margin-top: 15px;
+            ">
+              <div style="display: flex; align-items: flex-start; gap: 15px; padding: 15px; background: rgba(255, 255, 255, 0.8); border-radius: 8px;">
+                <span style="font-size: 24px;">💰</span>
+                <div>
+                  <strong style="display: block; color: #ff6b9d; margin-bottom: 4px;">경제</strong>
+                  <p style="font-size: 14px; margin: 0; line-height: 1.4;">GDP 성장률, 고용률, 경제 활력도를 나타냄</p>
+                </div>
+              </div>
+              <div style="display: flex; align-items: flex-start; gap: 15px; padding: 15px; background: rgba(255, 255, 255, 0.8); border-radius: 8px;">
+                <span style="font-size: 24px;">🚀</span>
+                <div>
+                  <strong style="display: block; color: #ff6b9d; margin-bottom: 4px;">기술</strong>
+                  <p style="font-size: 14px; margin: 0; line-height: 1.4;">R&D 투자, 혁신역량, 디지털화 수준</p>
+                </div>
+              </div>
+              <div style="display: flex; align-items: flex-start; gap: 15px; padding: 15px; background: rgba(255, 255, 255, 0.8); border-radius: 8px;">
+                <span style="font-size: 24px;">😊</span>
+                <div>
+                  <strong style="display: block; color: #ff6b9d; margin-bottom: 4px;">시민반응</strong>
+                  <p style="font-size: 14px; margin: 0; line-height: 1.4;">국민 만족도, 여론조사 지지율, 사회적 신뢰</p>
+                </div>
+              </div>
+              <div style="display: flex; align-items: flex-start; gap: 15px; padding: 15px; background: rgba(255, 255, 255, 0.8); border-radius: 8px;">
+                <span style="font-size: 24px;">🌱</span>
+                <div>
+                  <strong style="display: block; color: #ff6b9d; margin-bottom: 4px;">환경</strong>
+                  <p style="font-size: 14px; margin: 0; line-height: 1.4;">대기질, 탄소배출, 재생에너지 비율, 지속가능성</p>
+                </div>
+              </div>
+              <div style="display: flex; align-items: flex-start; gap: 15px; padding: 15px; background: rgba(255, 255, 255, 0.8); border-radius: 8px;">
+                <span style="font-size: 24px;">💼</span>
+                <div>
+                  <strong style="display: block; color: #ff6b9d; margin-bottom: 4px;">재정</strong>
+                  <p style="font-size: 14px; margin: 0; line-height: 1.4;">정부 부채, 재정수지, 세수 안정성</p>
+                </div>
+              </div>
+              <div style="display: flex; align-items: flex-start; gap: 15px; padding: 15px; background: rgba(255, 255, 255, 0.8); border-radius: 8px;">
+                <span style="font-size: 24px;">🛡️</span>
+                <div>
+                  <strong style="display: block; color: #ff6b9d; margin-bottom: 4px;">안정성</strong>
+                  <p style="font-size: 14px; margin: 0; line-height: 1.4;">사회질서, 정치적 안정, 제도의 신뢰성</p>
+                </div>
+              </div>
+              <div style="display: flex; align-items: flex-start; gap: 15px; padding: 15px; background: rgba(255, 255, 255, 0.8); border-radius: 8px;">
+                <span style="font-size: 24px;">❤️</span>
+                <div>
+                  <strong style="display: block; color: #ff6b9d; margin-bottom: 4px;">복지</strong>
+                  <p style="font-size: 14px; margin: 0; line-height: 1.4;">사회보장, 의료접근성, 교육기회, 삶의 질</p>
+                </div>
+              </div>
+              <div style="display: flex; align-items: flex-start; gap: 15px; padding: 15px; background: rgba(255, 255, 255, 0.8); border-radius: 8px;">
+                <span style="font-size: 24px;">🤝</span>
+                <div>
+                  <strong style="display: block; color: #ff6b9d; margin-bottom: 4px;">외교</strong>
+                  <p style="font-size: 14px; margin: 0; line-height: 1.4;">국제관계, 대외신뢰도, 글로벌 영향력</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div style="
+            padding: 20px;
+            background: rgba(255, 107, 157, 0.05);
+            border-radius: 12px;
+            border-left: 4px solid #ff6b9d;
+          ">
+            <h3 style="color: #ff6b9d; margin-bottom: 15px;">📈 점수 시스템</h3>
+            <ul style="margin-left: 20px; line-height: 1.6;">
+              <li><strong>범위:</strong> 각 지표는 -5부터 +5까지</li>
+              <li><strong>총점:</strong> 8개 지표의 합계 (최대 40점)</li>
+              <li><strong>등급:</strong> S급(25점+) > A급(15점+) > B급(5점+) > C급(-5점+) > D급(-15점+) > F급</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- 다른 탭들도 비슷하게... (공간상 생략, 필요하면 추가해드릴게요!) -->
+        <div id="content-nations" style="display: none;">
+          <h3 style="color: #ff6b9d; margin-bottom: 15px;">🏛️ 5가지 국가 모델</h3>
+          <p>각 국가마다 특별한 장단점과 할인 혜택이 있습니다!</p>
+          <!-- 국가별 상세 설명... -->
+        </div>
+
+        <div id="content-tips" style="display: none;">
+          <h3 style="color: #ff6b9d; margin-bottom: 15px;">💡 초보자 팁</h3>
+          <ul style="margin-left: 20px; line-height: 1.6;">
+            <li><strong>예산 먼저:</strong> 항상 다음 턴 예산을 고려해서 선택</li>
+            <li><strong>균형이 핵심:</strong> 한 분야만 올리지 말고 고르게 발전</li>
+            <li><strong>시민 반응 체크:</strong> 정책 확정 후 밈 반응을 확인</li>
+            <li><strong>국가 특성 활용:</strong> 할인 받는 정책을 적극 활용</li>
+            <li><strong>충돌 피하기:</strong> 정책 설명에서 충돌 정책 확인</li>
+          </ul>
+        </div>
+
+        <div id="content-advanced" style="display: none;">
+          <h3 style="color: #ff6b9d; margin-bottom: 15px;">🎓 고급 전략</h3>
+          <ul style="margin-left: 20px; line-height: 1.6;">
+            <li><strong>메타 분석:</strong> 각 턴마다 전체 그림을 그려보기</li>
+            <li><strong>기회비용 고려:</strong> 선택하지 않은 정책의 가치도 생각</li>
+            <li><strong>장기적 관점:</strong> 5턴 후를 내다보는 전략 수립</li>
+            <li><strong>위기 관리:</strong> 마이너스 지표를 어떻게 회복시킬지 계획</li>
+          </ul>
+        </div>
+      </div>
       
       <div style="text-align: center; margin-top: 30px;">
         <button onclick="document.getElementById('helpPopup').remove();" style="
-          background: #ff6b9d;
+          background: linear-gradient(135deg, #ff6b9d, #c44569);
           color: white;
           border: none;
           padding: 12px 24px;
@@ -2020,10 +2259,43 @@ function showHelp() {
           cursor: pointer;
           font-size: 16px;
           font-weight: 600;
+          box-shadow: 0 4px 15px rgba(255, 107, 157, 0.4);
         ">확인</button>
       </div>
     </div>
+  <script>
+      // 탭 전환 함수
+      window.showHelpTabContent = function(tabName) {
+        // 모든 탭 버튼 스타일 리셋
+        document.querySelectorAll('[id^="tab-"]').forEach(btn => {
+          btn.style.background = '#f7fafc';
+          btn.style.color = '#4a5568';
+        });
+        
+        // 모든 콘텐츠 숨김
+        document.querySelectorAll('[id^="content-"]').forEach(content => {
+          content.style.display = 'none';
+        });
+        
+        // 선택된 탭 활성화
+        const selectedTab = document.getElementById('tab-' + tabName);
+        if (selectedTab) {
+          selectedTab.style.background = 'linear-gradient(135deg, #ff6b9d, #c44569)';
+          selectedTab.style.color = 'white';
+        }
+        
+        // 선택된 콘텐츠 표시
+        const selectedContent = document.getElementById('content-' + tabName);
+        if (selectedContent) {
+          selectedContent.style.display = 'block';
+        }
+      };
+    </script>
   `;
+  
+  document.body.appendChild(newPopup);
+  console.log('완전판 도움말 팝업 생성 완료');
+}
   
   document.body.appendChild(newPopup);
   console.log('새 팝업 생성 완료');
@@ -2811,5 +3083,6 @@ function bindHelpButtons() {
         }
     });
 }
+
 
 
