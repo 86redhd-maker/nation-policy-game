@@ -39,17 +39,38 @@
                 <div class="nation-preview" id="nationPreview" style="display: none;">
                     <!-- 선택된 국가의 상세 정보 표시 -->
                 </div>
-                <div class="button-group">
-                    <button class="pixel-btn" onclick="startGame()" id="startBtn" disabled>
-                        🎮 게임 시작
-                    </button>
-                    <button class="pixel-btn secondary" onclick="showHelp()">
-                        ❓ 게임 설명
-                    </button>
-                    <button class="pixel-btn secondary" onclick="showCredits()">
-                        👥 크레딧
-                    </button>
-                </div>
+               <div class="button-group" style="position:relative; z-index:3000; pointer-events:auto;">
+  <button id="startBtn" class="pixel-btn" type="button" onclick="startGame()" disabled>
+    🎮 게임 시작
+  </button>
+
+  <!-- ❓ 게임 설명 -->
+  <button
+    id="btn-howto"
+    class="pixel-btn secondary"
+    type="button"
+    data-open-help
+    aria-haspopup="dialog"
+    aria-controls="helpPopup"
+    onclick="event.stopPropagation(); console.debug('[click] help'); showHelp();"
+    style="position:relative; z-index:3001;"
+  >
+    ❓ 게임 설명
+  </button>
+
+  <!-- 👥 크레딧 -->
+  <button
+    id="btn-credits"
+    class="pixel-btn secondary"
+    type="button"
+    aria-haspopup="dialog"
+    aria-controls="creditsPopup"
+    onclick="event.stopPropagation(); console.debug('[click] credits'); showCredits();"
+    style="position:relative; z-index:3001;"
+  >
+    👥 크레딧
+  </button>
+</div>
             </div>
         </div>
 
@@ -577,6 +598,7 @@
 </div>
 </body>
 </html>
+
 
 
 
