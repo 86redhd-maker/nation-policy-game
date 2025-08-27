@@ -1316,45 +1316,137 @@ const ENDINGS_DATA = {
     "description": "모든 분야에서 균형잡힌 발전을 이뤄낸 당신은 진정한 국가 설계의 대가입니다.",
     "requirements": { "total_score": 25, "min_indicator": 0 },
     "citizen_reaction": "🎉 역사상 최고의 지도자! 우리 나라가 세계의 모델이 됐어요!",
-    "achievement": "완벽한 설계자"
+    "achievement": "완벽한 설계자",
+    "educational_analysis": {
+      "achievement_summary": "모든 지표가 양수를 유지하며 총점 25점 이상을 달성하여 완벽한 균형 국가를 건설했습니다.",
+      "success_factors": [
+        "정책 간 시너지 효과를 체계적으로 활용",
+        "예산 관리와 장기적 관점의 조화",
+        "국가별 특성을 최대한 활용한 전략적 선택",
+        "단기 인기보다 지속가능성을 우선시"
+      ],
+      "real_world_examples": [
+        "덴마크: 높은 복지와 경제 효율성의 조화",
+        "싱가포르: 효율적 국가 운영과 장기적 계획",
+        "스위스: 정치적 안정성과 혁신의 균형"
+      ],
+      "policy_lessons": "실제 정치에서도 단편적 정책보다는 전체적 조화를 고려한 정책 패키지가 더 효과적입니다. 모든 정책에는 트레이드오프가 존재하지만, 시너지를 잘 활용하면 윈-윈 상황을 만들 수 있습니다.",
+      "historical_context": "역사상 가장 성공적인 국가들은 경제성장과 사회복지, 환경보호와 기술발전을 동시에 추구했던 국가들입니다."
+    }
   },
   "A급": {
     "title": "🌟 번영하는 국가", 
     "description": "대부분의 분야에서 우수한 성과를 거두었습니다.",
     "requirements": { "total_score": 15 },
     "citizen_reaction": "👏 정말 살기 좋은 나라가 됐어요! 감사합니다!",
-    "achievement": "번영의 건축가"
+    "achievement": "번영의 건축가",
+    "educational_analysis": {
+      "achievement_summary": "총점 15점 이상을 달성하여 안정적이고 번영하는 국가를 건설했습니다.",
+      "success_factors": [
+        "핵심 정책 분야에서 뚜렷한 성과 달성",
+        "비교적 안정적인 예산 운용",
+        "국민 만족도와 국가 발전의 균형"
+      ],
+      "real_world_examples": [
+        "캐나다: 다문화주의와 복지국가의 조화",
+        "독일: 제조업 강국과 사회적 시장경제",
+        "일본: 기술혁신과 사회 안정성"
+      ],
+      "policy_lessons": "완벽하지 않더라도 핵심 영역에서의 일관된 정책 추진이 국가 발전의 기반이 됩니다.",
+      "improvement_suggestions": "일부 취약 분야를 보완한다면 더욱 완벽한 국가로 발전할 수 있습니다."
+    }
   },
   "B급": {
     "title": "⚖️ 균형잡힌 국가",
     "description": "완벽하지는 않지만 전반적으로 안정적인 국가를 만들어냈습니다.",
     "requirements": { "total_score": 5 },
     "citizen_reaction": "😊 예전보다 확실히 나아졌어요. 희망이 보여요!",
-    "achievement": "균형의 달인"
+    "achievement": "균형의 달인",
+    "educational_analysis": {
+      "achievement_summary": "큰 실패 없이 안정적인 국가 운영을 달성했습니다.",
+      "success_factors": [
+        "극단적 선택을 피하고 중도적 정책 추진",
+        "안정성을 우선시한 신중한 접근"
+      ],
+      "real_world_examples": [
+        "오스트리아: 중립 외교와 사회적 합의",
+        "네덜란드: 실용주의적 정치 문화"
+      ],
+      "policy_lessons": "정치에서 안정성은 그 자체로 중요한 가치입니다. 급진적 변화보다는 점진적 개선이 때로는 더 현명할 수 있습니다.",
+      "improvement_suggestions": "더 적극적인 정책으로 혁신을 추진해볼 수 있습니다."
+    }
   },
   "C급": {
     "title": "🌱 발전 중인 국가",
     "description": "아직 갈 길이 멀지만 변화의 기초를 다졌습니다.",
     "requirements": { "total_score": -5 },
     "citizen_reaction": "🤔 완전히 좋아진 건 아니지만... 변화는 느껴져요",
-    "achievement": "희망의 씨앗"
+    "achievement": "희망의 씨앗",
+    "educational_analysis": {
+      "achievement_summary": "어려운 조건에서도 최선을 다해 기초를 다졌습니다.",
+      "challenges_faced": [
+        "제한된 자원으로 인한 선택의 어려움",
+        "복잡한 정책 간 상충관계 관리",
+        "단기와 장기 목표 사이의 딜레마"
+      ],
+      "real_world_examples": [
+        "한국: 전후 재건에서 선진국으로의 발전",
+        "아일랜드: 경제위기 극복과 혁신경제 전환"
+      ],
+      "policy_lessons": "국가 발전은 단기간에 이뤄지지 않습니다. 작은 성과들이 축적되어 큰 변화를 만들어냅니다.",
+      "encouragement": "지금의 기초가 미래 발전의 토대가 될 것입니다."
+    }
   },
   "D급": {
     "title": "⛈️ 어려운 상황",
     "description": "많은 어려움이 있었지만 최악의 상황은 피했습니다.",
     "requirements": { "total_score": -15 },
     "citizen_reaction": "😟 힘들긴 하지만... 그래도 더 나빠지지는 않았네요",
-    "achievement": "시련의 항해사"
+    "achievement": "시련의 항해사",
+    "educational_analysis": {
+      "achievement_summary": "어려운 여건 속에서도 국가 붕괴를 방지했습니다.",
+      "lessons_learned": [
+        "정책의 트레이드오프를 몸소 체험",
+        "제한된 자원의 중요성 인식",
+        "정치적 현실의 복잡성 이해"
+      ],
+      "real_world_examples": [
+        "그리스: 재정위기 극복 과정",
+        "아르헨티나: 경제위기와 정치적 혼란 경험"
+      ],
+      "policy_lessons": "실패도 중요한 학습 과정입니다. 정치는 완벽한 해답이 없는 복잡한 게임입니다.",
+      "next_time_suggestions": "더 신중한 예산 관리와 정책 간 조화를 고려해보세요."
+    }
   },
   "F급": {
     "title": "💥 국가 위기",
     "description": "정책 선택에 문제가 있어 국가가 심각한 위기에 빠졌습니다.",
     "requirements": { "total_score": -999 },
     "citizen_reaction": "😡 이게 뭔가요... 우리 나라가 이렇게 될 줄이야...",
-    "achievement": "혼돈의 목격자"
+    "achievement": "혼돈의 목격자",
+    "educational_analysis": {
+      "achievement_summary": "심각한 정책 실패를 경험했지만, 이 또한 중요한 학습 기회입니다.",
+      "common_mistakes": [
+        "예산 관리 실패로 인한 재정 파탄",
+        "정책 간 충돌로 인한 효과 상쇄",
+        "단기적 인기에 매몰된 포퓰리즘 정책",
+        "국가 특성을 무시한 무리한 정책"
+      ],
+      "real_world_examples": [
+        "베네수엘라: 포퓰리즘 정책의 부작용",
+        "그리스 재정위기: 무분별한 복지 확대의 결과",
+        "아르헨티나: 경제정책의 일관성 부족"
+      ],
+      "policy_lessons": "모든 정책에는 비용이 있고, 무료 점심은 없습니다. 정치인의 가장 중요한 덕목은 어려운 선택을 할 수 있는 용기입니다.",
+      "learning_opportunities": [
+        "정책의 기회비용 개념 이해",
+        "예산 제약의 현실성 인식",
+        "정치적 책임감의 중요성",
+        "장기적 관점의 필요성"
+      ]
+    }
   }
 };
-
 // 특별 엔딩 (endings.json 기반)
 const SPECIAL_ENDINGS = {
   "환경_지키미": {
@@ -1659,6 +1751,7 @@ window.ENDINGS_DATA = ENDINGS_DATA;
 window.SPECIAL_ENDINGS = SPECIAL_ENDINGS;
 window.POLICY_COMBINATIONS = POLICY_COMBINATIONS;
 window.EMERGENCY_POLICIES = EMERGENCY_POLICIES;
+
 
 
 
