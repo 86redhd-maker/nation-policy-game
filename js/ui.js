@@ -374,6 +374,8 @@ function initializeGameScreen(gameStatus) {
 function updateGameHeader(gameStatus) {
     const currentNationElement = document.getElementById('currentNationName');
     const turnInfoElement = document.getElementById('turnInfo');
+    const progressElement = document.getElementById('gameProgress');
+    const progressTextElement = document.getElementById('progressText');
     
     if (currentNationElement) {
         currentNationElement.textContent = 
@@ -382,6 +384,16 @@ function updateGameHeader(gameStatus) {
     if (turnInfoElement) {
         turnInfoElement.textContent = 
             `턴 ${gameStatus.turn}/${gameStatus.maxTurns} - ${gameStatus.category}`;
+    }
+    
+    // 🔧 진행률 업데이트 추가
+    if (progressElement && progressTextElement) {
+        const progress = ((gameStatus.turn - 1) / gameStatus.maxTurns) * 100;
+        const progressBar = progressElement.querySelector('.progress-fill');
+        if (progressBar) {
+            progressBar.style.width = `${progress}%`;
+        }
+        progressTextElement.textContent = `진행률: ${Math.round(progress)}%`;
     }
 }
 
@@ -915,6 +927,13 @@ function clearSelection() {
     if (result.success) {
         updatePolicyCards();
         updateSelectionSummary();
+        
+        // 🔧 미리보기 초기화 추가
+        const previewContainer = document.getElementById('currentSelectionPreview');
+        if (previewContainer) {
+            previewContainer.style.display = 'none';
+        }
+        
         if (typeof gameUtils !== 'undefined') gameUtils.playSound('select');
     }
 }
@@ -990,6 +1009,30 @@ function showCitizenReactions(policies) {
         display.appendChild(memeItem);
     });
     
+    // 🔧 모바일에서는 팝업으로, 데스크톱에서는 사이드 패널로 표시
+    if (window.innerWidth <= 768) {
+        // 모바일: 중앙 팝업으로 표시
+        panel.style.position = 'fixed';
+        panel.style.top = '50%';
+        panel.style.left = '50%';
+        panel.style.right = 'auto';
+        panel.style.transform = 'translate(-50%, -50%)';
+        panel.style.width = '90vw';
+        panel.style.maxWidth = '400px';
+        panel.style.zIndex = '2000';
+        panel.style.backgroundColor = 'rgba(255, 255, 255, 0.98)';
+        panel.style.boxShadow = '0 20px 60px rgba(0, 0, 0, 0.3)';
+    } else {
+        // 데스크톱: 기존 사이드 패널
+        panel.style.position = 'fixed';
+        panel.style.right = '20px';
+        panel.style.top = '50%';
+        panel.style.left = 'auto';
+        panel.style.transform = 'translateY(-50%)';
+        panel.style.width = '300px';
+        panel.style.zIndex = '100';
+    }
+    
     panel.classList.add('active');
     
     setTimeout(() => {
@@ -1018,20 +1061,17 @@ function proceedToNextTurn() {
         return;
     }
 
-     if (result.finished) {
+    if (result.finished) {
         console.log('게임 완료! 결과 화면 표시');
-        console.log('게임 결과 데이터:', result);
-        
-        // 실제 결과 화면 표시 함수 호출
         showResultsScreen(result);
     } else {
         console.log('다음 턴 진행:', result.status);
         // 새 턴 UI 업데이트
-        updateGameHeader(result.status);
+        updateGameHeader(result.status); // 🔧 이미 진행률 업데이트 포함
         updateCategoryStats(result.status);
         updateTurnInfo(result.status);
         loadPoliciesForCategory(currentActiveCategory);
-        clearPolicySelection();
+        clearPolicySelection(); // 🔧 이미 미리보기 초기화 포함
         
         if (typeof gameUtils !== 'undefined') {
             gameUtils.showToast(`턴 ${result.status.turn} 시작!`, 'info');
@@ -1522,6 +1562,31 @@ function saveResults() {
     }
 }
 
+// 반응형 조정 함수 추가
+function adjustMobileLayout() {
+    const citizenPanel = document.getElementById('citizenPanel');
+    if (!citizenPanel) return;
+    
+    if (window.innerWidth <= 768) {
+        // 모바일 레이아웃
+        citizenPanel.style.position = 'fixed';
+        citizenPanel.style.right = 'auto';
+        citizenPanel.style.top = '50%';
+        citizenPanel.style.left = '50%';
+        citizenPanel.style.transform = 'translate(-50%, -50%)';
+        citizenPanel.style.width = '90vw';
+        citizenPanel.style.maxWidth = '400px';
+    } else {
+        // 데스크톱 레이아웃
+        citizenPanel.style.position = 'fixed';
+        citizenPanel.style.right = '20px';
+        citizenPanel.style.top = '50%';
+        citizenPanel.style.left = 'auto';
+        citizenPanel.style.transform = 'translateY(-50%)';
+        citizenPanel.style.width = '300px';
+    }
+}
+
 // 도움말 관련 함수들
 function showHelp() {
     showPopup('helpPopup');
@@ -1745,15 +1810,24 @@ window.addEventListener('resize', function() {
     const citizenPanel = document.getElementById('citizenPanel');
     if (citizenPanel) {
         if (window.innerWidth <= 768) {
-            citizenPanel.style.position = 'relative';
+            // 모바일: 중앙 팝업 스타일
+            citizenPanel.style.position = 'fixed';
+            citizenPanel.style.top = '50%';
+            citizenPanel.style.left = '50%';
             citizenPanel.style.right = 'auto';
-            citizenPanel.style.top = 'auto';
-            citizenPanel.style.transform = 'none';
+            citizenPanel.style.transform = 'translate(-50%, -50%)';
+            citizenPanel.style.width = '90vw';
+            citizenPanel.style.maxWidth = '400px';
+            citizenPanel.style.zIndex = '2000';
         } else {
+            // 데스크톱: 사이드 패널 스타일
             citizenPanel.style.position = 'fixed';
             citizenPanel.style.right = '20px';
             citizenPanel.style.top = '50%';
+            citizenPanel.style.left = 'auto';
             citizenPanel.style.transform = 'translateY(-50%)';
+            citizenPanel.style.width = '300px';
+            citizenPanel.style.zIndex = '100';
         }
     }
 });
@@ -1901,6 +1975,7 @@ console.log(`
 `);
 
 console.log('🎨 UI 시스템 로딩 완료!');
+
 
 
 
