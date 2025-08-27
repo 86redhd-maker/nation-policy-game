@@ -547,17 +547,28 @@ function updateCategoryStats(gameStatus) {
             // 카운트 표시 업데이트
             countElement.textContent = `${count}/4`;
             
-            // 제한 상태에 따른 스타일 적용
-            tabElement.classList.remove('disabled', 'limited');
+            // 🔧 기존 상태 클래스 모두 제거
+            tabElement.classList.remove('disabled', 'limited', 'completed');
             
+            // 🔧 새로운 상태에 따른 스타일 적용
             if (count >= 4) {
-                tabElement.classList.add('disabled');
-                tabElement.title = `${category}: 최대 선택 완료 (${count}/4)`;
+                tabElement.classList.add('completed');
+                tabElement.title = `${category}: 완료! (${count}/4)`;
             } else if (count >= 3) {
                 tabElement.classList.add('limited');
                 tabElement.title = `${category}: 제한 임박 (${count}/4)`;
             } else {
                 tabElement.title = `${category}: ${count}/4 선택됨`;
+            }
+            
+            // 🔧 선택 불가능한 카테고리는 비활성화
+            if (typeof gameAPI !== 'undefined' && !gameAPI.canSelectFromCategory(category)) {
+                if (count >= 4) {
+                    // 4/4 완료된 경우는 완료 스타일 유지
+                } else {
+                    // 다른 이유로 선택 불가능한 경우 비활성화
+                    tabElement.classList.add('disabled');
+                }
             }
         }
     });
@@ -1461,7 +1472,7 @@ function showResultsScreen(gameResult) {
             console.warn('endingInfo 요소를 찾을 수 없음');
         }
         
-        // 최종 통계 업데이트
+        / 최종 통계 업데이트 - 🔧 상세 분석 버전으로 교체
         const finalStats = document.getElementById('finalStats');
         if (finalStats) {
             let indicatorRows = '';
@@ -1501,18 +1512,97 @@ function showResultsScreen(gameResult) {
                 indicatorRows = '<div class="stat-row"><span>지표 데이터 없음</span></div>';
             }
             
-            finalStats.innerHTML = `
-                <div class="stat-group">
-                    <div class="stat-group-title">📊 종합 지표</div>
-                    ${indicatorRows}
-                </div>
-                
-                <div class="stat-group">
-                    <div class="stat-group-title">💰 예산 운용</div>
-                    <div class="stat-row">
-                        <span>사용한 예산</span>
-                        <span>${stats.budgetUsed}pt</span>
-                    </div>
+            // 🔧 예산 운용 상세 분석 생성
+            let budgetAnalysisHTML = '';
+            if (typeof gameAPI !== 'undefined') {
+                try {
+                    const efficiencyGrade = gameAPI.getEfficiencyGrade(stats.budgetEfficiency);
+                    const satisfactionGrade = gameAPI.getSatisfactionGrade(stats.citizenSatisfaction);
+                    const sustainabilityGrade = gameAPI.getSustainabilityGrade(stats.sustainability);
+                    
+                    const efficiencyExplanation = gameAPI.getStatExplanation('budgetEfficiency');
+                    const satisfactionExplanation = gameAPI.getStatExplanation('citizenSatisfaction');
+                    const sustainabilityExplanation = gameAPI.getStatExplanation('sustainability');
+                    
+                    const efficiencyLevel = gameAPI.getInterpretationLevel(stats.budgetEfficiency, 'budgetEfficiency');
+                    const satisfactionLevel = gameAPI.getInterpretationLevel(stats.citizenSatisfaction, 'citizenSatisfaction');
+                    const sustainabilityLevel = gameAPI.getInterpretationLevel(stats.sustainability, 'sustainability');
+                    
+                    budgetAnalysisHTML = `
+                        <div class="detailed-stat">
+                            <div class="stat-header">
+                                <div class="stat-main">
+                                    <span class="stat-name">예산 효율성</span>
+                                    <span class="stat-value">${stats.budgetEfficiency}</span>
+                                </div>
+                                <span class="stat-grade" style="background-color: ${efficiencyGrade.bgColor}; color: ${efficiencyGrade.color};">
+                                    ${efficiencyGrade.grade}급 - ${efficiencyGrade.text}
+                                </span>
+                            </div>
+                            <div class="stat-description">
+                                ${efficiencyExplanation.interpretations[efficiencyLevel]}
+                            </div>
+                            <div class="stat-tips">
+                                ${efficiencyExplanation.tips[0]}
+                            </div>
+                        </div>
+                        
+                        <div class="detailed-stat">
+                            <div class="stat-header">
+                                <div class="stat-main">
+                                    <span class="stat-name">시민 만족도</span>
+                                    <span class="stat-value">${stats.citizenSatisfaction}</span>
+                                </div>
+                                <span class="stat-grade" style="background-color: ${satisfactionGrade.bgColor}; color: ${satisfactionGrade.color};">
+                                    ${satisfactionGrade.grade}급 - ${satisfactionGrade.text}
+                                </span>
+                            </div>
+                            <div class="stat-description">
+                                ${satisfactionExplanation.interpretations[satisfactionLevel]}
+                            </div>
+                            <div class="stat-tips">
+                                ${satisfactionExplanation.tips[0]}
+                            </div>
+                        </div>
+                        
+                        <div class="detailed-stat">
+                            <div class="stat-header">
+                                <div class="stat-main">
+                                    <span class="stat-name">지속가능성</span>
+                                    <span class="stat-value">${stats.sustainability}</span>
+                                </div>
+                                <span class="stat-grade" style="background-color: ${sustainabilityGrade.bgColor}; color: ${sustainabilityGrade.color};">
+                                    ${sustainabilityGrade.grade}급 - ${sustainabilityGrade.text}
+                                </span>
+                            </div>
+                            <div class="stat-description">
+                                ${sustainabilityExplanation.interpretations[sustainabilityLevel]}
+                            </div>
+                            <div class="stat-tips">
+                                ${sustainabilityExplanation.tips[0]}
+                            </div>
+                        </div>
+                    `;
+                } catch (error) {
+                    console.warn('상세 분석 생성 실패, 기본 버전 사용:', error);
+                    budgetAnalysisHTML = `
+                        <div class="stat-row">
+                            <span>예산 효율성</span>
+                            <span>${stats.budgetEfficiency}</span>
+                        </div>
+                        <div class="stat-row">
+                            <span>시민 만족도</span>
+                            <span>${stats.citizenSatisfaction}</span>
+                        </div>
+                        <div class="stat-row">
+                            <span>지속가능성</span>
+                            <span>${stats.sustainability}</span>
+                        </div>
+                    `;
+                }
+            } else {
+                // gameAPI가 없는 경우 기본 표시
+                budgetAnalysisHTML = `
                     <div class="stat-row">
                         <span>예산 효율성</span>
                         <span>${stats.budgetEfficiency}</span>
@@ -1522,9 +1612,21 @@ function showResultsScreen(gameResult) {
                         <span>${stats.citizenSatisfaction}</span>
                     </div>
                     <div class="stat-row">
-                        <span>지속 가능성</span>
+                        <span>지속가능성</span>
                         <span>${stats.sustainability}</span>
                     </div>
+                `;
+            }
+            
+            finalStats.innerHTML = `
+                <div class="stat-group">
+                    <div class="stat-group-title">📊 종합 지표</div>
+                    ${indicatorRows}
+                </div>
+                
+                <div class="stat-group">
+                    <div class="stat-group-title">💰 예산 운용 분석</div>
+                    ${budgetAnalysisHTML}
                 </div>
                 
                 <div class="stat-group">
@@ -1532,6 +1634,10 @@ function showResultsScreen(gameResult) {
                     <div class="stat-row">
                         <span>선택한 정책</span>
                         <span>${stats.policiesSelected}개</span>
+                    </div>
+                    <div class="stat-row">
+                        <span>사용한 예산</span>
+                        <span>${stats.budgetUsed}pt</span>
                     </div>
                     <div class="stat-row">
                         <span>완료한 턴</span>
@@ -2145,6 +2251,7 @@ console.log(`
 `);
 
 console.log('🎨 UI 시스템 로딩 완료!');
+
 
 
 
