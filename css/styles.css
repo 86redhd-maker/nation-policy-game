@@ -1477,56 +1477,87 @@ button:focus-visible,
     display: block;
 }
 
-/* 🔧 모바일에서 시민 패널을 중앙 팝업으로 표시 */
+/* 🔧 모바일에서 시민 패널을 하단 고정으로 표시 */
 @media (max-width: 768px) {
     .citizen-panel {
-        position: fixed;
-        top: 50%;
-        left: 50%;
-        right: auto;
-        transform: translate(-50%, -50%);
-        width: 90vw;
-        max-width: 400px;
-        z-index: 2000; /* 상태바보다 위에 */
-        background: rgba(255, 255, 255, 0.98);
-        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-        border: 2px solid var(--primary-color);
+        position: fixed !important;
+        bottom: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        top: auto !important;
+        transform: none !important;
+        width: 100% !important;
+        max-width: none !important;
+        z-index: 3000 !important; /* 상태바보다 훨씬 위에 */
+        background: rgba(255, 255, 255, 0.98) !important;
+        box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.2) !important;
+        border-radius: 16px 16px 0 0 !important;
+        border-top: 3px solid var(--primary-color) !important;
+        max-height: 40vh !important;
+        overflow-y: auto !important;
+        backdrop-filter: blur(10px) !important;
     }
     
-    /* 모바일에서 팝업 배경 오버레이 추가 */
-    .citizen-panel.active::before {
-        content: '';
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: rgba(0, 0, 0, 0.5);
-        z-index: -1;
-        backdrop-filter: blur(3px);
+    /* 모바일 패널 헤더 스타일 */
+    .citizen-panel .panel-header {
+        background: linear-gradient(135deg, var(--primary-color), var(--primary-dark)) !important;
+        color: white !important;
+        margin: -1.5rem -1.5rem 1rem -1.5rem !important;
+        padding: 1rem 1.5rem !important;
+        border-radius: 16px 16px 0 0 !important;
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        font-weight: 700 !important;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1) !important;
     }
     
-    /* 패널 헤더에 닫기 버튼 추가 공간 */
-    .panel-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 1rem;
+    /* 모바일에서 밈 아이템 스타일 개선 */
+    .citizen-panel .meme-item {
+        background: linear-gradient(135deg, 
+            rgba(255, 107, 157, 0.1), 
+            rgba(254, 207, 239, 0.1)) !important;
+        border-left: 4px solid var(--primary-color) !important;
+        padding: 1rem !important;
+        border-radius: 8px !important;
+        font-size: 0.9rem !important;
+        color: #2d3748 !important;
+        line-height: 1.4 !important;
+        margin-bottom: 1rem !important;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05) !important;
     }
     
-    /* 모바일에서 닫기 버튼 더 크게 */
-    .citizen-panel .close-btn {
-        background: #e53e3e;
-        border: none;
-        color: white;
-        width: 32px;
-        height: 32px;
-        border-radius: 50%;
-        font-size: 1.2rem;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
+    /* 모바일에서 닫기 버튼 스타일 */
+    .citizen-panel .close-btn,
+    .citizen-panel .mini-btn {
+        background: rgba(255, 255, 255, 0.2) !important;
+        border: 1px solid rgba(255, 255, 255, 0.3) !important;
+        color: white !important;
+        width: 32px !important;
+        height: 32px !important;
+        border-radius: 50% !important;
+        font-size: 1.2rem !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        cursor: pointer !important;
+        transition: all 0.2s ease !important;
+    }
+    
+    .citizen-panel .close-btn:hover,
+    .citizen-panel .mini-btn:hover {
+        background: rgba(255, 255, 255, 0.3) !important;
+        transform: scale(1.05) !important;
+    }
+    
+    /* 패널 애니메이션 개선 */
+    .citizen-panel {
+        transform: translateY(100%) !important;
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    }
+    
+    .citizen-panel.active {
+        transform: translateY(0) !important;
     }
 }
 
@@ -1641,4 +1672,5 @@ button:focus-visible,
         z-index: 2500; /* 상태바보다 훨씬 위에 */
     }
 }
+
 
