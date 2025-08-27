@@ -857,7 +857,7 @@ body::before {
     display: none;
     justify-content: center;
     align-items: center;
-    z-index: 1000;
+    z-index: 5000;
     padding: 1rem;
 }
 
@@ -925,7 +925,7 @@ body::before {
     visibility: visible !important;
     opacity: 1 !important;
     position: relative !important;
-    z-index: 9999 !important;
+    z-index: 4000 !important;
     background: white !important;
     min-height: 100vh !important;
     width: 100% !important;
@@ -1210,7 +1210,7 @@ body::before {
     padding: 1rem;
     font-size: 0.85rem;
     color: #4a5568;
-    z-index: 1000;
+    z-index: 800;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -2500,5 +2500,6 @@ button:focus-visible,
 .pixel-btn.secondary:active {
     transform: scale(0.98) !important;
 }
+
 
 
