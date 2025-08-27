@@ -526,6 +526,27 @@ body::before {
     margin-bottom: 1.5rem;
 }
 
+/* 🔧 모바일에서 2행 그리드로 배치 */
+@media (max-width: 768px) {
+    .category-tabs {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 0.25rem;
+        margin-bottom: 1rem;
+    }
+    
+    /* 4번째, 5번째 탭을 가운데 정렬 */
+    .category-tabs .tab-btn:nth-child(4) {
+        grid-column: 1 / 3;
+        justify-self: end;
+    }
+    
+    .category-tabs .tab-btn:nth-child(5) {
+        grid-column: 3;
+        justify-self: start;
+    }
+}
+
 .tab-btn {
     background: var(--primary-light);
     border: 2px solid transparent;
@@ -1672,5 +1693,6 @@ button:focus-visible,
         z-index: 2500; /* 상태바보다 훨씬 위에 */
     }
 }
+
 
 
