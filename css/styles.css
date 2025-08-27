@@ -2501,5 +2501,19 @@ button:focus-visible,
     transform: scale(0.98) !important;
 }
 
+/* 팝업 레이어를 진짜 최상단으로 */
+.popup-overlay { z-index: 5000 !important; }
+
+/* 팝업 열려 있는 동안에는 화면 컨테이너의 transform을 꺼서
+   스태킹 컨텍스트가 새로 생겨 팝업을 덮어버리는 문제를 차단 */
+.modal-open .screen.active {
+  transform: none !important;
+  will-change: auto !important;
+}
+
+/* 상태바/인트로는 팝업보다 낮게 보장 */
+.status-bar { z-index: 800 !important; }
+.start-overlay, .intro-overlay, .landing-overlay { z-index: 900 !important; }
+
 
 
