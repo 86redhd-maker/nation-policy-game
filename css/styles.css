@@ -1411,3 +1411,234 @@ button:focus-visible,
     transform: translateZ(0);
 }
 
+/* ===== 모바일 지표 레이아웃 수정 ===== */
+@media (max-width: 768px) {
+    /* 🔧 지표를 2열로 배치하여 스크롤 줄이기 */
+    .indicators-grid {
+        grid-template-columns: repeat(2, 1fr); /* 기존: 1fr */
+        gap: 0.5rem;
+        font-size: 0.85rem;
+    }
+    
+    .indicator-item {
+        padding: 0.75rem; /* 기존: 1rem */
+    }
+    
+    .indicator-name {
+        font-size: 0.8rem; /* 기존: 0.9rem */
+        margin-bottom: 0.5rem; /* 기존: 0.75rem */
+    }
+    
+    .indicator-value {
+        font-size: 0.9rem; /* 기존: 1rem */
+    }
+}
+
+@media (max-width: 480px) {
+    /* 🔧 매우 작은 화면에서는 여전히 2열 유지 */
+    .indicators-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.25rem;
+        font-size: 0.8rem;
+    }
+    
+    .indicator-item {
+        padding: 0.5rem;
+    }
+    
+    .indicator-name {
+        font-size: 0.75rem;
+        margin-bottom: 0.25rem;
+    }
+    
+    .indicator-value {
+        font-size: 0.85rem;
+    }
+}
+
+/* ===== 시민 반응 패널 모바일 수정 ===== */
+.citizen-panel {
+    position: fixed;
+    right: 2rem;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 300px;
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 16px;
+    padding: 1.5rem;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+    display: none;
+    z-index: 100;
+    animation: slideInRight 0.3s ease;
+}
+
+.citizen-panel.active {
+    display: block;
+}
+
+/* 🔧 모바일에서 시민 패널을 중앙 팝업으로 표시 */
+@media (max-width: 768px) {
+    .citizen-panel {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        right: auto;
+        transform: translate(-50%, -50%);
+        width: 90vw;
+        max-width: 400px;
+        z-index: 2000; /* 상태바보다 위에 */
+        background: rgba(255, 255, 255, 0.98);
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        border: 2px solid var(--primary-color);
+    }
+    
+    /* 모바일에서 팝업 배경 오버레이 추가 */
+    .citizen-panel.active::before {
+        content: '';
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: -1;
+        backdrop-filter: blur(3px);
+    }
+    
+    /* 패널 헤더에 닫기 버튼 추가 공간 */
+    .panel-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+    
+    /* 모바일에서 닫기 버튼 더 크게 */
+    .citizen-panel .close-btn {
+        background: #e53e3e;
+        border: none;
+        color: white;
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        font-size: 1.2rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+    }
+}
+
+/* ===== 진행률 바 스타일 추가 ===== */
+.game-progress {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    min-width: 150px;
+}
+
+.progress-bar {
+    width: 100%;
+    height: 8px;
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--primary-color), var(--primary-dark));
+    border-radius: 10px;
+    transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    width: 20%; /* 초기값 */
+}
+
+.progress-text {
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.9);
+    font-weight: 600;
+    text-align: center;
+}
+
+@media (max-width: 768px) {
+    .game-progress {
+        min-width: 120px;
+    }
+    
+    .progress-text {
+        font-size: 0.8rem;
+    }
+}
+
+/* ===== 선택 미리보기 개선 ===== */
+.current-selection-preview {
+    background: var(--primary-light);
+    border: 2px solid var(--primary-color);
+    border-radius: 12px;
+    padding: 1rem;
+    margin-top: 1rem;
+    display: none; /* 기본적으로 숨김 */
+    animation: fadeIn 0.3s ease;
+}
+
+.current-selection-preview.active {
+    display: block;
+}
+
+.preview-remove-btn {
+    background: #e53e3e;
+    border: none;
+    color: white;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 0.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.preview-remove-btn:hover {
+    background: #c53030;
+    transform: scale(1.1);
+}
+
+/* ===== 상태바가 시민 패널을 가리지 않도록 수정 ===== */
+.status-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-top: 1px solid #e2e8f0;
+    padding: 1rem;
+    font-size: 0.85rem;
+    color: #4a5568;
+    z-index: 1000; /* 시민 패널(2000)보다 낮게 */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* 모바일에서 상태바 숨기기 옵션 */
+@media (max-width: 768px) {
+    .status-bar {
+        display: none; /* 또는 z-index를 더 낮게 조정 */
+    }
+    
+    /* 또는 상태바를 보이게 하되 패널이 더 위에 오도록 */
+    .status-bar.show-mobile {
+        display: flex;
+        z-index: 500;
+    }
+    
+    .citizen-panel {
+        z-index: 2500; /* 상태바보다 훨씬 위에 */
+    }
+}
+
