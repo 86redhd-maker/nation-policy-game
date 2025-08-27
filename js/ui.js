@@ -363,7 +363,15 @@ function initializeGameScreen(gameStatus) {
         loadPoliciesForCategory(currentActiveCategory);
         updateBudgetDisplay(gameStatus.budget, gameStatus.debtLimit);
         updateTurnInfo(gameStatus);
-        clearPolicySelection();
+        clearSelection();
+        
+        // 🔧 미리보기 초기화 추가
+        const previewContainer = document.getElementById('currentSelectionPreview');
+        if (previewContainer) {
+            previewContainer.style.display = 'none';
+            previewContainer.classList.remove('active');
+        }
+        
         console.log('게임 화면 초기화 완료');
     } catch (error) {
         console.error('게임 화면 초기화 실패:', error);
@@ -599,28 +607,80 @@ function updateCurrentSelectionPreview() {
     const previewContainer = document.getElementById('currentSelectionPreview');
     const previewPolicies = document.getElementById('previewPolicies');
     
-    if (!previewContainer || !previewPolicies) return;
+    if (!previewContainer || !previewPolicies) {
+        console.warn('미리보기 컨테이너를 찾을 수 없음');
+        return;
+    }
     
-    if (gameStatus.currentSelection.length === 0) {
+    console.log('미리보기 업데이트:', gameStatus.currentSelection);
+    
+    if (!gameStatus.currentSelection || gameStatus.currentSelection.length === 0) {
         previewContainer.style.display = 'none';
+        previewContainer.classList.remove('active');
         return;
     }
     
     previewContainer.style.display = 'block';
+    previewContainer.classList.add('active');
     previewPolicies.innerHTML = '';
     
     gameStatus.currentSelection.forEach(policyName => {
-        const category = gameAPI.findPolicyCategory(policyName);
+        const category = gameAPI.findPolicyCategory ? gameAPI.findPolicyCategory(policyName) : '정책';
         const categoryIcon = getCategoryIcon(category);
         
         const policyItem = document.createElement('div');
         policyItem.className = 'preview-policy-item';
         policyItem.innerHTML = `
             <span>${categoryIcon} ${policyName}</span>
-            <button class="preview-remove-btn" onclick="deselectPolicy('${policyName}')">✕</button>
+            <button class="preview-remove-btn" onclick="deselectPolicy('${policyName.replace(/'/g, "\\'")}')">✕</button>
         `;
+        
+        // 🔧 X버튼에 직접 이벤트 리스너도 추가 (onclick 백업)
+        const removeBtn = policyItem.querySelector('.preview-remove-btn');
+        if (removeBtn) {
+            removeBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log('X버튼 클릭됨:', policyName);
+                deselectPolicy(policyName);
+            });
+            
+            // 호버 효과 추가
+            removeBtn.addEventListener('mouseenter', function() {
+                this.style.backgroundColor = '#c53030';
+                this.style.transform = 'scale(1.1)';
+            });
+            
+            removeBtn.addEventListener('mouseleave', function() {
+                this.style.backgroundColor = '#e53e3e';
+                this.style.transform = 'scale(1)';
+            });
+        }
+        
         previewPolicies.appendChild(policyItem);
     });
+}
+
+// 디버깅을 위한 헬퍼 함수
+function debugPreview() {
+    console.log('=== 미리보기 디버그 정보 ===');
+    
+    if (typeof gameAPI !== 'undefined') {
+        const gameStatus = gameAPI.getGameStatus();
+        console.log('현재 선택:', gameStatus.currentSelection);
+    }
+    
+    const previewContainer = document.getElementById('currentSelectionPreview');
+    const previewPolicies = document.getElementById('previewPolicies');
+    
+    console.log('미리보기 컨테이너:', previewContainer);
+    console.log('미리보기 정책들:', previewPolicies);
+    
+    if (previewPolicies) {
+        console.log('X버튼들:', previewPolicies.querySelectorAll('.preview-remove-btn'));
+    }
+    
+    console.log('========================');
 }
 
 // 카테고리 아이콘 가져오기
@@ -805,12 +865,7 @@ function togglePolicySelection(policyName) {
     
     if (gameStatus.currentSelection.includes(policyName)) {
         // 선택 해제
-        const result = gameAPI.deselectPolicy(policyName);
-        if (result.success) {
-            if (typeof gameUtils !== 'undefined') gameUtils.playSound('select');
-            updatePolicyCards();
-            updateSelectionSummary();
-        }
+        deselectPolicy(policyName);
     } else {
         // 선택
         const result = gameAPI.selectPolicy(policyName);
@@ -818,6 +873,7 @@ function togglePolicySelection(policyName) {
             if (typeof gameUtils !== 'undefined') gameUtils.playSound('select');
             updatePolicyCards();
             updateSelectionSummary();
+            updateCurrentSelectionPreview(); // 🔧 미리보기 즉시 업데이트
         } else {
             if (typeof gameUtils !== 'undefined') {
                 gameUtils.showToast(result.error, 'error');
@@ -935,6 +991,48 @@ function clearSelection() {
         }
         
         if (typeof gameUtils !== 'undefined') gameUtils.playSound('select');
+    }
+}
+
+// ===== 미리보기 X버튼 수정 =====
+function deselectPolicy(policyName) {
+    console.log('정책 선택 해제 시도:', policyName);
+    
+    if (typeof gameAPI === 'undefined') {
+        console.error('gameAPI가 정의되지 않음');
+        return;
+    }
+    
+    const result = gameAPI.deselectPolicy(policyName);
+    console.log('선택 해제 결과:', result);
+    
+    if (result.success) {
+        if (typeof gameUtils !== 'undefined') gameUtils.playSound('select');
+        updatePolicyCards();
+        updateSelectionSummary();
+        updateCurrentSelectionPreview(); // 🔧 미리보기도 즉시 업데이트
+        
+        // 🔧 선택된 정책이 없으면 미리보기 숨김
+        const gameStatus = gameAPI.getGameStatus();
+        if (!gameStatus.currentSelection || gameStatus.currentSelection.length === 0) {
+            const previewContainer = document.getElementById('currentSelectionPreview');
+            if (previewContainer) {
+                previewContainer.style.display = 'none';
+                previewContainer.classList.remove('active');
+            }
+        }
+        
+        if (typeof gameUtils !== 'undefined') {
+            gameUtils.showToast(`${policyName} 선택 해제됨`, 'info');
+        }
+    } else {
+        console.error('선택 해제 실패:', result.error);
+        if (typeof gameUtils !== 'undefined') {
+            gameUtils.showToast(result.error, 'error');
+            gameUtils.playSound('error');
+        } else {
+            alert(result.error);
+        }
     }
 }
 
@@ -2047,6 +2145,7 @@ console.log(`
 `);
 
 console.log('🎨 UI 시스템 로딩 완료!');
+
 
 
 
