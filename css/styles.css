@@ -526,7 +526,7 @@ body::before {
     margin-bottom: 1.5rem;
 }
 
-/* 🔧 모바일에서 2행 그리드로 배치 */
+/* 모바일에서 2행 그리드로 배치 */
 @media (max-width: 768px) {
     .category-tabs {
         display: grid;
@@ -558,6 +558,21 @@ body::before {
     border-radius: 50px;
     cursor: pointer;
     transition: all 0.3s ease;
+    min-height: 44px; /* 터치 편의성 보장 */
+}
+
+/* 🔧 모바일에서 탭 크기 조정 */
+@media (max-width: 768px) {
+    .tab-btn {
+        font-size: 0.8rem;
+        padding: 0.6rem 0.8rem;
+        text-align: center;
+        min-height: 44px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+    }
 }
 
 .tab-btn:hover {
@@ -576,11 +591,31 @@ body::before {
     opacity: 0.5;
     cursor: not-allowed;
     background: #f7fafc;
+    color: #a0aec0;
 }
 
 .tab-btn.limited {
     background: linear-gradient(135deg, #f6ad55, #ed8936);
     color: white;
+    border-color: #ed8936;
+}
+
+/* 🔧 완료된 카테고리 (4/4) 스타일 추가 */
+.tab-btn.completed {
+    background: linear-gradient(135deg, #38a169, #68d391);
+    color: white;
+    border-color: #38a169;
+    box-shadow: 0 4px 15px rgba(56, 161, 105, 0.3);
+}
+
+.tab-btn.completed:hover {
+    background: linear-gradient(135deg, #2f855a, #38a169);
+    box-shadow: 0 6px 20px rgba(56, 161, 105, 0.4);
+}
+
+.tab-btn.limited:hover {
+    background: linear-gradient(135deg, #ed8936, #dd6b20);
+    box-shadow: 0 6px 20px rgba(237, 137, 54, 0.4);
 }
 
 .tab-count {
@@ -1340,6 +1375,116 @@ body::before {
 }
 
 /* ===== 접근성 개선 ===== */
+/* ===== 상세 통계 스타일 ===== */
+.detailed-stat {
+    margin-bottom: 1.5rem;
+    padding: 1.2rem;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    backdrop-filter: blur(10px);
+    transition: all 0.3s ease;
+}
+
+.detailed-stat:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    border-color: var(--primary-color);
+}
+
+.stat-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.stat-main {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.stat-name {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #2d3748;
+}
+
+.stat-value {
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: var(--primary-color);
+}
+
+.stat-grade {
+    padding: 0.35rem 0.7rem;
+    border-radius: 50px;
+    font-weight: 700;
+    font-size: 0.8rem;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    transition: all 0.2s ease;
+}
+
+.stat-grade:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.stat-description {
+    font-size: 0.95rem;
+    color: #4a5568;
+    line-height: 1.5;
+    margin-bottom: 1rem;
+    padding: 0.75rem;
+    background: rgba(var(--primary-color), 0.05);
+    border-left: 4px solid var(--primary-color);
+    border-radius: 0 8px 8px 0;
+}
+
+.stat-tips {
+    font-size: 0.85rem;
+    color: #718096;
+    font-style: italic;
+    background: rgba(246, 173, 85, 0.1);
+    padding: 0.75rem;
+    border-radius: 8px;
+    border: 1px solid rgba(246, 173, 85, 0.2);
+    line-height: 1.4;
+}
+
+.stat-tips::before {
+    content: '💡 ';
+    font-style: normal;
+    font-weight: bold;
+}
+
+/* 모바일 반응형 */
+@media (max-width: 768px) {
+    .stat-header {
+        flex-direction: column;
+        align-items: stretch;
+        text-align: center;
+    }
+    
+    .stat-main {
+        justify-content: center;
+        margin-bottom: 0.5rem;
+    }
+    
+    .detailed-stat {
+        padding: 1rem;
+        margin-bottom: 1rem;
+    }
+    
+    .stat-description, .stat-tips {
+        font-size: 0.9rem;
+        padding: 0.6rem;
+    }
+}
 @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after {
         animation-duration: 0.01ms !important;
@@ -1693,6 +1838,7 @@ button:focus-visible,
         z-index: 2500; /* 상태바보다 훨씬 위에 */
     }
 }
+
 
 
 
