@@ -216,18 +216,12 @@
 </div>
 
         <!-- 도움말 화면 (팝업) - 개선된 버전 -->
-        <div id="helpPopup"
-     class="popup-overlay"
-     aria-hidden="true"
-     onclick="if(event.target===this) closeHelp()">
-  <div class="popup-content help-content"
-       role="dialog"
-       aria-modal="true"
-       aria-labelledby="helpTitle">
-    <div class="popup-header">
-      <h3 id="helpTitle">❓ 게임 설명</h3>
-      <button type="button" class="close-btn" onclick="closeHelp()">✖</button>
-    </div>
+        <div id="helpPopup" class="popup-overlay" aria-hidden="true" role="dialog" aria-modal="true">
+    <div class="popup-content help-content" onclick="event.stopPropagation()">
+        <div class="popup-header">
+            <h3 id="helpTitle">❓ 게임 설명</h3>
+            <button type="button" class="close-btn" onclick="closeHelp()" aria-label="닫기">✖</button>
+        </div>
 
     <div class="popup-body">
       <div class="help-navigation">
@@ -524,12 +518,12 @@
         </div>
 
         <!-- 크레딧 팝업 -->
-        <div id="creditsPopup" class="popup-overlay">
-            <div class="popup-content">
-                <div class="popup-header">
-                    <h3>👥 크레딧</h3>
-                    <button class="close-btn" onclick="closeCredits()">✖</button>
-                </div>
+        <div id="creditsPopup" class="popup-overlay" aria-hidden="true">
+    <div class="popup-content" onclick="event.stopPropagation()">
+        <div class="popup-header">
+            <h3>👥 크레딧</h3>
+            <button type="button" class="close-btn" onclick="closeCredits()" aria-label="닫기">✖</button>
+        </div>
                 <div class="popup-body">
                     <div class="credits-section">
                         <h4>🎮 게임 개발</h4>
@@ -576,11 +570,11 @@
     <script src="js/ui.js"></script>
         
     <!-- 이벤트 팝업 -->
-<div id="eventPopup" class="popup-overlay">
-    <div class="popup-content">
+<div id="eventPopup" class="popup-overlay" aria-hidden="true">
+    <div class="popup-content" onclick="event.stopPropagation()">
         <div class="popup-header">
             <h3 id="eventTitle">🎯 이벤트 발생!</h3>
-            <button class="close-btn" onclick="hidePopup('eventPopup')">✖</button>
+            <button type="button" class="close-btn" onclick="hidePopup('eventPopup')" aria-label="닫기">✖</button>
         </div>
         <div class="popup-body">
             <div id="eventDescription" style="margin-bottom: 1rem; font-size: 1rem; line-height: 1.5;">
@@ -598,6 +592,7 @@
 </div>
 </body>
 </html>
+
 
 
 
