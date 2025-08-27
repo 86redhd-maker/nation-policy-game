@@ -887,7 +887,96 @@ document.addEventListener('DOMContentLoaded', function() {
         indicators: Object.keys(INDICATORS_INFO).length
     });
 });
+// 통계 등급 계산 함수들 추가
+function getEfficiencyGrade(value) {
+    if (value >= 2.0) return { grade: 'S', text: '매우 효율적', color: '#333', bgColor: '#00ff88' };
+    if (value >= 1.5) return { grade: 'A', text: '효율적', color: '#333', bgColor: '#88ff88' };
+    if (value >= 1.0) return { grade: 'B', text: '보통', color: 'white', bgColor: '#ffaa00' };
+    if (value >= 0.5) return { grade: 'C', text: '비효율적', color: 'white', bgColor: '#ff8888' };
+    return { grade: 'D', text: '매우 비효율적', color: 'white', bgColor: '#ff4444' };
+}
 
+function getSatisfactionGrade(value) {
+    if (value >= 2.0) return { grade: 'S', text: '매우 만족', color: '#333', bgColor: '#00ff88' };
+    if (value >= 1.0) return { grade: 'A', text: '만족', color: '#333', bgColor: '#88ff88' };
+    if (value >= 0.0) return { grade: 'B', text: '보통', color: 'white', bgColor: '#ffaa00' };
+    if (value >= -1.0) return { grade: 'C', text: '불만', color: 'white', bgColor: '#ff8888' };
+    return { grade: 'D', text: '매우 불만', color: 'white', bgColor: '#ff4444' };
+}
+
+function getSustainabilityGrade(value) {
+    if (value >= 1.5) return { grade: 'S', text: '매우 지속가능', color: '#333', bgColor: '#00ff88' };
+    if (value >= 0.5) return { grade: 'A', text: '지속가능', color: '#333', bgColor: '#88ff88' };
+    if (value >= -0.5) return { grade: 'B', text: '보통', color: 'white', bgColor: '#ffaa00' };
+    if (value >= -1.5) return { grade: 'C', text: '위험', color: 'white', bgColor: '#ff8888' };
+    return { grade: 'D', text: '매우 위험', color: 'white', bgColor: '#ff4444' };
+}
+
+// 통계 설명 데이터
+const STAT_EXPLANATIONS = {
+    budgetEfficiency: {
+        description: "투입한 예산 대비 얻은 성과를 나타냅니다",
+        calculation: "총점 ÷ 사용한 예산",
+        interpretations: {
+            high: "적은 예산으로 큰 효과를 얻었습니다. 정책 선택이 매우 효율적이었습니다.",
+            medium: "적정 수준의 예산 효율성을 보였습니다.",
+            low: "예산 대비 성과가 부족합니다. 더 효율적인 정책 조합이 필요했습니다."
+        },
+        tips: [
+            "시너지 효과가 있는 정책 조합을 선택하세요",
+            "국가 특성에 맞는 할인 정책을 활용하세요", 
+            "비용 대비 효과가 높은 정책을 우선 선택하세요"
+        ]
+    },
+    citizenSatisfaction: {
+        description: "국민들의 전반적인 만족도입니다",
+        calculation: "(시민반응 + 복지 + 안정성) ÷ 3",
+        interpretations: {
+            high: "국민들이 정부 정책에 매우 만족하고 있습니다. 훌륭한 국정 운영입니다.",
+            medium: "국민들이 정부에 대해 보통 수준의 만족도를 보이고 있습니다.",
+            low: "국민들의 불만이 높습니다. 복지, 안정성 개선이 필요합니다."
+        },
+        realWorldContext: "실제 정치에서는 여론조사 지지율, 시민 만족도 조사 등으로 측정됩니다.",
+        tips: [
+            "복지 정책으로 직접적인 만족도를 향상시키세요",
+            "사회 안정성 확보로 불안감을 해소하세요",
+            "시민 반응을 고려한 정책을 선택하세요"
+        ]
+    },
+    sustainability: {
+        description: "현재 정책이 장기적으로 지속될 수 있는지를 나타냅니다",
+        calculation: "(환경 + 재정 + 안정성) ÷ 3",
+        interpretations: {
+            high: "장기적으로 지속가능한 국가 운영 체계를 구축했습니다.",
+            medium: "대체로 안정적이지만 일부 영역에서 개선이 필요합니다.",
+            low: "현재 정책은 장기적으로 지속하기 어려울 수 있습니다."
+        },
+        realWorldContext: "UN의 지속가능발전목표(SDGs)와 유사한 개념입니다.",
+        tips: [
+            "환경 보호로 미래 세대를 고려하세요",
+            "재정 건전성으로 경제적 지속성을 확보하세요",
+            "사회 안정성으로 정치적 지속성을 보장하세요"
+        ]
+    }
+};
+
+// 해석 레벨 결정 함수
+function getInterpretationLevel(value, type) {
+    if (type === 'budgetEfficiency') {
+        if (value >= 1.5) return 'high';
+        if (value >= 0.8) return 'medium';
+        return 'low';
+    } else if (type === 'citizenSatisfaction') {
+        if (value >= 1.0) return 'high';
+        if (value >= -0.5) return 'medium';
+        return 'low';
+    } else if (type === 'sustainability') {
+        if (value >= 0.5) return 'high';
+        if (value >= -0.5) return 'medium';
+        return 'low';
+    }
+    return 'medium';
+}
 // 전역 함수로 내보내기
 window.gameAPI = {
     startGame,
@@ -926,7 +1015,14 @@ window.gameAPI = {
     findPolicyCategory: (policyName) => {
         if (!gameState) return null;
         return gameState.findPolicyCategory(policyName);
-    }
+    },
+    
+    // 🔧 통계 등급 함수들 추가
+    getEfficiencyGrade,
+    getSatisfactionGrade, 
+    getSustainabilityGrade,
+    getStatExplanation: (statType) => STAT_EXPLANATIONS[statType],
+    getInterpretationLevel
 };
 
 window.gameUtils = {
@@ -941,4 +1037,5 @@ window.gameUtils = {
     addAnimation,
     playSound
 };
+
 
