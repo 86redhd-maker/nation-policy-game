@@ -1839,6 +1839,263 @@ button:focus-visible,
     }
 }
 
+/* ===== 교육적 해설 스타일 ===== */
+.educational-section {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 16px;
+    padding: 2rem;
+    margin: 2rem 0;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    border-left: 6px solid var(--primary-color);
+    animation: fadeInUp 0.6s ease-out;
+}
 
+.educational-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--primary-color);
+    margin-bottom: 1.5rem;
+    text-align: center;
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.analysis-subsection {
+    margin-bottom: 2rem;
+    transition: all 0.3s ease;
+}
+
+.analysis-subsection:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.analysis-header {
+    color: #2d3748;
+    margin-bottom: 1rem;
+    font-size: 1.1rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.analysis-content {
+    padding: 1rem;
+    border-radius: 8px;
+    line-height: 1.6;
+}
+
+/* 성취 분석 스타일 */
+.achievement-analysis {
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(147, 197, 253, 0.1));
+    border-left: 4px solid #3b82f6;
+}
+
+/* 성공 요인 스타일 */
+.success-factors {
+    background: linear-gradient(135deg, rgba(34, 197, 94, 0.1), rgba(134, 239, 172, 0.1));
+    border-left: 4px solid #22c55e;
+}
+
+.factor-list, .example-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.factor-item, .example-item {
+    margin-bottom: 0.5rem;
+    padding-left: 1.5rem;
+    position: relative;
+    line-height: 1.4;
+}
+
+.factor-icon {
+    position: absolute;
+    left: 0;
+    color: #22c55e;
+    font-weight: bold;
+}
+
+.example-icon {
+    position: absolute;
+    left: 0;
+    color: #a855f7;
+}
+
+/* 실제 사례 스타일 */
+.real-world-examples {
+    background: linear-gradient(135deg, rgba(168, 85, 247, 0.1), rgba(196, 181, 253, 0.1));
+    border-left: 4px solid #a855f7;
+}
+
+/* 정책 교훈 스타일 */
+.policy-lessons {
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(251, 191, 36, 0.1));
+    border-left: 4px solid #f59e0b;
+    font-style: italic;
+    font-weight: 500;
+}
+
+/* 국가 모델 스타일 */
+.nation-model {
+    background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(252, 165, 165, 0.1));
+    border-left: 4px solid #ef4444;
+}
+
+.nation-model p {
+    margin-bottom: 0.5rem;
+}
+
+.nation-model p:last-child {
+    margin-bottom: 0;
+}
+
+/* 정책 조합 분석 스타일 */
+.policy-combination {
+    background: linear-gradient(135deg, rgba(6, 182, 212, 0.1), rgba(103, 232, 249, 0.1));
+    border-left: 4px solid #06b6d4;
+}
+
+.pros-cons {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin: 1rem 0;
+}
+
+.pros, .cons {
+    padding: 0.75rem;
+    border-radius: 6px;
+}
+
+.pros {
+    background: rgba(34, 197, 94, 0.1);
+    border: 1px solid rgba(34, 197, 94, 0.2);
+}
+
+.cons {
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+.pros ul, .cons ul {
+    margin: 0.5rem 0 0 0;
+    padding-left: 1.2rem;
+}
+
+.pros li, .cons li {
+    margin-bottom: 0.25rem;
+    font-size: 0.9rem;
+}
+
+.lesson-box {
+    margin-top: 1rem;
+    padding: 0.75rem;
+    background: rgba(6, 182, 212, 0.15);
+    border-radius: 6px;
+    border: 1px solid rgba(6, 182, 212, 0.3);
+    font-style: italic;
+}
+
+/* 실패 사례 분석 스타일 */
+.failure-analysis-section {
+    background: rgba(239, 68, 68, 0.1);
+    border: 2px solid #ef4444;
+    border-radius: 16px;
+    padding: 2rem;
+    margin: 2rem 0;
+    backdrop-filter: blur(10px);
+    animation: warningPulse 3s ease-in-out infinite;
+}
+
+.failure-title {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #dc2626;
+    margin-bottom: 1rem;
+    text-align: center;
+}
+
+.failure-content {
+    line-height: 1.6;
+}
+
+.failure-content p {
+    margin-bottom: 1rem;
+}
+
+.failure-lesson {
+    margin-top: 1rem;
+    padding: 1rem;
+    background: rgba(239, 68, 68, 0.15);
+    border-radius: 8px;
+    border-left: 4px solid #dc2626;
+    font-style: italic;
+    font-weight: 500;
+}
+
+@keyframes warningPulse {
+    0%, 100% { 
+        box-shadow: 0 4px 20px rgba(239, 68, 68, 0.2);
+    }
+    50% { 
+        box-shadow: 0 8px 30px rgba(239, 68, 68, 0.4);
+    }
+}
+
+/* 모바일 반응형 */
+@media (max-width: 768px) {
+    .educational-section {
+        padding: 1.5rem;
+        margin: 1rem 0;
+    }
+    
+    .educational-title {
+        font-size: 1.3rem;
+    }
+    
+    .analysis-header {
+        font-size: 1rem;
+    }
+    
+    .analysis-subsection {
+        margin-bottom: 1.5rem;
+    }
+    
+    .analysis-content {
+        padding: 0.8rem;
+        font-size: 0.9rem;
+    }
+    
+    .pros-cons {
+        grid-template-columns: 1fr;
+        gap: 0.5rem;
+    }
+    
+    .failure-analysis-section {
+        padding: 1.5rem;
+        margin: 1rem 0;
+    }
+    
+    .failure-title {
+        font-size: 1.1rem;
+    }
+}
+
+@keyframes fadeInUp {
+    from { 
+        opacity: 0; 
+        transform: translateY(30px); 
+    }
+    to { 
+        opacity: 1; 
+        transform: translateY(0); 
+    }
+}
 
 
