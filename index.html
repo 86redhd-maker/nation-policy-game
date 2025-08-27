@@ -195,20 +195,27 @@
 </div>
 
         <!-- 도움말 화면 (팝업) - 개선된 버전 -->
-        <div id="helpPopup" class="popup-overlay">
-            <div class="popup-content help-content">
-                <div class="popup-header">
-                    <h3>❓ 게임 설명</h3>
-                    <button class="close-btn" onclick="closeHelp()">✖</button>
-                </div>
-                <div class="popup-body">
-                    <div class="help-navigation">
-                        <button class="help-tab-btn active" onclick="showHelpTab('basic')">🎯 기본 규칙</button>
-                        <button class="help-tab-btn" onclick="showHelpTab('indicators')">📊 지표 설명</button>
-                        <button class="help-tab-btn" onclick="showHelpTab('nations')">🏛️ 국가 특성</button>
-                        <button class="help-tab-btn" onclick="showHelpTab('tips')">💡 게임 팁</button>
-                        <button class="help-tab-btn" onclick="showHelpTab('advanced')">🎓 고급 전략</button>
-                    </div>
+        <div id="helpPopup"
+     class="popup-overlay"
+     aria-hidden="true"
+     onclick="if(event.target===this) closeHelp()">
+  <div class="popup-content help-content"
+       role="dialog"
+       aria-modal="true"
+       aria-labelledby="helpTitle">
+    <div class="popup-header">
+      <h3 id="helpTitle">❓ 게임 설명</h3>
+      <button type="button" class="close-btn" onclick="closeHelp()">✖</button>
+    </div>
+
+    <div class="popup-body">
+      <div class="help-navigation">
+        <button class="help-tab-btn active" onclick="showHelpTab('basic', event)">🎯 기본 규칙</button>
+        <button class="help-tab-btn" onclick="showHelpTab('indicators', event)">📊 지표 설명</button>
+        <button class="help-tab-btn" onclick="showHelpTab('nations', event)">🏛️ 국가 특성</button>
+        <button class="help-tab-btn" onclick="showHelpTab('tips', event)">💡 게임 팁</button>
+        <button class="help-tab-btn" onclick="showHelpTab('advanced', event)">🎓 고급 전략</button>
+      </div>
 
                     <!-- 기본 규칙 탭 -->
                     <div class="help-tab-content active" id="helpTabBasic">
@@ -570,6 +577,7 @@
 </div>
 </body>
 </html>
+
 
 
 
