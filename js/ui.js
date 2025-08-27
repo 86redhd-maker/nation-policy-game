@@ -70,11 +70,27 @@ function showPopup(popupId) {
   document.querySelectorAll('.popup-overlay.active').forEach(popup => {
     popup.classList.remove('active');
     popup.setAttribute('aria-hidden', 'true');
+    popup.style.display = 'none'; // 🔧 강제로 숨김
   });
   
   document.body.classList.add('modal-open');
   el.classList.add('active');
   el.setAttribute('aria-hidden', 'false');
+  
+  // 🔧 CSS가 안 먹으면 JavaScript로 강제 적용
+  el.style.display = 'flex';
+  el.style.position = 'fixed';
+  el.style.top = '0';
+  el.style.left = '0';
+  el.style.width = '100%';
+  el.style.height = '100%';
+  el.style.zIndex = '99999';
+  el.style.background = 'rgba(0, 0, 0, 0.5)';
+  el.style.justifyContent = 'center';
+  el.style.alignItems = 'center';
+  el.style.opacity = '1';
+  el.style.visibility = 'visible';
+  
   console.log('팝업 열기 완료:', popupId);
 }
 
@@ -89,6 +105,12 @@ function hidePopup(popupId) {
   el.classList.remove('active');
   el.setAttribute('aria-hidden', 'true');
   document.body.classList.remove('modal-open');
+  
+  // 🔧 JavaScript로 강제 숨김
+  el.style.display = 'none';
+  el.style.opacity = '0';
+  el.style.visibility = 'hidden';
+  
   console.log('팝업 닫기 완료:', popupId);
 }
 
@@ -2703,3 +2725,4 @@ function bindHelpButtons() {
         }
     });
 }
+
