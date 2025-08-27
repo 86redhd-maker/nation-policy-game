@@ -857,12 +857,21 @@ body::before {
     display: none;
     justify-content: center;
     align-items: center;
-    z-index: 5000;
+    z-index: 5000 !important;
     padding: 1rem;
+    opacity: 0;
+    transition: opacity 0.3s ease;
 }
 
 .popup-overlay.active {
-    display: flex;
+    display: flex !important;
+    opacity: 1;
+    visibility: visible;
+}
+
+.popup-overlay[aria-hidden="false"] {
+    display: flex !important;
+    opacity: 1;
 }
 
 .popup-content {
@@ -871,14 +880,12 @@ body::before {
     padding: 2rem;
     max-width: 600px;
     max-height: 80vh;
+    width: 90%;
     overflow-y: auto;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
     animation: popupIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-@keyframes popupIn {
-    from { opacity: 0; transform: scale(0.9) translateY(20px); }
-    to { opacity: 1; transform: scale(1) translateY(0); }
+    position: relative;
+    z-index: 5001;
 }
 
 .popup-header {
@@ -894,6 +901,7 @@ body::before {
     font-size: 1.5rem;
     font-weight: 700;
     color: #2d3748;
+    margin: 0;
 }
 
 .close-btn {
@@ -909,10 +917,27 @@ body::before {
     align-items: center;
     justify-content: center;
     transition: all 0.2s ease;
+    flex-shrink: 0;
 }
 
 .close-btn:hover {
     background: #cbd5e0;
+    color: #2d3748;
+    transform: scale(1.05);
+}
+
+.close-btn:active {
+    transform: scale(0.95);
+}
+
+/* 팝업 열려있을 때 body 제어 */
+.modal-open {
+    overflow: hidden;
+}
+
+.modal-open .screen.active {
+    transform: none !important;
+    will-change: auto !important;
 }
 
 /* ===== 결과 화면 강제 표시 (최우선순위) ===== */
@@ -2514,6 +2539,7 @@ button:focus-visible,
 /* 상태바/인트로는 팝업보다 낮게 보장 */
 .status-bar { z-index: 800 !important; }
 .start-overlay, .intro-overlay, .landing-overlay { z-index: 900 !important; }
+
 
 
 
