@@ -1672,6 +1672,32 @@ function showResultsScreen(gameResult) {
             console.warn('업적 계산 실패:', error);
         }
         
+        // 🔧 교육적 해설 섹션 추가
+        try {
+            const educationalHTML = createEducationalSection(gameResult, stats, gameResult.nationName || selectedNationName);
+            
+            // 기존 업적 섹션 뒤에 교육 섹션 삽입
+            const achievementsElement = document.getElementById('achievements');
+            if (achievementsElement && educationalHTML) {
+                achievementsElement.insertAdjacentHTML('afterend', educationalHTML);
+                console.log('교육적 해설 섹션 추가 완료');
+            }
+            
+            // 실패 사례 분석도 추가 (낮은 등급일 때)
+            const failureHTML = createFailureAnalysisSection(gameResult);
+            if (failureHTML) {
+                const educationalSection = document.querySelector('.educational-section');
+                if (educationalSection) {
+                    educationalSection.insertAdjacentHTML('afterend', failureHTML);
+                } else if (achievementsElement) {
+                    achievementsElement.insertAdjacentHTML('afterend', failureHTML);
+                }
+                console.log('실패 사례 분석 추가 완료');
+            }
+        } catch (error) {
+            console.warn('교육적 해설 생성 실패:', error);
+        }
+        
         // 화면 전환
         console.log('결과 화면으로 전환 시작');
         showScreen('resultsScreen');
