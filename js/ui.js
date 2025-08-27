@@ -1472,7 +1472,7 @@ function showResultsScreen(gameResult) {
             console.warn('endingInfo 요소를 찾을 수 없음');
         }
         
-        / 최종 통계 업데이트 - 🔧 상세 분석 버전으로 교체
+      // 최종 통계 업데이트 - 🔧 상세 분석 버전으로 교체
         const finalStats = document.getElementById('finalStats');
         if (finalStats) {
             let indicatorRows = '';
@@ -2514,6 +2514,7 @@ console.log(`
 `);
 
 console.log('🎨 UI 시스템 로딩 완료!');
+
 
 
 
