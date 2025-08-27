@@ -2543,7 +2543,15 @@ console.log('🎨 UI 시스템 로딩 완료!');
     if (t.closest && t.closest('#btn-howto')) {
       e.preventDefault(); e.stopPropagation();
       console.debug('[click] help');
-      window.showHelp?.();
+(function forceOpenHelp(){
+  const el = document.getElementById('helpPopup');
+  if (!el) { console.error('[popup] helpPopup not found'); return; }
+  document.body.classList.add('modal-open');
+  el.classList.add('active');
+  el.style.display = 'flex';
+  el.setAttribute('aria-hidden', 'false');
+  console.debug('[popup] opened: helpPopup');
+})();
     }
     if (t.closest && t.closest('#btn-credits')) {
       e.preventDefault(); e.stopPropagation();
@@ -2586,6 +2594,7 @@ console.log('🎨 UI 시스템 로딩 완료!');
   }
   new MutationObserver(scan).observe(document.documentElement, { childList:true, subtree:true });
 })();
+
 
 
 
