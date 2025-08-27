@@ -2559,5 +2559,28 @@ button:focus-visible,
     visibility: visible !important;
 }
 
+/* 🔧 팝업 내용물 강제 크기 지정 */
+.popup-content {
+    background: white !important;
+    border-radius: 16px !important;
+    padding: 2rem !important;
+    width: 600px !important;
+    max-width: 90vw !important;
+    height: auto !important;
+    min-height: 300px !important;
+    max-height: 80vh !important;
+    overflow-y: auto !important;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3) !important;
+    position: relative !important;
+    z-index: 5001 !important;
+    display: block !important;
+    visibility: visible !important;
+}
+
+.help-content {
+    width: 600px !important;
+    max-width: 90vw !important;
+    min-height: 400px !important;
+}
 
 
