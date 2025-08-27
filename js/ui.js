@@ -1940,7 +1940,93 @@ function adjustMobileLayout() {
 // 도움말 관련 함수들
 function showHelp() {
   console.log('도움말 팝업 열기');
-  showPopup('helpPopup');
+  
+  // 기존 팝업 완전 삭제
+  const existingPopup = document.getElementById('helpPopup');
+  if (existingPopup) {
+    existingPopup.remove();
+  }
+  
+  // 완전히 새로운 팝업 생성
+  const newPopup = document.createElement('div');
+  newPopup.id = 'helpPopup';
+  newPopup.style.cssText = `
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.7);
+    z-index: 999999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+  `;
+  
+  newPopup.innerHTML = `
+    <div style="
+      background: white;
+      border-radius: 16px;
+      padding: 30px;
+      width: 600px;
+      max-width: 90%;
+      max-height: 80%;
+      overflow: auto;
+      position: relative;
+    ">
+      <button onclick="document.getElementById('helpPopup').remove();" style="
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        background: #e2e8f0;
+        border: none;
+        border-radius: 50%;
+        width: 32px;
+        height: 32px;
+        cursor: pointer;
+        font-size: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      ">×</button>
+      
+      <h2 style="margin-bottom: 20px; color: #2d3748;">🎮 게임 설명</h2>
+      
+      <h3 style="color: #4a5568; margin-top: 20px;">🎯 게임 목표</h3>
+      <p><strong>5턴에 걸쳐 정책을 선택하여 최고의 국가를 만드세요!</strong></p>
+      <ul>
+        <li>각 지표의 균형을 맞춰 높은 점수 달성</li>
+        <li>시민 만족도와 지속가능성 고려</li>
+        <li>예산 한도 내에서 효율적 운영</li>
+      </ul>
+      
+      <h3 style="color: #4a5568; margin-top: 20px;">🎮 게임 방법</h3>
+      <ol>
+        <li><strong>국가 선택:</strong> 5개 국가 모델 중 하나 선택</li>
+        <li><strong>정책 선택:</strong> 각 턴마다 최대 2개 정책 선택</li>
+        <li><strong>예산 관리:</strong> 한정된 예산 내에서 신중한 선택</li>
+        <li><strong>결과 확인:</strong> 정책 효과와 시민 반응 체크</li>
+        <li><strong>다음 턴:</strong> 5턴 완주까지 반복</li>
+      </ol>
+      
+      <div style="text-align: center; margin-top: 30px;">
+        <button onclick="document.getElementById('helpPopup').remove();" style="
+          background: #ff6b9d;
+          color: white;
+          border: none;
+          padding: 12px 24px;
+          border-radius: 25px;
+          cursor: pointer;
+          font-size: 16px;
+          font-weight: 600;
+        ">확인</button>
+      </div>
+    </div>
+  `;
+  
+  document.body.appendChild(newPopup);
+  console.log('새 팝업 생성 완료');
 }
 
 function closeHelp() {
@@ -2725,4 +2811,5 @@ function bindHelpButtons() {
         }
     });
 }
+
 
