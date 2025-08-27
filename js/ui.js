@@ -2080,6 +2080,243 @@ function closeEmergencyOptions() {
     }
 }
 
+// 🔧 교육적 해설 섹션 생성 함수
+function createEducationalSection(gameResult, stats, nationName) {
+    try {
+        if (!gameResult || !gameResult.ending) {
+            console.warn('gameResult 또는 ending 정보 없음');
+            return null;
+        }
+
+        const analysis = gameResult.ending.educational_analysis;
+        if (!analysis) {
+            console.warn('educational_analysis 정보 없음');
+            return null;
+        }
+        
+        let educationalHTML = `
+            <div class="educational-section">
+                <div class="educational-title">
+                    📚 교육적 해설 및 분석
+                </div>
+        `;
+        
+        // 성취 분석
+        if (analysis.achievement_summary) {
+            educationalHTML += `
+                <div class="analysis-subsection">
+                    <h4 class="analysis-header">🎯 성취 분석</h4>
+                    <div class="analysis-content achievement-analysis">
+                        ${analysis.achievement_summary}
+                    </div>
+                </div>
+            `;
+        }
+        
+        // 성공 요인
+        if (analysis.success_factors && Array.isArray(analysis.success_factors)) {
+            educationalHTML += `
+                <div class="analysis-subsection">
+                    <h4 class="analysis-header">✨ 성공 요인</h4>
+                    <div class="analysis-content success-factors">
+                        <ul class="factor-list">
+                            ${analysis.success_factors.map(factor => 
+                                `<li class="factor-item">
+                                    <span class="factor-icon">✓</span>
+                                    ${factor}
+                                </li>`
+                            ).join('')}
+                        </ul>
+                    </div>
+                </div>
+            `;
+        }
+        
+        // 실제 사례
+        if (analysis.real_world_examples && Array.isArray(analysis.real_world_examples)) {
+            educationalHTML += `
+                <div class="analysis-subsection">
+                    <h4 class="analysis-header">🌍 실제 국가 사례</h4>
+                    <div class="analysis-content real-world-examples">
+                        <ul class="example-list">
+                            ${analysis.real_world_examples.map(example => 
+                                `<li class="example-item">
+                                    <span class="example-icon">🏛️</span>
+                                    ${example}
+                                </li>`
+                            ).join('')}
+                        </ul>
+                    </div>
+                </div>
+            `;
+        }
+        
+        // 정책 교훈
+        if (analysis.policy_lessons) {
+            educationalHTML += `
+                <div class="analysis-subsection">
+                    <h4 class="analysis-header">💡 정책학적 교훈</h4>
+                    <div class="analysis-content policy-lessons">
+                        ${analysis.policy_lessons}
+                    </div>
+                </div>
+            `;
+        }
+        
+        // 선택한 국가 모델 해설
+        if (nationName && typeof window.NATION_EDUCATIONAL_CONTENT !== 'undefined') {
+            const nationContent = window.NATION_EDUCATIONAL_CONTENT[nationName];
+            if (nationContent) {
+                educationalHTML += `
+                    <div class="analysis-subsection">
+                        <h4 class="analysis-header">🏛️ ${nationName} 모델 분석</h4>
+                        <div class="analysis-content nation-model">
+                            <p><strong>실제 모델:</strong> ${nationContent.model_name}</p>
+                            <p><strong>대표 국가:</strong> ${nationContent.model_countries.join(', ')}</p>
+                            <p><strong>핵심 특징:</strong> ${nationContent.main_challenge}</p>
+                            <p><strong>교훈:</strong> ${nationContent.lessons_learned}</p>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+        
+        // 정책 조합 분석
+        const policyAnalysis = analyzePolicyCombinations(gameResult.selectedPolicies || []);
+        if (policyAnalysis) {
+            educationalHTML += policyAnalysis;
+        }
+        
+        educationalHTML += `</div>`;
+        return educationalHTML;
+        
+    } catch (error) {
+        console.error('교육적 해설 생성 중 오류:', error);
+        return null;
+    }
+}
+
+// 🔧 정책 조합 분석 함수
+function analyzePolicyCombinations(selectedPolicies) {
+    try {
+        if (!selectedPolicies || selectedPolicies.length === 0) {
+            return null;
+        }
+        
+        if (typeof window.POLICY_EDUCATIONAL_ANALYSIS === 'undefined') {
+            return null;
+        }
+        
+        // 선택된 정책과 매칭되는 교육 분석 찾기
+        let matchedAnalysis = null;
+        let matchedComboName = null;
+        
+        for (const [comboName, analysis] of Object.entries(window.POLICY_EDUCATIONAL_ANALYSIS)) {
+            const requiredPolicies = analysis.combination;
+            const matchCount = requiredPolicies.filter(policy => 
+                selectedPolicies.includes(policy)
+            ).length;
+            
+            // 50% 이상 매칭되면 해당 조합으로 분석
+            if (matchCount >= Math.ceil(requiredPolicies.length * 0.5)) {
+                matchedAnalysis = analysis;
+                matchedComboName = comboName;
+                break;
+            }
+        }
+        
+        if (!matchedAnalysis) {
+            return null;
+        }
+        
+        return `
+            <div class="analysis-subsection">
+                <h4 class="analysis-header">🔍 정책 조합 분석: ${matchedComboName.replace('_', ' ')}</h4>
+                <div class="analysis-content policy-combination">
+                    <p><strong>📋 정책 조합:</strong> ${matchedAnalysis.combination.join(', ')}</p>
+                    <p><strong>📊 분석:</strong> ${matchedAnalysis.analysis}</p>
+                    <p><strong>🏛️ 실제 사례:</strong> ${matchedAnalysis.real_world_case}</p>
+                    
+                    <div class="pros-cons">
+                        <div class="pros">
+                            <p><strong>✅ 장점:</strong></p>
+                            <ul>
+                                ${matchedAnalysis.pros.slice(0, 3).map(pro => `<li>${pro}</li>`).join('')}
+                            </ul>
+                        </div>
+                        
+                        <div class="cons">
+                            <p><strong>⚠️ 단점:</strong></p>
+                            <ul>
+                                ${matchedAnalysis.cons.slice(0, 3).map(con => `<li>${con}</li>`).join('')}
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="lesson-box">
+                        <strong>💡 교훈:</strong> ${matchedAnalysis.lesson}
+                    </div>
+                </div>
+            </div>
+        `;
+    } catch (error) {
+        console.error('정책 조합 분석 중 오류:', error);
+        return null;
+    }
+}
+
+// 🔧 실패 사례 분석 표시 함수
+function createFailureAnalysisSection(gameResult) {
+    try {
+        if (!gameResult || !gameResult.ending) {
+            return null;
+        }
+        
+        // S급, A급은 실패 사례 표시하지 않음
+        if (gameResult.ending.grade === 'S급' || gameResult.ending.grade === 'A급') {
+            return null;
+        }
+        
+        if (typeof window.POLICY_FAILURE_CASES === 'undefined') {
+            console.warn('POLICY_FAILURE_CASES가 정의되지 않음');
+            return null;
+        }
+        
+        // 등급에 따라 적절한 실패 사례 선택
+        let selectedCase = null;
+        
+        if (gameResult.ending.grade === 'F급' || gameResult.ending.grade === 'D급') {
+            selectedCase = window.POLICY_FAILURE_CASES.greece_crisis;
+        } else if (gameResult.ending.grade === 'C급') {
+            selectedCase = window.POLICY_FAILURE_CASES.japan_lost_decades;
+        }
+        
+        if (!selectedCase) {
+            return null;
+        }
+        
+        return `
+            <div class="failure-analysis-section">
+                <div class="failure-title">
+                    ⚠️ 실패 사례 분석: ${selectedCase.title}
+                </div>
+                
+                <div class="failure-content">
+                    <p><strong>배경:</strong> ${selectedCase.background ? selectedCase.background.context : '정책 실패 사례입니다.'}</p>
+                    
+                    <div class="failure-lesson">
+                        <strong>게임과의 연관성:</strong> ${selectedCase.game_connection || '이 게임에서의 정책 선택과 유사한 패턴을 보여주는 실제 사례입니다.'}
+                    </div>
+                </div>
+            </div>
+        `;
+        
+    } catch (error) {
+        console.error('실패 사례 분석 생성 중 오류:', error);
+        return null;
+    }
+}
+
 // 이벤트 리스너들
 document.addEventListener('keydown', function(event) {
     if (event.key === 'Escape') {
