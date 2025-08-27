@@ -194,7 +194,7 @@
     </div>
 </div>
 
-        <!-- 도움말 화면 (팝업) -->
+        <!-- 도움말 화면 (팝업) - 개선된 버전 -->
         <div id="helpPopup" class="popup-overlay">
             <div class="popup-content help-content">
                 <div class="popup-header">
@@ -202,69 +202,279 @@
                     <button class="close-btn" onclick="closeHelp()">✖</button>
                 </div>
                 <div class="popup-body">
-                    <div class="help-tabs">
-                        <button class="tab-btn active" onclick="showHelpTab('basic')">기본 규칙</button>
-                        <button class="tab-btn" onclick="showHelpTab('indicators')">지표 설명</button>
-                        <button class="tab-btn" onclick="showHelpTab('nations')">국가 특성</button>
-                        <button class="tab-btn" onclick="showHelpTab('tips')">게임 팁</button>
+                    <div class="help-navigation">
+                        <button class="help-tab-btn active" onclick="showHelpTab('basic')">🎯 기본 규칙</button>
+                        <button class="help-tab-btn" onclick="showHelpTab('indicators')">📊 지표 설명</button>
+                        <button class="help-tab-btn" onclick="showHelpTab('nations')">🏛️ 국가 특성</button>
+                        <button class="help-tab-btn" onclick="showHelpTab('tips')">💡 게임 팁</button>
+                        <button class="help-tab-btn" onclick="showHelpTab('advanced')">🎓 고급 전략</button>
                     </div>
 
-                    <div class="help-tab-content" id="helpTabBasic">
+                    <!-- 기본 규칙 탭 -->
+                    <div class="help-tab-content active" id="helpTabBasic">
                         <div class="help-section">
                             <h4>🎯 게임 목표</h4>
-                            <p>5턴에 걸쳐 정책을 선택하여 최고의 국가를 만드세요!</p>
+                            <p><strong>5턴에 걸쳐 정책을 선택하여 최고의 국가를 만드세요!</strong></p>
+                            <ul>
+                                <li>각 지표의 균형을 맞춰 높은 점수 달성</li>
+                                <li>시민 만족도와 지속가능성 고려</li>
+                                <li>예산 한도 내에서 효율적 운영</li>
+                            </ul>
                         </div>
+                        
                         <div class="help-section">
                             <h4>🎮 게임 방법</h4>
+                            <ol>
+                                <li><strong>국가 선택:</strong> 5개 국가 모델 중 하나 선택</li>
+                                <li><strong>정책 선택:</strong> 각 턴마다 최대 2개 정책 선택</li>
+                                <li><strong>예산 관리:</strong> 한정된 예산 내에서 신중한 선택</li>
+                                <li><strong>결과 확인:</strong> 정책 효과와 시민 반응 체크</li>
+                                <li><strong>다음 턴:</strong> 5턴 완주까지 반복</li>
+                            </ol>
+                        </div>
+
+                        <div class="help-section">
+                            <h4>⚖️ 핵심 개념</h4>
+                            <div class="concept-grid">
+                                <div class="concept-item">
+                                    <strong>💰 예산 제약</strong>
+                                    <p>모든 정책에는 비용이 있고, 적자 한도를 넘으면 페널티</p>
+                                </div>
+                                <div class="concept-item">
+                                    <strong>⚡ 시너지 & 충돌</strong>
+                                    <p>정책 조합에 따라 보너스나 페널티 발생</p>
+                                </div>
+                                <div class="concept-item">
+                                    <strong>🎯 트레이드오프</strong>
+                                    <p>한 지표를 올리면 다른 지표가 내려갈 수 있음</p>
+                                </div>
+                                <div class="concept-item">
+                                    <strong>🏛️ 국가 특성</strong>
+                                    <p>선택한 국가에 따라 정책 비용과 효과가 달라짐</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 지표 설명 탭 -->
+                    <div class="help-tab-content" id="helpTabIndicators">
+                        <div class="help-section">
+                            <h4>📊 8가지 국가 지표</h4>
+                            <div class="indicators-help">
+                                <div class="indicator-help-item">
+                                    <span class="indicator-icon">💰</span>
+                                    <div>
+                                        <strong>경제</strong>
+                                        <p>GDP 성장률, 고용률, 경제 활력도를 나타냄</p>
+                                    </div>
+                                </div>
+                                <div class="indicator-help-item">
+                                    <span class="indicator-icon">🚀</span>
+                                    <div>
+                                        <strong>기술</strong>
+                                        <p>R&D 투자, 혁신역량, 디지털화 수준</p>
+                                    </div>
+                                </div>
+                                <div class="indicator-help-item">
+                                    <span class="indicator-icon">😊</span>
+                                    <div>
+                                        <strong>시민반응</strong>
+                                        <p>국민 만족도, 여론조사 지지율, 사회적 신뢰</p>
+                                    </div>
+                                </div>
+                                <div class="indicator-help-item">
+                                    <span class="indicator-icon">🌱</span>
+                                    <div>
+                                        <strong>환경</strong>
+                                        <p>대기질, 탄소배출, 재생에너지 비율, 지속가능성</p>
+                                    </div>
+                                </div>
+                                <div class="indicator-help-item">
+                                    <span class="indicator-icon">💼</span>
+                                    <div>
+                                        <strong>재정</strong>
+                                        <p>정부 부채, 재정수지, 세수 안정성</p>
+                                    </div>
+                                </div>
+                                <div class="indicator-help-item">
+                                    <span class="indicator-icon">🛡️</span>
+                                    <div>
+                                        <strong>안정성</strong>
+                                        <p>사회질서, 정치적 안정, 제도의 신뢰성</p>
+                                    </div>
+                                </div>
+                                <div class="indicator-help-item">
+                                    <span class="indicator-icon">❤️</span>
+                                    <div>
+                                        <strong>복지</strong>
+                                        <p>사회보장, 의료접근성, 교육기회, 삶의 질</p>
+                                    </div>
+                                </div>
+                                <div class="indicator-help-item">
+                                    <span class="indicator-icon">🤝</span>
+                                    <div>
+                                        <strong>외교</strong>
+                                        <p>국제관계, 대외신뢰도, 글로벌 영향력</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="help-section">
+                            <h4>📈 점수 시스템</h4>
                             <ul>
-                                <li>각 턴마다 해당 분야에서 최대 2개 정책 선택</li>
-                                <li>예산을 고려하여 신중하게 선택하세요</li>
-                                <li>정책 간 충돌과 시너지를 확인하세요</li>
-                                <li>시민들의 반응을 체크하세요</li>
-                                <li>이벤트에 현명하게 대응하세요</li>
+                                <li><strong>범위:</strong> 각 지표는 -5부터 +5까지</li>
+                                <li><strong>총점:</strong> 8개 지표의 합계 (최대 40점)</li>
+                                <li><strong>등급:</strong> S급(25점+) > A급(15점+) > B급(5점+) > C급(-5점+) > D급(-15점+) > F급</li>
                             </ul>
                         </div>
                     </div>
 
-                    <div class="help-tab-content" id="helpTabIndicators" style="display: none;">
+                    <!-- 국가 특성 탭 -->
+                    <div class="help-tab-content" id="helpTabNations">
                         <div class="help-section">
-                            <h4>📊 지표 설명</h4>
+                            <h4>🏛️ 5가지 국가 모델</h4>
+                            <div class="nations-help">
+                                <div class="nation-help-item">
+                                    <div class="nation-help-header">
+                                        <span class="nation-icon">🏥</span>
+                                        <strong>복지 강국</strong>
+                                        <span class="difficulty easy">★☆☆</span>
+                                    </div>
+                                    <p><strong>특징:</strong> 복지 정책 15% 할인, 적자 허용도 높음</p>
+                                    <p><strong>모델:</strong> 덴마크, 스웨덴, 노르웨이</p>
+                                    <p><strong>전략:</strong> 안정적 예산 운용으로 초보자에게 적합</p>
+                                </div>
+                                
+                                <div class="nation-help-item">
+                                    <div class="nation-help-header">
+                                        <span class="nation-icon">⛏️</span>
+                                        <strong>자원 풍부국</strong>
+                                        <span class="difficulty medium">★★☆</span>
+                                    </div>
+                                    <p><strong>특징:</strong> 경제 정책 효과 20% 증가</p>
+                                    <p><strong>모델:</strong> 노르웨이, 사우디, 칠레</p>
+                                    <p><strong>전략:</strong> 경제 중심 정책으로 성장 동력 확보</p>
+                                </div>
+                                
+                                <div class="nation-help-item">
+                                    <div class="nation-help-header">
+                                        <span class="nation-icon">🚀</span>
+                                        <strong>기술 선진국</strong>
+                                        <span class="difficulty hard">★★★</span>
+                                    </div>
+                                    <p><strong>특징:</strong> 기술/교육 정책 20% 할인, 시민 신뢰도 낮음</p>
+                                    <p><strong>모델:</strong> 실리콘밸리, 이스라엘, 핀란드</p>
+                                    <p><strong>전략:</strong> 시민 반응 관리가 핵심</p>
+                                </div>
+                                
+                                <div class="nation-help-item">
+                                    <div class="nation-help-header">
+                                        <span class="nation-icon">📈</span>
+                                        <strong>신흥 개발국</strong>
+                                        <span class="difficulty medium">★★☆</span>
+                                    </div>
+                                    <p><strong>특징:</strong> 균형잡힌 성장 기회, 제한적 예산</p>
+                                    <p><strong>모델:</strong> 한국, 싱가포르, 대만</p>
+                                    <p><strong>전략:</strong> 전략적 선택과 집중 필요</p>
+                                </div>
+                                
+                                <div class="nation-help-item">
+                                    <div class="nation-help-header">
+                                        <span class="nation-icon">🔥</span>
+                                        <strong>위기국가</strong>
+                                        <span class="difficulty hard">★★★</span>
+                                    </div>
+                                    <p><strong>특징:</strong> 긴급정책 접근 가능, 극한 도전</p>
+                                    <p><strong>모델:</strong> 전후 재건 국가들</p>
+                                    <p><strong>전략:</strong> 생존이 우선, 진정한 하드모드</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 게임 팁 탭 -->
+                    <div class="help-tab-content" id="helpTabTips">
+                        <div class="help-section">
+                            <h4>💡 초보자 팁</h4>
                             <ul>
-                                <li>💰 경제: 국가의 경제 상황</li>
-                                <li>🚀 기술: 과학기술 발전 수준</li>
-                                <li>😊 시민반응: 국민들의 만족도</li>
-                                <li>🌱 환경: 환경 보호 수준</li>
-                                <li>💼 재정: 국가 재정 건전성</li>
-                                <li>🛡️ 안정성: 사회 안정 정도</li>
-                                <li>❤️ 복지: 사회 복지 수준</li>
-                                <li>🤝 외교: 국제 관계 상태</li>
+                                <li><strong>예산 먼저:</strong> 항상 다음 턴 예산을 고려해서 선택</li>
+                                <li><strong>균형이 핵심:</strong> 한 분야만 올리지 말고 고르게 발전</li>
+                                <li><strong>시민 반응 체크:</strong> 정책 확정 후 밈 반응을 확인</li>
+                                <li><strong>국가 특성 활용:</strong> 할인 받는 정책을 적극 활용</li>
+                                <li><strong>충돌 피하기:</strong> 정책 설명에서 충돌 정책 확인</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="help-section">
+                            <h4>⚡ 시너지 조합 예시</h4>
+                            <div class="synergy-examples">
+                                <div class="synergy-item">
+                                    <strong>🌱 친환경 성장</strong>
+                                    <p>탄소세 도입 + 재생에너지 투자 + 중소기업 지원</p>
+                                </div>
+                                <div class="synergy-item">
+                                    <strong>❤️ 복지 혁신</strong>
+                                    <p>기본소득 도입 + 의료 인프라 확충 + 디지털 세금 도입</p>
+                                </div>
+                                <div class="synergy-item">
+                                    <strong>🚀 기술 교육</strong>
+                                    <p>디지털 교육 확대 + 기술 협력 확대 + 평생학습 확대</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="help-section">
+                            <h4>⚠️ 흔한 실수들</h4>
+                            <ul>
+                                <li>예산 무시하고 비싼 정책만 선택</li>
+                                <li>한 분야에만 집중해서 다른 지표 방치</li>
+                                <li>정책 간 충돌 관계 무시</li>
+                                <li>단기 인기에만 매몰된 선택</li>
+                                <li>국가별 특성을 활용하지 않음</li>
                             </ul>
                         </div>
                     </div>
 
-                    <div class="help-tab-content" id="helpTabNations" style="display: none;">
+                    <!-- 고급 전략 탭 -->
+                    <div class="help-tab-content" id="helpTabAdvanced">
                         <div class="help-section">
-                            <h4>🏛️ 국가별 특성</h4>
+                            <h4>🎓 고급 전략</h4>
                             <ul>
-                                <li><strong>복지 강국:</strong> 복지 정책 할인, 높은 적자 허용도</li>
-                                <li><strong>자원 풍부국:</strong> 경제 정책 효과 증가</li>
-                                <li><strong>기술 선진국:</strong> 기술 정책 할인, 윤리 이벤트 증가</li>
-                                <li><strong>신흥 개발국:</strong> 균형잡힌 성장 기회</li>
-                                <li><strong>위기국가:</strong> 극한 상황, 재건 보너스</li>
+                                <li><strong>메타 분석:</strong> 각 턴마다 전체 그림을 그려보기</li>
+                                <li><strong>기회비용 고려:</strong> 선택하지 않은 정책의 가치도 생각</li>
+                                <li><strong>장기적 관점:</strong> 5턴 후를 내다보는 전략 수립</li>
+                                <li><strong>위기 관리:</strong> 마이너스 지표를 어떻게 회복시킬지 계획</li>
+                                <li><strong>이벤트 대비:</strong> 예상치 못한 이벤트에 대한 대응력</li>
                             </ul>
                         </div>
-                    </div>
 
-                    <div class="help-tab-content" id="helpTabTips" style="display: none;">
                         <div class="help-section">
-                            <h4>💡 게임 팁</h4>
+                            <h4>🏆 고득점 전략</h4>
+                            <div class="strategy-tips">
+                                <div class="strategy-item">
+                                    <strong>S급 달성 (25점+)</strong>
+                                    <p>모든 지표를 양수로 유지하면서 시너지 조합 활용</p>
+                                </div>
+                                <div class="strategy-item">
+                                    <strong>효율성 극대화</strong>
+                                    <p>국가별 할인 혜택을 최대한 활용하여 예산 절약</p>
+                                </div>
+                                <div class="strategy-item">
+                                    <strong>밸런스 전략</strong>
+                                    <p>극단적 선택보다는 안정적 균형 발전 추구</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="help-section">
+                            <h4>📚 실제 정치학 개념</h4>
                             <ul>
-                                <li>예산 관리가 핵심! 항상 다음 턴을 고려하세요</li>
-                                <li>정책 요구조건을 확인하여 선택권을 넓히세요</li>
-                                <li>시너지 정책 조합으로 보너스를 노리세요</li>
-                                <li>국가별 특성을 최대한 활용하세요</li>
-                                <li>시민 반응도 중요한 지표입니다</li>
-                                <li>이벤트는 위기이자 기회입니다</li>
+                                <li><strong>트레이드오프:</strong> 모든 선택에는 기회비용이 존재</li>
+                                <li><strong>파레토 효율:</strong> 누군가의 손해 없이는 개선 불가능한 상태</li>
+                                <li><strong>외부효과:</strong> 정책이 의도치 않은 다른 영역에 미치는 영향</li>
+                                <li><strong>공공선택론:</strong> 정치인도 자신의 이익을 추구하는 합리적 행위자</li>
+                                <li><strong>정부실패:</strong> 시장실패를 해결하려다 더 큰 비효율 발생</li>
                             </ul>
                         </div>
                     </div>
@@ -360,6 +570,7 @@
 </div>
 </body>
 </html>
+
 
 
 
