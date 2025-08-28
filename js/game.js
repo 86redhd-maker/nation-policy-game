@@ -1022,15 +1022,29 @@ window.gameAPI = {
 window.gameUtils = {
     formatBudget,
     getBudgetStatus,
-    getIndicatorBarWidth,
     getIndicatorClass,
     formatIndicatorValue,
     generateEffectText,
     checkPolicyRequirements,
     showToast,
     addAnimation,
-    playSound
+    playSound,
+    getIndicatorBarWidth: (value, allValues = []) => {
+        if (allValues.length > 0) {
+            const min = Math.min(...allValues);
+            const max = Math.max(...allValues);
+            const range = Math.max(20, max - min);
+            const center = (max + min) / 2;
+            const normalized = ((value - (center - range/2)) / range) * 100;
+            return Math.max(0, Math.min(100, normalized));
+        } else {
+            // 기본 범위 -15~+15
+            const normalized = ((value + 15) / 30) * 100;
+            return Math.max(0, Math.min(100, normalized));
+        }
+    }
 };
+
 
 
 
