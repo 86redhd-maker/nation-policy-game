@@ -3044,7 +3044,7 @@ function showCredits() {
         border-left: 4px solid #ff6b9d;
       ">
         <h3 style="color: #ff6b9d; margin-bottom: 15px;">🎮 게임 개발</h3>
-        <p style="line-height: 1.6; margin-bottom: 10px; color: #333;">픽셀 정치 시뮬레이터 - 국가를 설계하라</p>
+        <p style="line-height: 1.6; margin-bottom: 10px; color: #333;">평범한 시민이었던 내가 S급 국가 지도자?!</p>
         <p style="line-height: 1.6; margin: 0; color: #666;">교육용 정치 시뮬레이션 게임</p>
       </div>
       
@@ -3056,8 +3056,8 @@ function showCredits() {
         border-left: 4px solid #ff6b9d;
       ">
         <h3 style="color: #ff6b9d; margin-bottom: 15px;">🎨 디자인 컨셉</h3>
-        <p style="line-height: 1.6; margin-bottom: 10px; color: #333;">레트로 픽셀아트 스타일</p>
-        <p style="line-height: 1.6; margin: 0; color: #666;">8비트 게임 오마주</p>
+        <p style="line-height: 1.6; margin-bottom: 10px; color: #333;">게이미피케이션UI</p>
+        <p style="line-height: 1.6; margin: 0; color: #666;">깔끔한 카드형 인터페이스</p>
       </div>
       
       <div style="
@@ -3097,8 +3097,8 @@ function showCredits() {
       ">
         <h3 style="color: #ff6b9d; margin-bottom: 15px;">💝 감사의 말</h3>
         <p style="line-height: 1.6; margin: 0; color: #666; font-style: italic;">
-          게임을 플레이해주셔서 감사합니다! 
-          <br>정치와 정책에 대한 이해가 깊어지길 바랍니다. 🎯
+          S급 지도자가 되는 그 날까지! 
+          <br>재미있는 사회 시간이 되길 바라요 🎯
         </p>
       </div>
       
@@ -3847,6 +3847,7 @@ function bindHelpButtons() {
     
     console.log('🔧 버튼 바인딩 완료 - 전역함수 등록됨');
 }
+
 
 
 
