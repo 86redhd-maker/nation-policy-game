@@ -2004,7 +2004,7 @@ function showHelp() {
         border-bottom: 2px solid #e2e8f0;
         padding-bottom: 15px;
       ">
-        <button onclick="showHelpTabContent('basic')" style="
+        <button style="
           background: linear-gradient(135deg, #ff6b9d, #c44569);
           color: white;
           border: none;
@@ -2015,7 +2015,7 @@ function showHelp() {
           font-size: 14px;
         " id="tab-basic">🎯 기본 규칙</button>
         
-        <button onclick="showHelpTabContent('indicators')" style="
+        <button style="
           background: #f7fafc;
           color: #4a5568;
           border: 2px solid transparent;
@@ -2026,7 +2026,7 @@ function showHelp() {
           font-size: 14px;
         " id="tab-indicators">📊 지표 설명</button>
         
-        <button onclick="showHelpTabContent('nations')" style="
+        <button style="
           background: #f7fafc;
           color: #4a5568;
           border: 2px solid transparent;
@@ -2037,7 +2037,7 @@ function showHelp() {
           font-size: 14px;
         " id="tab-nations">🏛️ 국가 특성</button>
         
-        <button onclick="showHelpTabContent('tips')" style="
+        <button style="
           background: #f7fafc;
           color: #4a5568;
           border: 2px solid transparent;
@@ -2048,7 +2048,7 @@ function showHelp() {
           font-size: 14px;
         " id="tab-tips">💡 게임 팁</button>
         
-        <button onclick="showHelpTabContent('advanced')" style="
+        <button style="
           background: #f7fafc;
           color: #4a5568;
           border: 2px solid transparent;
@@ -2263,37 +2263,46 @@ function showHelp() {
         ">확인</button>
       </div>
     </div>
-  <script>
-      // 탭 전환 함수
-      window.showHelpTabContent = function(tabName) {
-        // 모든 탭 버튼 스타일 리셋
-        document.querySelectorAll('[id^="tab-"]').forEach(btn => {
-          btn.style.background = '#f7fafc';
-          btn.style.color = '#4a5568';
-        });
-        
-        // 모든 콘텐츠 숨김
-        document.querySelectorAll('[id^="content-"]').forEach(content => {
-          content.style.display = 'none';
-        });
-        
-        // 선택된 탭 활성화
-        const selectedTab = document.getElementById('tab-' + tabName);
-        if (selectedTab) {
-          selectedTab.style.background = 'linear-gradient(135deg, #ff6b9d, #c44569)';
-          selectedTab.style.color = 'white';
-        }
-        
-        // 선택된 콘텐츠 표시
-        const selectedContent = document.getElementById('content-' + tabName);
-        if (selectedContent) {
-          selectedContent.style.display = 'block';
-        }
-      };
-    </script>
   `;
   
   document.body.appendChild(newPopup);
+  
+  // 🔧 팝업 생성 후 이벤트 바인딩
+  const helpTabButtons = newPopup.querySelectorAll('[id^="tab-"]');
+  helpTabButtons.forEach(button => {
+    button.addEventListener('click', function() {
+      const tabName = this.id.replace('tab-', '');
+      showHelpTabContent(tabName, newPopup);
+    });
+  });
+  
+  // 🔧 탭 전환 함수 (새 버전)
+  function showHelpTabContent(tabName, popup) {
+    // 모든 탭 버튼 스타일 리셋
+    popup.querySelectorAll('[id^="tab-"]').forEach(btn => {
+      btn.style.background = '#f7fafc';
+      btn.style.color = '#4a5568';
+    });
+    
+    // 모든 콘텐츠 숨김
+    popup.querySelectorAll('[id^="content-"]').forEach(content => {
+      content.style.display = 'none';
+    });
+    
+    // 선택된 탭 활성화
+    const selectedTab = popup.querySelector('#tab-' + tabName);
+    if (selectedTab) {
+      selectedTab.style.background = 'linear-gradient(135deg, #ff6b9d, #c44569)';
+      selectedTab.style.color = 'white';
+    }
+    
+    // 선택된 콘텐츠 표시
+    const selectedContent = popup.querySelector('#content-' + tabName);
+    if (selectedContent) {
+      selectedContent.style.display = 'block';
+    }
+  }
+  
   console.log('완전판 도움말 팝업 생성 완료');
 }
 
@@ -3079,6 +3088,7 @@ function bindHelpButtons() {
         }
     });
 }
+
 
 
 
