@@ -2750,35 +2750,36 @@ function closeHelp() {
   hidePopup('helpPopup');
 }
 
+// 1. showCredits 함수 (수정된 버전)
 function showCredits() {
-  console.log('크레딧 팝업 열기');
+  console.log('🔥 크레딧 버튼 클릭됨!');
   
-  // 기존 팝업 완전 삭제
-  const existingPopup = document.getElementById('creditsPopup');
-  if (existingPopup) {
-    existingPopup.remove();
-  }
+  // 기존 팝업들 모두 제거
+  document.querySelectorAll('#creditsPopup').forEach(popup => popup.remove());
   
   // 완전히 새로운 팝업 생성
   const newPopup = document.createElement('div');
   newPopup.id = 'creditsPopup';
+  newPopup.className = 'popup-overlay active';
   newPopup.style.cssText = `
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0,0,0,0.7);
-    z-index: 999999;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 20px;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    background: rgba(0,0,0,0.7) !important;
+    z-index: 999999 !important;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    padding: 20px !important;
+    opacity: 1 !important;
+    visibility: visible !important;
   `;
   
   newPopup.innerHTML = `
     <div style="
-      background: white;
+      background: white !important;
       border-radius: 16px;
       padding: 30px;
       width: 600px;
@@ -2786,8 +2787,9 @@ function showCredits() {
       max-height: 90%;
       overflow: auto;
       position: relative;
+      z-index: 999999;
     ">
-      <button onclick="document.getElementById('creditsPopup').remove();" style="
+      <button onclick="closeCreditsNew();" style="
         position: absolute;
         top: 15px;
         right: 15px;
@@ -2873,7 +2875,7 @@ function showCredits() {
       </div>
       
       <div style="text-align: center; margin-top: 30px;">
-        <button onclick="document.getElementById('creditsPopup').remove();" style="
+        <button onclick="closeCreditsNew();" style="
           background: linear-gradient(135deg, #ff6b9d, #c44569);
           color: white;
           border: none;
@@ -2888,13 +2890,23 @@ function showCredits() {
     </div>
   `;
   
+  // body에 추가
   document.body.appendChild(newPopup);
-  console.log('새 크레딧 팝업 생성 완료');
+  
+  // modal-open 클래스 추가
+  document.body.classList.add('modal-open');
+  
+  console.log('✅ 새 크레딧 팝업 생성 완료');
 }
 
-function closeCredits() {
+// 2. 크레딧 닫기 함수 (새 버전)
+function closeCreditsNew() {
   console.log('크레딧 팝업 닫기');
-  hidePopup('creditsPopup');
+  const popup = document.getElementById('creditsPopup');
+  if (popup) {
+    popup.remove();
+  }
+  document.body.classList.remove('modal-open');
 }
 
 function showPolicyHelp() {
@@ -3616,54 +3628,71 @@ document.addEventListener('DOMContentLoaded', function() {
     console.log('버튼 바인딩 완료');
 });
 
-// 도움말 버튼 바인딩 함수 (별도로 분리)
+// 3. bindHelpButtons 함수 수정 (크레딧 바인딩 강화)
 function bindHelpButtons() {
-    console.log('도움말 버튼 바인딩 실행');
+    console.log('🔧 도움말&크레딧 버튼 바인딩 시작');
     
     // 도움말 버튼들
     const helpButtons = document.querySelectorAll('#btn-howto, [data-open-help], .btn-help');
     helpButtons.forEach(btn => {
         if (btn && !btn.__helpBound) {
-            btn.__helpBound = true; // 중복 바인딩 방지
-            
-            // 기존 onclick 제거
+            btn.__helpBound = true;
             btn.removeAttribute('onclick');
             btn.onclick = null;
             
-            // 새 이벤트 추가
             btn.addEventListener('click', function(e) {
                 e.preventDefault();
                 e.stopPropagation();
-                console.log('도움말 버튼 클릭됨 (새 바인딩)');
+                console.log('✅ 도움말 버튼 클릭');
                 showHelp();
-            }, true); // capture 단계에서 처리
+            }, true);
             
-            console.log('도움말 버튼 바인딩:', btn.id);
+            console.log('✅ 도움말 버튼 바인딩:', btn.id);
         }
     });
     
-    // 크레딧 버튼들
-    const creditButtons = document.querySelectorAll('#btn-credits, [data-open-credits]');
-    creditButtons.forEach(btn => {
+    // 🔥 크레딧 버튼들 (강화된 바인딩)
+    const creditButtons = document.querySelectorAll('#btn-credits, [data-open-credits], .btn-credits');
+    console.log('🔍 크레딧 버튼 찾기:', creditButtons.length + '개 발견');
+    
+    creditButtons.forEach((btn, index) => {
+        console.log(`🔍 크레딧 버튼 ${index + 1}:`, btn.id, btn.className);
+        
         if (btn && !btn.__creditBound) {
-            btn.__creditBound = true; // 중복 바인딩 방지
+            btn.__creditBound = true;
             
-            // 기존 onclick 제거
+            // 기존 이벤트 완전 제거
             btn.removeAttribute('onclick');
             btn.onclick = null;
             
-            // 새 이벤트 추가
+            // 여러 방식으로 이벤트 추가
             btn.addEventListener('click', function(e) {
                 e.preventDefault();
                 e.stopPropagation();
-                console.log('크레딧 버튼 클릭됨 (새 바인딩)');
+                console.log('🔥 크레딧 버튼 클릭됨 (이벤트리스너)');
                 showCredits();
-            }, true); // capture 단계에서 처리
+            }, true);
             
-            console.log('크레딧 버튼 바인딩:', btn.id);
+            // onclick도 추가 (백업)
+            btn.onclick = function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log('🔥 크레딧 버튼 클릭됨 (onclick)');
+                showCredits();
+                return false;
+            };
+            
+            console.log('✅ 크레딧 버튼 바인딩 완료:', btn.id);
         }
     });
+    
+    // 🔥 전역 함수로도 등록
+    window.showCredits = showCredits;
+    window.closeCreditsNew = closeCreditsNew;
+    
+    console.log('🔧 버튼 바인딩 완료 - 전역함수 등록됨');
 }
+
 
 
 
