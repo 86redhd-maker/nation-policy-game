@@ -2458,8 +2458,7 @@ function showHelp() {
       </div>
     </div>
   </div>
-
-// 기존 코드에서 이 부분을 찾아서 교체하세요:
+</div>
 
         <!-- 게임 팁 탭 내용 추가 -->
         <div id="content-tips" style="display: none;">
@@ -3455,6 +3454,7 @@ function bindHelpButtons() {
         }
     });
 }
+
 
 
 
