@@ -1566,6 +1566,16 @@ function showResultsScreen(gameResult) {
             screen.style.display = 'none';
         });
         
+        // 🔥 결과 화면으로 스크롤 (화면 상단으로)
+        setTimeout(() => {
+            window.scrollTo({
+                top: 0,
+                left: 0,
+                behavior: 'smooth'
+            });
+            console.log('🔝 결과 화면 상단으로 스크롤');
+        }, 100);
+        
         console.log('새 결과 화면 생성 완료!');
         
         // 게임 결과가 없으면 기본값 생성
@@ -1626,7 +1636,7 @@ function showResultsScreen(gameResult) {
                 <div class="ending-title">${gameResult.ending.title}</div>
                 <div class="ending-description">${gameResult.ending.description}</div>
                 <div class="final-score">
-                    <strong>최종 점수: ${gameResult.totalScore}/40점</strong>
+                    <strong>최종 점수: ${gameResult.totalScore}점</strong>
                 </div>
             `;
             console.log('엔딩 정보 설정 완료');
@@ -3884,6 +3894,7 @@ function bindHelpButtons() {
     
     console.log('🔧 버튼 바인딩 완료 - 전역함수 등록됨');
 }
+
 
 
 
