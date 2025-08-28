@@ -2977,8 +2977,151 @@ function closePolicyHelp() {
     hidePopup('policyHelpPopup');
 }
 
+// UI.js에서 기존 showCredits 함수를 이것으로 교체하세요:
+
 function showCredits() {
-    showPopup('creditsPopup');
+  console.log('🔥 새 크레딧 함수 실행!');
+  
+  // 기존 팝업들 제거
+  document.querySelectorAll('#creditsPopup, .popup-overlay').forEach(popup => {
+    if (popup.id === 'creditsPopup' || (popup.querySelector && popup.querySelector('#creditsPopup'))) {
+      popup.remove();
+    }
+  });
+  
+  const newPopup = document.createElement('div');
+  newPopup.id = 'creditsPopup';
+  newPopup.style.cssText = `
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    background: rgba(0,0,0,0.8) !important;
+    z-index: 999999 !important;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    padding: 20px !important;
+  `;
+  
+  newPopup.innerHTML = `
+    <div style="
+      background: white !important;
+      border-radius: 16px !important;
+      padding: 30px !important;
+      width: 600px !important;
+      max-width: 95% !important;
+      max-height: 90% !important;
+      overflow: auto !important;
+      position: relative !important;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3) !important;
+    ">
+      <button onclick="document.getElementById('creditsPopup').remove(); document.body.classList.remove('modal-open');" style="
+        position: absolute !important;
+        top: 15px !important;
+        right: 15px !important;
+        background: #e2e8f0 !important;
+        border: none !important;
+        border-radius: 50% !important;
+        width: 32px !important;
+        height: 32px !important;
+        cursor: pointer !important;
+        font-size: 16px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        z-index: 10 !important;
+      ">×</button>
+      
+      <h2 style="margin-bottom: 30px; color: #2d3748; text-align: center;">👥 크레딧</h2>
+      
+      <div style="
+        margin-bottom: 30px;
+        padding: 20px;
+        background: rgba(255, 107, 157, 0.05);
+        border-radius: 12px;
+        border-left: 4px solid #ff6b9d;
+      ">
+        <h3 style="color: #ff6b9d; margin-bottom: 15px;">🎮 게임 개발</h3>
+        <p style="line-height: 1.6; margin-bottom: 10px; color: #333;">픽셀 정치 시뮬레이터 - 국가를 설계하라</p>
+        <p style="line-height: 1.6; margin: 0; color: #666;">교육용 정치 시뮬레이션 게임</p>
+      </div>
+      
+      <div style="
+        margin-bottom: 30px;
+        padding: 20px;
+        background: rgba(255, 107, 157, 0.05);
+        border-radius: 12px;
+        border-left: 4px solid #ff6b9d;
+      ">
+        <h3 style="color: #ff6b9d; margin-bottom: 15px;">🎨 디자인 컨셉</h3>
+        <p style="line-height: 1.6; margin-bottom: 10px; color: #333;">레트로 픽셀아트 스타일</p>
+        <p style="line-height: 1.6; margin: 0; color: #666;">8비트 게임 오마주</p>
+      </div>
+      
+      <div style="
+        margin-bottom: 30px;
+        padding: 20px;
+        background: rgba(255, 107, 157, 0.05);
+        border-radius: 12px;
+        border-left: 4px solid #ff6b9d;
+      ">
+        <h3 style="color: #ff6b9d; margin-bottom: 15px;">📚 교육적 목표</h3>
+        <ul style="margin-left: 20px; line-height: 1.6; color: #333;">
+          <li>정치학 및 공공정책 학습</li>
+          <li>복잡한 사회 문제 이해</li>
+          <li>정책 트레이드오프 체험</li>
+          <li>민주주의와 정치 과정 교육</li>
+        </ul>
+      </div>
+      
+      <div style="
+        margin-bottom: 30px;
+        padding: 20px;
+        background: rgba(255, 107, 157, 0.05);
+        border-radius: 12px;
+        border-left: 4px solid #ff6b9d;
+      ">
+        <h3 style="color: #ff6b9d; margin-bottom: 15px;">🛠️ 기술 스택</h3>
+        <p style="line-height: 1.6; margin-bottom: 10px; color: #333;">HTML5, CSS3, JavaScript</p>
+        <p style="line-height: 1.6; margin: 0; color: #666;">순수 웹 기술로 구현</p>
+      </div>
+      
+      <div style="
+        padding: 20px;
+        background: rgba(255, 107, 157, 0.05);
+        border-radius: 12px;
+        border-left: 4px solid #ff6b9d;
+        text-align: center;
+      ">
+        <h3 style="color: #ff6b9d; margin-bottom: 15px;">💝 감사의 말</h3>
+        <p style="line-height: 1.6; margin: 0; color: #666; font-style: italic;">
+          게임을 플레이해주셔서 감사합니다! 
+          <br>정치와 정책에 대한 이해가 깊어지길 바랍니다. 🎯
+        </p>
+      </div>
+      
+      <div style="text-align: center; margin-top: 30px;">
+        <button onclick="document.getElementById('creditsPopup').remove(); document.body.classList.remove('modal-open');" style="
+          background: linear-gradient(135deg, #ff6b9d, #c44569) !important;
+          color: white !important;
+          border: none !important;
+          padding: 12px 24px !important;
+          border-radius: 25px !important;
+          cursor: pointer !important;
+          font-size: 16px !important;
+          font-weight: 600 !important;
+          box-shadow: 0 4px 15px rgba(255, 107, 157, 0.4) !important;
+        ">확인</button>
+      </div>
+    </div>
+  `;
+  
+  document.body.appendChild(newPopup);
+  document.body.classList.add('modal-open');
+  
+  console.log('✅ 새 크레딧 팝업 생성 완료');
 }
 
 function closeCredits() {
@@ -3704,6 +3847,7 @@ function bindHelpButtons() {
     
     console.log('🔧 버튼 바인딩 완료 - 전역함수 등록됨');
 }
+
 
 
 
