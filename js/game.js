@@ -349,11 +349,13 @@ findPolicyCategory(policyName) {
         }
     }
 
-    // 효과 적용
+   // 효과 적용 (범위 제한 추가)
     applyEffects(effects) {
         for (const [indicator, value] of Object.entries(effects)) {
             if (this.indicators.hasOwnProperty(indicator)) {
                 this.indicators[indicator] += value;
+                // 🔧 지표 범위 제한: -5 ~ +5
+                this.indicators[indicator] = Math.max(-5, Math.min(5, this.indicators[indicator]));
             }
         }
     }
@@ -1044,6 +1046,7 @@ window.gameUtils = {
         }
     }
 };
+
 
 
 
