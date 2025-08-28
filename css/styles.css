@@ -2583,18 +2583,6 @@ button:focus-visible,
     min-height: 400px !important;
 }
 
-  /* 섹션 구분선 */
-  .npg-divider{height:1px;border:0;background:linear-gradient(90deg,#ffd1e3,#ffeaf3,#ffd1e3);opacity:.7;margin:24px 0}
-  /* 탭 버튼 최소 터치영역 */
-  [role="tab"], .tab { min-height:44px; padding:10px 14px }
-  body { font-size:16px; line-height:1.6 }
-  section h3, .content h3 { margin:16px 0 10px }
-  /* 스티키 바 기본 스타일 */
-  #npg-sticky-bar{
-    position:sticky; bottom:0; z-index:50; background:#fff; border-top:1px solid #eee;
-    padding:10px 12px; display:flex; gap:8px; align-items:center; justify-content:space-between
-  }
-  #npg-sticky-bar .btns{ display:flex; gap:8px }
-  #npg-sticky-bar button[disabled]{ opacity:.5; cursor:not-allowed }
+
 
 
