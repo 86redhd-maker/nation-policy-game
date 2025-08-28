@@ -516,8 +516,15 @@ function updateIndicators(indicators) {
             barClass = gameUtils.getIndicatorClass(value);
             displayValue = gameUtils.formatIndicatorValue(value);
         } else {
-            barWidth = ((value + 5) / 10) * 100;
-            barWidth = Math.max(0, Math.min(100, barWidth));
+            const allValues = Object.values(indicators);
+const minValue = Math.min(...allValues);
+const maxValue = Math.max(...allValues);
+const range = Math.max(20, maxValue - minValue); // 최소 범위 20
+const center = (maxValue + minValue) / 2;
+
+barWidth = ((value - (center - range/2)) / range) * 100;
+barWidth = Math.max(0, Math.min(100, barWidth));
+            
             barClass = value >= 0 ? 'positive' : 'negative';
             displayValue = value > 0 ? `+${value}` : value.toString();
         }
@@ -3847,6 +3854,7 @@ function bindHelpButtons() {
     
     console.log('🔧 버튼 바인딩 완료 - 전역함수 등록됨');
 }
+
 
 
 
