@@ -480,7 +480,7 @@ function updateIndicators(indicators) {
     
     grid.innerHTML = '';
 
-    const summaryElement = document.getElementById('summary');
+   const summaryElement = document.getElementById('indicatorsSummary');
     if (!summaryElement) return;
     
     Object.entries(indicators).forEach(([indicator, value]) => {
@@ -3704,6 +3704,7 @@ function bindHelpButtons() {
     
     console.log('🔧 버튼 바인딩 완료 - 전역함수 등록됨');
 }
+
 
 
 
