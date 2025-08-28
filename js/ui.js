@@ -2220,33 +2220,397 @@ function showHelp() {
           </div>
         </div>
 
-        <!-- 다른 탭들도 비슷하게... (공간상 생략, 필요하면 추가해드릴게요!) -->
         <div id="content-nations" style="display: none;">
-          <h3 style="color: #ff6b9d; margin-bottom: 15px;">🏛️ 5가지 국가 모델</h3>
-          <p>각 국가마다 특별한 장단점과 할인 혜택이 있습니다!</p>
-          <!-- 국가별 상세 설명... -->
+  <div style="
+    margin-bottom: 30px;
+    padding: 20px;
+    background: rgba(255, 107, 157, 0.05);
+    border-radius: 12px;
+    border-left: 4px solid #ff6b9d;
+  ">
+    <h3 style="color: #ff6b9d; margin-bottom: 15px;">🏛️ 5가지 국가 모델</h3>
+    <div style="display: flex; flex-direction: column; gap: 20px;">
+      
+      <!-- 복지 강국 -->
+      <div style="
+        background: rgba(255, 255, 255, 0.8);
+        padding: 20px;
+        border-radius: 12px;
+        border: 2px solid transparent;
+        transition: all 0.3s ease;
+      ">
+        <div style="
+          display: flex;
+          align-items: center;
+          gap: 15px;
+          margin-bottom: 12px;
+          flex-wrap: wrap;
+        ">
+          <div style="
+            font-size: 24px;
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 107, 157, 0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+          ">🏥</div>
+          <strong style="font-size: 18px; color: #ff6b9d; flex: 1;">복지 강국</strong>
+          <span style="
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: 600;
+            background: #d1fae5;
+            color: #065f46;
+          ">★☆☆ 쉬움</span>
         </div>
+        <p style="font-size: 14px; margin-bottom: 8px; line-height: 1.4;">
+          <strong>특징:</strong> 복지 정책 15% 할인, 적자 허용도 높음
+        </p>
+        <p style="font-size: 14px; margin-bottom: 8px; line-height: 1.4;">
+          <strong>모델:</strong> 덴마크, 스웨덴, 노르웨이
+        </p>
+        <p style="font-size: 14px; margin: 0; line-height: 1.4;">
+          <strong>전략:</strong> 안정적 예산 운용으로 초보자에게 적합
+        </p>
+      </div>
 
-        <div id="content-tips" style="display: none;">
-          <h3 style="color: #ff6b9d; margin-bottom: 15px;">💡 초보자 팁</h3>
-          <ul style="margin-left: 20px; line-height: 1.6;">
-            <li><strong>예산 먼저:</strong> 항상 다음 턴 예산을 고려해서 선택</li>
-            <li><strong>균형이 핵심:</strong> 한 분야만 올리지 말고 고르게 발전</li>
-            <li><strong>시민 반응 체크:</strong> 정책 확정 후 밈 반응을 확인</li>
-            <li><strong>국가 특성 활용:</strong> 할인 받는 정책을 적극 활용</li>
-            <li><strong>충돌 피하기:</strong> 정책 설명에서 충돌 정책 확인</li>
-          </ul>
+      <!-- 자원 풍부국 -->
+      <div style="
+        background: rgba(255, 255, 255, 0.8);
+        padding: 20px;
+        border-radius: 12px;
+        border: 2px solid transparent;
+      ">
+        <div style="
+          display: flex;
+          align-items: center;
+          gap: 15px;
+          margin-bottom: 12px;
+          flex-wrap: wrap;
+        ">
+          <div style="
+            font-size: 24px;
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 107, 157, 0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+          ">⛏️</div>
+          <strong style="font-size: 18px; color: #ff6b9d; flex: 1;">자원 풍부국</strong>
+          <span style="
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: 600;
+            background: #fef3c7;
+            color: #92400e;
+          ">★★☆ 보통</span>
         </div>
+        <p style="font-size: 14px; margin-bottom: 8px; line-height: 1.4;">
+          <strong>특징:</strong> 경제 정책 효과 20% 증가
+        </p>
+        <p style="font-size: 14px; margin-bottom: 8px; line-height: 1.4;">
+          <strong>모델:</strong> 노르웨이, 사우디, 칠레
+        </p>
+        <p style="font-size: 14px; margin: 0; line-height: 1.4;">
+          <strong>전략:</strong> 경제 중심 정책으로 성장 동력 확보
+        </p>
+      </div>
 
-        <div id="content-advanced" style="display: none;">
-          <h3 style="color: #ff6b9d; margin-bottom: 15px;">🎓 고급 전략</h3>
-          <ul style="margin-left: 20px; line-height: 1.6;">
-            <li><strong>메타 분석:</strong> 각 턴마다 전체 그림을 그려보기</li>
-            <li><strong>기회비용 고려:</strong> 선택하지 않은 정책의 가치도 생각</li>
-            <li><strong>장기적 관점:</strong> 5턴 후를 내다보는 전략 수립</li>
-            <li><strong>위기 관리:</strong> 마이너스 지표를 어떻게 회복시킬지 계획</li>
-          </ul>
+      <!-- 기술 선진국 -->
+      <div style="
+        background: rgba(255, 255, 255, 0.8);
+        padding: 20px;
+        border-radius: 12px;
+        border: 2px solid transparent;
+      ">
+        <div style="
+          display: flex;
+          align-items: center;
+          gap: 15px;
+          margin-bottom: 12px;
+          flex-wrap: wrap;
+        ">
+          <div style="
+            font-size: 24px;
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 107, 157, 0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+          ">🚀</div>
+          <strong style="font-size: 18px; color: #ff6b9d; flex: 1;">기술 선진국</strong>
+          <span style="
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: 600;
+            background: #fee2e2;
+            color: #991b1b;
+          ">★★★ 어려움</span>
         </div>
+        <p style="font-size: 14px; margin-bottom: 8px; line-height: 1.4;">
+          <strong>특징:</strong> 기술/교육 정책 20% 할인, 시민 신뢰도 낮음
+        </p>
+        <p style="font-size: 14px; margin-bottom: 8px; line-height: 1.4;">
+          <strong>모델:</strong> 실리콘밸리, 이스라엘, 핀란드
+        </p>
+        <p style="font-size: 14px; margin: 0; line-height: 1.4;">
+          <strong>전략:</strong> 시민 반응 관리가 핵심
+        </p>
+      </div>
+
+      <!-- 신흥 개발국 -->
+      <div style="
+        background: rgba(255, 255, 255, 0.8);
+        padding: 20px;
+        border-radius: 12px;
+        border: 2px solid transparent;
+      ">
+        <div style="
+          display: flex;
+          align-items: center;
+          gap: 15px;
+          margin-bottom: 12px;
+          flex-wrap: wrap;
+        ">
+          <div style="
+            font-size: 24px;
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 107, 157, 0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+          ">📈</div>
+          <strong style="font-size: 18px; color: #ff6b9d; flex: 1;">신흥 개발국</strong>
+          <span style="
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: 600;
+            background: #fef3c7;
+            color: #92400e;
+          ">★★☆ 보통</span>
+        </div>
+        <p style="font-size: 14px; margin-bottom: 8px; line-height: 1.4;">
+          <strong>특징:</strong> 균형잡힌 성장 기회, 제한적 예산
+        </p>
+        <p style="font-size: 14px; margin-bottom: 8px; line-height: 1.4;">
+          <strong>모델:</strong> 한국, 싱가포르, 대만
+        </p>
+        <p style="font-size: 14px; margin: 0; line-height: 1.4;">
+          <strong>전략:</strong> 전략적 선택과 집중 필요
+        </p>
+      </div>
+
+      <!-- 위기국가 -->
+      <div style="
+        background: rgba(255, 255, 255, 0.8);
+        padding: 20px;
+        border-radius: 12px;
+        border: 2px solid transparent;
+      ">
+        <div style="
+          display: flex;
+          align-items: center;
+          gap: 15px;
+          margin-bottom: 12px;
+          flex-wrap: wrap;
+        ">
+          <div style="
+            font-size: 24px;
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 107, 157, 0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+          ">🔥</div>
+          <strong style="font-size: 18px; color: #ff6b9d; flex: 1;">위기국가</strong>
+          <span style="
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: 600;
+            background: #fee2e2;
+            color: #991b1b;
+          ">★★★ 어려움</span>
+        </div>
+        <p style="font-size: 14px; margin-bottom: 8px; line-height: 1.4;">
+          <strong>특징:</strong> 긴급정책 접근 가능, 극한 도전
+        </p>
+        <p style="font-size: 14px; margin-bottom: 8px; line-height: 1.4;">
+          <strong>모델:</strong> 전후 재건 국가들
+        </p>
+        <p style="font-size: 14px; margin: 0; line-height: 1.4;">
+          <strong>전략:</strong> 생존이 우선, 진정한 하드모드
+        </p>
+      </div>
+    </div>
+  </div>
+
+       <div id="content-tips" style="display: none;">
+  <div style="
+    margin-bottom: 30px;
+    padding: 20px;
+    background: rgba(255, 107, 157, 0.05);
+    border-radius: 12px;
+    border-left: 4px solid #ff6b9d;
+  ">
+    <h3 style="color: #ff6b9d; margin-bottom: 15px;">💡 초보자 팁</h3>
+    <ul style="margin-left: 20px; line-height: 1.6;">
+      <li><strong>예산 먼저:</strong> 항상 다음 턴 예산을 고려해서 선택</li>
+      <li><strong>균형이 핵심:</strong> 한 분야만 올리지 말고 고르게 발전</li>
+      <li><strong>시민 반응 체크:</strong> 정책 확정 후 밈 반응을 확인</li>
+      <li><strong>국가 특성 활용:</strong> 할인 받는 정책을 적극 활용</li>
+      <li><strong>충돌 피하기:</strong> 정책 설명에서 충돌 정책 확인</li>
+    </ul>
+  </div>
+  
+  <div style="
+    margin-bottom: 30px;
+    padding: 20px;
+    background: rgba(255, 107, 157, 0.05);
+    border-radius: 12px;
+    border-left: 4px solid #ff6b9d;
+  ">
+    <h3 style="color: #ff6b9d; margin-bottom: 15px;">⚡ 시너지 조합 예시</h3>
+    <div style="
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 15px;
+      margin-top: 15px;
+    ">
+      <div style="
+        background: linear-gradient(135deg, rgba(34, 197, 94, 0.1), rgba(134, 239, 172, 0.1));
+        padding: 15px;
+        border-radius: 8px;
+        border-left: 4px solid #22c55e;
+      ">
+        <strong style="display: block; color: #059669; font-size: 16px; margin-bottom: 8px;">🌱 친환경 성장</strong>
+        <p style="font-size: 14px; line-height: 1.4; margin: 0; color: #065f46;">탄소세 도입 + 재생에너지 투자 + 중소기업 지원</p>
+      </div>
+      <div style="
+        background: linear-gradient(135deg, rgba(34, 197, 94, 0.1), rgba(134, 239, 172, 0.1));
+        padding: 15px;
+        border-radius: 8px;
+        border-left: 4px solid #22c55e;
+      ">
+        <strong style="display: block; color: #059669; font-size: 16px; margin-bottom: 8px;">❤️ 복지 혁신</strong>
+        <p style="font-size: 14px; line-height: 1.4; margin: 0; color: #065f46;">기본소득 도입 + 의료 인프라 확충 + 디지털 세금 도입</p>
+      </div>
+      <div style="
+        background: linear-gradient(135deg, rgba(34, 197, 94, 0.1), rgba(134, 239, 172, 0.1));
+        padding: 15px;
+        border-radius: 8px;
+        border-left: 4px solid #22c55e;
+      ">
+        <strong style="display: block; color: #059669; font-size: 16px; margin-bottom: 8px;">🚀 기술 교육</strong>
+        <p style="font-size: 14px; line-height: 1.4; margin: 0; color: #065f46;">디지털 교육 확대 + 기술 협력 확대 + 평생학습 확대</p>
+      </div>
+    </div>
+  </div>
+
+  <div style="
+    padding: 20px;
+    background: rgba(255, 107, 157, 0.05);
+    border-radius: 12px;
+    border-left: 4px solid #ff6b9d;
+  ">
+    <h3 style="color: #ff6b9d; margin-bottom: 15px;">⚠️ 흔한 실수들</h3>
+    <ul style="margin-left: 20px; line-height: 1.6;">
+      <li>예산 무시하고 비싼 정책만 선택</li>
+      <li>한 분야에만 집중해서 다른 지표 방치</li>
+      <li>정책 간 충돌 관계 무시</li>
+      <li>단기 인기에만 매몰된 선택</li>
+      <li>국가별 특성을 활용하지 않음</li>
+    </ul>
+  </div>
+</div>
+
+<div id="content-advanced" style="display: none;">
+  <div style="
+    margin-bottom: 30px;
+    padding: 20px;
+    background: rgba(255, 107, 157, 0.05);
+    border-radius: 12px;
+    border-left: 4px solid #ff6b9d;
+  ">
+    <h3 style="color: #ff6b9d; margin-bottom: 15px;">🎓 고급 전략</h3>
+    <ul style="margin-left: 20px; line-height: 1.6;">
+      <li><strong>메타 분석:</strong> 각 턴마다 전체 그림을 그려보기</li>
+      <li><strong>기회비용 고려:</strong> 선택하지 않은 정책의 가치도 생각</li>
+      <li><strong>장기적 관점:</strong> 5턴 후를 내다보는 전략 수립</li>
+      <li><strong>위기 관리:</strong> 마이너스 지표를 어떻게 회복시킬지 계획</li>
+      <li><strong>이벤트 대비:</strong> 예상치 못한 이벤트에 대한 대응력</li>
+    </ul>
+  </div>
+
+  <div style="
+    margin-bottom: 30px;
+    padding: 20px;
+    background: rgba(255, 107, 157, 0.05);
+    border-radius: 12px;
+    border-left: 4px solid #ff6b9d;
+  ">
+    <h3 style="color: #ff6b9d; margin-bottom: 15px;">🏆 고득점 전략</h3>
+    <div style="display: flex; flex-direction: column; gap: 15px;">
+      <div style="
+        background: linear-gradient(135deg, rgba(168, 85, 247, 0.1), rgba(196, 181, 253, 0.1));
+        padding: 15px;
+        border-radius: 8px;
+        border-left: 4px solid #a855f7;
+      ">
+        <strong style="display: block; color: #7c3aed; font-size: 16px; margin-bottom: 8px;">S급 달성 (25점+)</strong>
+        <p style="font-size: 14px; line-height: 1.4; margin: 0; color: #5b21b6;">모든 지표를 양수로 유지하면서 시너지 조합 활용</p>
+      </div>
+      <div style="
+        background: linear-gradient(135deg, rgba(168, 85, 247, 0.1), rgba(196, 181, 253, 0.1));
+        padding: 15px;
+        border-radius: 8px;
+        border-left: 4px solid #a855f7;
+      ">
+        <strong style="display: block; color: #7c3aed; font-size: 16px; margin-bottom: 8px;">효율성 극대화</strong>
+        <p style="font-size: 14px; line-height: 1.4; margin: 0; color: #5b21b6;">국가별 할인 혜택을 최대한 활용하여 예산 절약</p>
+      </div>
+      <div style="
+        background: linear-gradient(135deg, rgba(168, 85, 247, 0.1), rgba(196, 181, 253, 0.1));
+        padding: 15px;
+        border-radius: 8px;
+        border-left: 4px solid #a855f7;
+      ">
+        <strong style="display: block; color: #7c3aed; font-size: 16px; margin-bottom: 8px;">밸런스 전략</strong>
+        <p style="font-size: 14px; line-height: 1.4; margin: 0; color: #5b21b6;">극단적 선택보다는 안정적 균형 발전 추구</p>
+      </div>
+    </div>
+  </div>
+
+  <div style="
+    padding: 20px;
+    background: rgba(255, 107, 157, 0.05);
+    border-radius: 12px;
+    border-left: 4px solid #ff6b9d;
+  ">
+    <h3 style="color: #ff6b9d; margin-bottom: 15px;">📚 실제 정치학 개념</h3>
+    <ul style="margin-left: 20px; line-height: 1.6;">
+      <li><strong>트레이드오프:</strong> 모든 선택에는 기회비용이 존재</li>
+      <li><strong>파레토 효율:</strong> 누군가의 손해 없이는 개선 불가능한 상태</li>
+      <li><strong>외부효과:</strong> 정책이 의도치 않은 다른 영역에 미치는 영향</li>
+      <li><strong>공공선택론:</strong> 정치인도 자신의 이익을 추구하는 합리적 행위자</li>
+      <li><strong>정부실패:</strong> 시장실패를 해결하려다 더 큰 비효율 발생</li>
+    </ul>
+  </div>
+</div>
       </div>
       
       <div style="text-align: center; margin-top: 30px;">
@@ -3088,6 +3452,7 @@ function bindHelpButtons() {
         }
     });
 }
+
 
 
 
