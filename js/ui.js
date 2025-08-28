@@ -367,6 +367,8 @@ function startGame() {
             if (result.success) {
                 initializeGameScreen(result.status);
                 showScreen('gameScreen');
+                // 🔥 게임 시작할 때도 게임 헤더로 스크롤
+setTimeout(() => scrollToGameHeader(), 100);
                 if (typeof gameUtils !== 'undefined') {
                     gameUtils.playSound('success');
                 }
@@ -1338,6 +1340,32 @@ function showCitizenReactions(policies) {
     }, 5000);
 }
 
+// 🔥 게임 헤더로 부드럽게 스크롤
+function scrollToGameHeader() {
+    const gameHeader = document.querySelector('.game-header');
+    if (gameHeader) {
+        gameHeader.scrollIntoView({
+            behavior: 'smooth',
+            block: 'start',
+            inline: 'nearest'
+        });
+        console.log('🎯 게임 헤더로 스크롤');
+    } else {
+        // 헤더가 없으면 맨 위로
+        scrollToTop();
+    }
+}
+
+// 맨 위로 스크롤 (백업용)
+function scrollToTop(smooth = true) {
+    window.scrollTo({
+        top: 0,
+        left: 0,
+        behavior: smooth ? 'smooth' : 'auto'
+    });
+    console.log('🔝 화면 맨 위로 스크롤');
+}
+
 // 다음 턴 진행 - 수정된 버전
 function proceedToNextTurn() {
     if (typeof gameAPI === 'undefined') {
@@ -1364,6 +1392,8 @@ function proceedToNextTurn() {
         showResultsScreen(result);
     } else {
         console.log('다음 턴 진행:', result.status);
+        // 🔥 게임 헤더로 부드럽게 스크롤
+scrollToGameHeader();
         // 새 턴 UI 업데이트
         updateGameHeader(result.status); // 🔧 이미 진행률 업데이트 포함
         updateCategoryStats(result.status);
@@ -3854,6 +3884,7 @@ function bindHelpButtons() {
     
     console.log('🔧 버튼 바인딩 완료 - 전역함수 등록됨');
 }
+
 
 
 
