@@ -454,6 +454,25 @@ function updateGameHeader(gameStatus) {
     }
 }
 
+// 시민만족도와 지속가능성 계산 함수 - UI에서 사용
+function calculateCitizenSatisfaction(indicators) {
+    const satisfaction = (
+        (indicators['시민 반응'] || 0) + 
+        (indicators['복지'] || 0) + 
+        (indicators['안정성'] || 0)
+    ) / 3;
+    return Math.round(satisfaction * 10) / 10;
+}
+
+function calculateSustainability(indicators) {
+    const sustainability = (
+        (indicators['환경'] || 0) + 
+        (indicators['재정'] || 0) + 
+        (indicators['안정성'] || 0)
+    ) / 3;
+    return Math.round(sustainability * 10) / 10;
+}
+
 // 지표 표시 업데이트
 function updateIndicators(indicators) {
     const grid = document.getElementById('indicatorsGrid');
@@ -510,6 +529,61 @@ function updateIndicators(indicators) {
 
         grid.appendChild(item);
     });
+    // 🔧 통계 지표 업데이트 추가
+    if (summaryElement) {
+        // 총점 계산
+        const totalScore = Object.values(indicators).reduce((sum, val) => sum + val, 0);
+        
+        // 시민만족도 계산: (시민반응 + 복지 + 안정성) ÷ 3
+        const citizenSatisfaction = calculateCitizenSatisfaction(indicators);
+        
+        // 지속가능성 계산: (환경 + 재정 + 안정성) ÷ 3
+        const sustainability = calculateSustainability(indicators);
+        
+        // 요소별 업데이트
+        const totalScoreElement = document.getElementById('totalScore');
+        const citizenSatisfactionElement = document.getElementById('citizenSatisfaction');
+        const sustainabilityElement = document.getElementById('sustainability');
+        
+        if (totalScoreElement) {
+            totalScoreElement.textContent = totalScore;
+            // 총점에 따른 색상 변경
+            if (totalScore >= 15) {
+                totalScoreElement.style.color = '#00ff88';
+            } else if (totalScore >= 0) {
+                totalScoreElement.style.color = '#ffaa00';
+            } else {
+                totalScoreElement.style.color = '#ff6666';
+            }
+        }
+        
+        if (citizenSatisfactionElement) {
+            citizenSatisfactionElement.textContent = citizenSatisfaction;
+            // 시민만족도에 따른 색상 변경
+            if (citizenSatisfaction >= 1) {
+                citizenSatisfactionElement.style.color = '#00ff88';
+            } else if (citizenSatisfaction >= 0) {
+                citizenSatisfactionElement.style.color = '#ffaa00';
+            } else {
+                citizenSatisfactionElement.style.color = '#ff6666';
+            }
+        }
+        
+        if (sustainabilityElement) {
+            sustainabilityElement.textContent = sustainability;
+            // 지속가능성에 따른 색상 변경
+            if (sustainability >= 1) {
+                sustainabilityElement.style.color = '#00ff88';
+            } else if (sustainability >= 0) {
+                sustainabilityElement.style.color = '#ffaa00';
+            } else {
+                sustainabilityElement.style.color = '#ff6666';
+            }
+        }
+        
+        console.log('통계 지표 업데이트:', { totalScore, citizenSatisfaction, sustainability });
+    }
+}
 }
 
 // 예산 표시 업데이트
@@ -3454,6 +3528,7 @@ function bindHelpButtons() {
         }
     });
 }
+
 
 
 
