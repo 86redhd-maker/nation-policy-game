@@ -480,6 +480,9 @@ function updateIndicators(indicators) {
     
     grid.innerHTML = '';
 
+    const summaryElement = document.getElementById('summary');
+    if (!summaryElement) return;
+    
     Object.entries(indicators).forEach(([indicator, value]) => {
         let info = null;
         if (typeof GameData !== 'undefined' && GameData.getIndicatorInfo) {
@@ -3701,6 +3704,7 @@ function bindHelpButtons() {
     
     console.log('🔧 버튼 바인딩 완료 - 전역함수 등록됨');
 }
+
 
 
 
