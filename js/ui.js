@@ -584,7 +584,6 @@ function updateIndicators(indicators) {
         console.log('통계 지표 업데이트:', { totalScore, citizenSatisfaction, sustainability });
     }
 }
-}
 
 // 예산 표시 업데이트
 function updateBudgetDisplay(budget, debtLimit) {
@@ -3665,6 +3664,7 @@ function bindHelpButtons() {
         }
     });
 }
+
 
 
 
