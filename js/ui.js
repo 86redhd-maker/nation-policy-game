@@ -3455,6 +3455,167 @@ function bindHelpButtons() {
     });
 }
 
+(()=>{ // NPG Enhance Patch (safe, additive)
+  const N = window.npgEnhance = {};
+
+  // -------- helpers --------
+  const $ = (s, r=document)=>r.querySelector(s);
+  const $$ = (s, r=document)=>Array.from(r.querySelectorAll(s));
+  const has = id => document.getElementById(id);
+
+  // -------- divider between tips & advanced --------
+  function ensureDivider(){
+    const adv = has('content-advanced');
+    if(!adv) return;
+    const prev = adv.previousElementSibling;
+    const already = prev && prev.classList && prev.classList.contains('npg-divider');
+    if(!already){
+      const hr = document.createElement('hr');
+      hr.className = 'npg-divider';
+      adv.parentNode.insertBefore(hr, adv);
+    }
+  }
+
+  // -------- sticky bar (auto-create if missing) --------
+  function ensureStickyBar(){
+    if(has('npg-sticky-bar')){
+      bindStickyActions();
+      return;
+    }
+    const bar = document.createElement('div');
+    bar.id = 'npg-sticky-bar';
+    bar.innerHTML = `
+      <strong id="npg-budget">예산: <span id="npg-budget-val">—</span></strong>
+      <span id="npg-picks">선택: <span id="npg-picks-val">0</span>/2</span>
+      <div class="btns">
+        <button id="npg-confirm">✅ 정책 확정</button>
+        <button id="npg-reset">선택 초기화</button>
+      </div>`;
+    // 가능한 한 메인 콘텐츠 끝/바디 끝에 붙임
+    ( $('#content-advanced')?.parentNode || document.body ).appendChild(bar);
+    bindStickyActions();
+    updateActionState(); // 초기 상태
+  }
+
+  function bindStickyActions(){
+    const confirmBtn = has('npg-confirm');
+    const resetBtn = has('npg-reset');
+    if(confirmBtn && !confirmBtn._bound){
+      confirmBtn._bound = true;
+      confirmBtn.addEventListener('click', async ()=>{
+        confirmBtn.setAttribute('aria-busy','true');
+        const txt = confirmBtn.textContent;
+        confirmBtn.textContent = '처리 중...';
+        try{
+          // 게임 코드에 기존 함수가 있으면 사용
+          if(typeof window.applyTurn === 'function'){ await window.applyTurn(); }
+          else if(typeof window.confirmPolicies === 'function'){ await window.confirmPolicies(); }
+        } finally {
+          confirmBtn.removeAttribute('aria-busy');
+          confirmBtn.textContent = txt;
+          updateActionState();
+        }
+      });
+    }
+    if(resetBtn && !resetBtn._bound){
+      resetBtn._bound = true;
+      resetBtn.addEventListener('click', ()=>{
+        // 게임 측 초기화 훅이 있으면 사용
+        if(typeof window.resetSelections === 'function'){ window.resetSelections(); }
+        updateActionState();
+      });
+    }
+  }
+
+  // 게임 쪽 함수가 없을 수도 있으니 방어적으로
+  function getPickedCount(){
+    if(typeof window.getPickedCount === 'function') return window.getPickedCount();
+    // 카드가 .policy.selected 같은 클래스를 쓰는 경우 자동 추론
+    const guessed = $$('.policy.selected').length || 0;
+    return guessed;
+  }
+  function getBudget(){
+    if(typeof window.getBudget === 'function') return window.getBudget();
+    // 화면 어딘가에 예산 숫자를 표시하고 있다면 읽어오기 시도
+    const el = $('#budget, #budgetBadge, [data-budget]');
+    if(el){
+      const m = (el.textContent||'').match(/\d+/);
+      if(m) return parseInt(m[0],10);
+    }
+    return null;
+  }
+  function updateActionState(){
+    const picked = getPickedCount();
+    const bud = getBudget();
+    const picksEl = has('npg-picks-val'); if(picksEl) picksEl.textContent = picked;
+    const budEl = has('npg-budget-val'); if(budEl) budEl.textContent = (bud ?? '—');
+    const confirmBtn = has('npg-confirm'); if(confirmBtn) confirmBtn.disabled = picked===0;
+  }
+  N.updateActionState = updateActionState;
+
+  // -------- tabs + hash routing + focus/scroll --------
+  function showContent(id){
+    const target = has(`content-${id}`);
+    if(!target) return;
+    // panels
+    $$('[id^="content-"]').forEach(el=>el.style.display = (el===target)?'block':'none');
+    // tabs selected state (role=tab or id=tab-*)
+    const tabs = $$('[role="tab"], [id^="tab-"]');
+    tabs.forEach(t=>{
+      const tid = t.getAttribute('data-tab') || (t.id||'').replace(/^tab-/,'');
+      const selected = (tid === id);
+      if(t.hasAttribute('role')) t.setAttribute('aria-selected', selected ? 'true' : 'false');
+      t.classList.toggle('is-active', selected);
+    });
+    // focus + scroll
+    (target.querySelector('h1,h2,h3,[role="heading"]')||target).focus?.();
+    window.scrollTo({top:0, behavior:'smooth'});
+    // remember & hash
+    sessionStorage.setItem('npg_active_tab', id);
+    if(location.hash !== `#${id}`) history.replaceState(null,'',`#${id}`);
+    // 버튼 상태 갱신
+    updateActionState();
+  }
+  N.showContent = showContent;
+
+  function setupTabs(){
+    // role=tablist 구성 또는 data-속성 기반
+    const panels = $$('[id^="content-"]');
+    panels.forEach(p=>p.setAttribute('role','tabpanel'));
+    const tabEls = $$('[role="tab"], [id^="tab-"]');
+    tabEls.forEach(btn=>{
+      if(btn._tabBound) return;
+      btn._tabBound = true;
+      let id = btn.getAttribute('data-tab');
+      if(!id && btn.id && btn.id.startsWith('tab-')) id = btn.id.replace('tab-','');
+      if(!id) return;
+      btn.setAttribute('aria-controls', `content-${id}`);
+      btn.addEventListener('click', (e)=>{ e.preventDefault(); showContent(id); });
+    });
+  }
+
+  function setupHashRouting(){
+    window.addEventListener('hashchange', ()=>{
+      const id = location.hash.replace('#','');
+      if(has(`content-${id}`)) showContent(id);
+    });
+    document.addEventListener('DOMContentLoaded', ()=>{
+      setupTabs();
+      ensureDivider();
+      ensureStickyBar();
+      // 초기 탭 결정: hash > 세션 > nations
+      const initial = (location.hash||'').replace('#','') || sessionStorage.getItem('npg_active_tab') || 'nations';
+      if(has(`content-${initial}`)) showContent(initial);
+    });
+  }
+
+  // 외부 코드에서 상태 변화 시 호출 가능하도록 이벤트 훅
+  window.addEventListener('npg:update', updateActionState);
+
+  // kick off
+  setupHashRouting();
+})();
+
 
 
 
