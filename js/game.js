@@ -353,10 +353,7 @@ findPolicyCategory(policyName) {
     applyEffects(effects) {
         for (const [indicator, value] of Object.entries(effects)) {
             if (this.indicators.hasOwnProperty(indicator)) {
-                this.indicators[indicator] = Math.max(
-                    GAME_CONFIG.min_indicator_value,
-                    Math.min(GAME_CONFIG.max_indicator_value, this.indicators[indicator] + value)
-                );
+                this.indicators[indicator] += value;
             }
         }
     }
@@ -368,10 +365,7 @@ findPolicyCategory(policyName) {
             if (penalty && penalty.effects) {
                 for (const [indicator, value] of Object.entries(penalty.effects)) {
                     if (this.indicators.hasOwnProperty(indicator)) {
-                        this.indicators[indicator] = Math.max(
-                            GAME_CONFIG.min_indicator_value,
-                            Math.min(GAME_CONFIG.max_indicator_value, this.indicators[indicator] + value)
-                        );
+                        this.indicators[indicator] += value;
                     }
                 }
                 console.log(`예산 페널티 적용: ${penalty.message}`);
@@ -1037,5 +1031,6 @@ window.gameUtils = {
     addAnimation,
     playSound
 };
+
 
 
