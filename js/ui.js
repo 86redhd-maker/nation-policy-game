@@ -3658,7 +3658,7 @@ function bindHelpButtons() {
         }
     });
     
-    // 🔥 크레딧 버튼들 (강화된 바인딩)
+    // 🔥 크레딧 버튼들 (수정된 바인딩)
     const creditButtons = document.querySelectorAll('#btn-credits, [data-open-credits], .btn-credits');
     console.log('🔍 크레딧 버튼 찾기:', creditButtons.length + '개 발견');
     
@@ -3672,7 +3672,7 @@ function bindHelpButtons() {
             btn.removeAttribute('onclick');
             btn.onclick = null;
             
-            // 여러 방식으로 이벤트 추가
+            // 이벤트 리스너 추가
             btn.addEventListener('click', function(e) {
                 e.preventDefault();
                 e.stopPropagation();
@@ -3693,9 +3693,11 @@ function bindHelpButtons() {
         }
     });
     
-    // 🔥 전역 함수로도 등록
+    // 🔥 전역 함수로 등록
     window.showCredits = showCredits;
-    window.closeCreditsNew = closeCreditsNew;
+    window.closeCredits = closeCredits; // closeCreditsNew 대신 closeCredits 사용
+    window.showHelp = showHelp;
+    window.closeHelp = closeHelp;
     
     console.log('🔧 버튼 바인딩 완료 - 전역함수 등록됨');
 }
