@@ -1314,7 +1314,7 @@ const ENDINGS_DATA = {
   "S급": {
     "title": "🏆 완벽한 국가",
     "description": "모든 분야에서 균형잡힌 발전을 이뤄낸 당신은 진정한 국가 설계의 대가입니다.",
-    "requirements": { "total_score": 30, "min_indicator": 0 },
+    "requirements": { "total_score": 150, "min_indicator": 0 },
     "citizen_reaction": "🎉 역사상 최고의 지도자! 우리 나라가 세계의 모델이 됐어요!",
     "achievement": "완벽한 설계자",
     "educational_analysis": {
@@ -1337,7 +1337,7 @@ const ENDINGS_DATA = {
   "A급": {
     "title": "🌟 번영하는 국가", 
     "description": "대부분의 분야에서 우수한 성과를 거두었습니다.",
-    "requirements": { "total_score": 20 },
+    "requirements": { "total_score": 100 },
     "citizen_reaction": "👏 정말 살기 좋은 나라가 됐어요! 감사합니다!",
     "achievement": "번영의 건축가",
     "educational_analysis": {
@@ -1359,7 +1359,7 @@ const ENDINGS_DATA = {
   "B급": {
     "title": "⚖️ 균형잡힌 국가",
     "description": "완벽하지는 않지만 전반적으로 안정적인 국가를 만들어냈습니다.",
-    "requirements": { "total_score": 10 },
+    "requirements": { "total_score": 50 },
     "citizen_reaction": "😊 예전보다 확실히 나아졌어요. 희망이 보여요!",
     "achievement": "균형의 달인",
     "educational_analysis": {
@@ -1400,7 +1400,7 @@ const ENDINGS_DATA = {
   "D급": {
     "title": "⛈️ 어려운 상황",
     "description": "많은 어려움이 있었지만 최악의 상황은 피했습니다.",
-    "requirements": { "total_score": -20 },
+    "requirements": { "total_score": -50 },
     "citizen_reaction": "😟 힘들긴 하지만... 그래도 더 나빠지지는 않았네요",
     "achievement": "시련의 항해사",
     "educational_analysis": {
@@ -2658,6 +2658,7 @@ window.POLICY_EDUCATIONAL_ANALYSIS = POLICY_EDUCATIONAL_ANALYSIS;
 window.NATION_EDUCATIONAL_CONTENT = NATION_EDUCATIONAL_CONTENT;
 window.POLICY_THEORY_EDUCATION = POLICY_THEORY_EDUCATION;
 window.POLICY_FAILURE_CASES = POLICY_FAILURE_CASES;
+
 
 
 
