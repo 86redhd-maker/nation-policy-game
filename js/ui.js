@@ -2459,7 +2459,9 @@ function showHelp() {
     </div>
   </div>
 
- <!-- 게임 팁 탭 내용 추가 -->
+// 기존 코드에서 이 부분을 찾아서 교체하세요:
+
+        <!-- 게임 팁 탭 내용 추가 -->
         <div id="content-tips" style="display: none;">
           <div style="
             margin-bottom: 30px;
@@ -2610,7 +2612,7 @@ function showHelp() {
               <li><strong>외부효과:</strong> 정책이 의도치 않은 다른 영역에 미치는 영향</li>
               <li><strong>공공선택론:</strong> 정치인도 자신의 이익을 추구하는 합리적 행위자</li>
               <li><strong>정부실패:</strong> 시장실패를 해결하려다 더 큰 비효율 발생</li>
-             </ul>
+            </ul>
           </div>
         </div>
       
@@ -3453,6 +3455,7 @@ function bindHelpButtons() {
         }
     });
 }
+
 
 
 
