@@ -2496,6 +2496,17 @@ button:focus-visible,
     .synergy-examples {
         grid-template-columns: 1fr;
     }
+    /* 🔧 통계 요약 모바일 대응 추가 */
+.indicators-summary {
+    flex-direction: column !important;
+    gap: 0.5rem;
+    text-align: center;
+    font-size: 0.8rem !important;
+}
+
+.indicators-summary span {
+    padding: 0.25rem 0;
+}
 }
 
 /* 스크롤바 스타일링 */
@@ -2582,6 +2593,7 @@ button:focus-visible,
     max-width: 90vw !important;
     min-height: 400px !important;
 }
+
 
 
 
