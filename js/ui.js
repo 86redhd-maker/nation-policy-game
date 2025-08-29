@@ -1937,11 +1937,13 @@ function calculateAchievements(gameResult, stats) {
         achievements.push('💰 예산 전문가 - 높은 예산 효율성');
     }
     
-    if (gameResult.totalScore >= 20) {
-        achievements.push('🌟 고득점 달성 - 총점 20점 이상');
+    // 🔧 20점 → 100점으로 수정
+    if (gameResult.totalScore >= 100) {
+        achievements.push('🌟 고득점 달성 - 총점 100점 이상');
     }
     
-    if (selectedNationName === '위기국가' && gameResult.totalScore >= 0) {
+    // 🔧 50점으로 수정 (위에서 특별엔딩도 50점으로 했으니까)
+    if (selectedNationName === '위기국가' && gameResult.totalScore >= 50) {
         achievements.push('🔥 불사조의 부활 - 위기국가 재건 성공');
     }
     
@@ -1994,7 +1996,7 @@ function shareResults() {
 
 🏛️ 국가: ${gameStatus.nation || selectedNationName}
 🏆 최종 등급: ${finalTitle ? finalTitle.textContent : '알 수 없음'}
-📊 총점: ${stats.totalScore}/40
+📊 총점: ${stats.totalScore}
 😊 시민 만족도: ${stats.citizenSatisfaction}
 🌱 지속가능성: ${stats.sustainability}
 
@@ -2328,19 +2330,19 @@ function showHelp() {
             </div>
           </div>
 
-          <div style="
-            padding: 20px;
-            background: rgba(255, 107, 157, 0.05);
-            border-radius: 12px;
-            border-left: 4px solid #ff6b9d;
-          ">
-            <h3 style="color: #ff6b9d; margin-bottom: 15px;">📈 점수 시스템</h3>
-            <ul style="margin-left: 20px; line-height: 1.6;">
-              <li><strong>범위:</strong> 각 지표는 -5부터 +5까지</li>
-              <li><strong>총점:</strong> 8개 지표의 합계 (최대 40점)</li>
-              <li><strong>등급:</strong> S급(25점+) > A급(15점+) > B급(5점+) > C급(-5점+) > D급(-15점+) > F급</li>
-            </ul>
-          </div>
+         <div style="
+  padding: 20px;
+  background: rgba(255, 107, 157, 0.05);
+  border-radius: 12px;
+  border-left: 4px solid #ff6b9d;
+">
+  <h3 style="color: #ff6b9d; margin-bottom: 15px;">📈 점수 시스템</h3>
+  <ul style="margin-left: 20px; line-height: 1.6;">
+    <li><strong>범위:</strong> 각 지표는 제한 없음 (정책 효과에 따라 결정)</li>
+    <li><strong>총점:</strong> 8개 지표의 합계</li>
+    <li><strong>등급:</strong> S급(150점+) > A급(100점+) > B급(50점+) > C급(0점+) > D급(-50점+) > F급</li>
+  </ul>
+</div>
         </div>
 
         <div id="content-nations" style="display: none;">
@@ -3894,6 +3896,7 @@ function bindHelpButtons() {
     
     console.log('🔧 버튼 바인딩 완료 - 전역함수 등록됨');
 }
+
 
 
 
