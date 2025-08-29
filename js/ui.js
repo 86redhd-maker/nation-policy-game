@@ -1917,7 +1917,7 @@ function showResultsScreen(gameResult) {
     }
 }
 
-// 업적 계산
+// 업적 계산 - 수정된 점수 기준
 function calculateAchievements(gameResult, stats) {
     const achievements = [];
     
@@ -1942,7 +1942,7 @@ function calculateAchievements(gameResult, stats) {
         achievements.push('🌟 고득점 달성 - 총점 100점 이상');
     }
     
-    // 🔧 50점으로 수정 (위에서 특별엔딩도 50점으로 했으니까)
+    // 🔧 위기국가 재건 조건도 50점으로 맞춤
     if (selectedNationName === '위기국가' && gameResult.totalScore >= 50) {
         achievements.push('🔥 불사조의 부활 - 위기국가 재건 성공');
     }
@@ -3896,6 +3896,7 @@ function bindHelpButtons() {
     
     console.log('🔧 버튼 바인딩 완료 - 전역함수 등록됨');
 }
+
 
 
 
