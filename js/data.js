@@ -2485,42 +2485,42 @@ findPolicy: (policyName) => {
     return { grade: "F급", ...ENDINGS_DATA["F급"] };
   },
   
-  // 특별 엔딩 확인
-  checkSpecialEndings: (indicators, selectedPolicies, nationName) => {
+ // 특별 엔딩 확인 함수에서
+checkSpecialEndings: (indicators, selectedPolicies, nationName) => {
     const specialEndings = [];
     
     // 환경 지키미
     const envPolicies = selectedPolicies.filter(p => 
-      ["탄소세 도입", "재생에너지 투자", "도시 녹지 확대"].includes(p)
+        ["탄소세 도입", "재생에너지 투자", "도시 녹지 확대"].includes(p)
     );
     if (indicators.환경 >= 3 && envPolicies.length >= 3) {
-      specialEndings.push({ type: "환경_지키미", ...SPECIAL_ENDINGS["환경_지키미"] });
+        specialEndings.push({ type: "환경_지키미", ...SPECIAL_ENDINGS["환경_지키미"] });
     }
     
     // 기술 혁신가
     const techPolicies = selectedPolicies.filter(p => 
-      ["디지털 교육 확대", "기술 협력 확대", "평생학습 확대"].includes(p)
+        ["디지털 교육 확대", "기술 협력 확대", "평생학습 확대"].includes(p)
     );
     if (indicators.기술 >= 4 && techPolicies.length >= 3) {
-      specialEndings.push({ type: "기술_혁신가", ...SPECIAL_ENDINGS["기술_혁신가"] });
+        specialEndings.push({ type: "기술_혁신가", ...SPECIAL_ENDINGS["기술_혁신가"] });
     }
     
     // 복지 천국
     const welfarePolicies = selectedPolicies.filter(p => 
-      ["기본소득 도입", "의료 인프라 확충", "공공주택 확대", "노인 복지 강화"].includes(p)
+        ["기본소득 도입", "의료 인프라 확충", "공공주택 확대", "노인 복지 강화"].includes(p)
     );
     if (indicators.복지 >= 4 && indicators["시민 반응"] >= 2 && welfarePolicies.length >= 4) {
-      specialEndings.push({ type: "복지_천국", ...SPECIAL_ENDINGS["복지_천국"] });
+        specialEndings.push({ type: "복지_천국", ...SPECIAL_ENDINGS["복지_천국"] });
     }
     
-    // 재건의 설계자
+    // 🔧 재건의 설계자 - 10점 → 50점으로 수정
     const totalScore = Object.values(indicators).reduce((sum, val) => sum + val, 0);
-    if (nationName === "위기국가" && totalScore >= 10) {
-      specialEndings.push({ type: "재건의_설계자", ...SPECIAL_ENDINGS["재건의_설계자"] });
+    if (nationName === "위기국가" && totalScore >= 50) {  // 여기가 핵심!
+        specialEndings.push({ type: "재건의_설계자", ...SPECIAL_ENDINGS["재건의_설계자"] });
     }
     
     return specialEndings;
-  },
+},
   
   // 정책 조합 보너스 확인
   checkPolicyCombinations: (selectedPolicies) => {
@@ -2658,6 +2658,7 @@ window.POLICY_EDUCATIONAL_ANALYSIS = POLICY_EDUCATIONAL_ANALYSIS;
 window.NATION_EDUCATIONAL_CONTENT = NATION_EDUCATIONAL_CONTENT;
 window.POLICY_THEORY_EDUCATION = POLICY_THEORY_EDUCATION;
 window.POLICY_FAILURE_CASES = POLICY_FAILURE_CASES;
+
 
 
 
