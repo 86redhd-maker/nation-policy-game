@@ -4423,7 +4423,6 @@ function initializeGameplayUXImprovements() {
     enhancePolicyPreview();
     
     // 전역 함수 등록
-    window.closeTurnChangeNotification = closeTurnChangeNotification;
     window.updatePolicyCardsWithWarnings = updatePolicyCardsWithWarnings;
     
     console.log('✅ 게임플레이 UX 개선 완료!');
@@ -4466,6 +4465,7 @@ if (!document.getElementById('gameplayUXStyles')) {
     style.textContent = additionalStyles;
     document.head.appendChild(style);
 }
+
 
 
 
