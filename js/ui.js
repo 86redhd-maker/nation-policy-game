@@ -3897,6 +3897,746 @@ function bindHelpButtons() {
     console.log('🔧 버튼 바인딩 완료 - 전역함수 등록됨');
 }
 
+// ===== 2단계: 게임플레이 UX 개선 =====
+
+// 🔧 1. 정책 선택 피드백 강화
+function enhancePolicySelectionFeedback() {
+    // 정책 카드 호버 효과 개선
+    const style = document.createElement('style');
+    style.textContent = `
+        /* 정책 선택 시각적 피드백 강화 */
+        .policy-card {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+            position: relative !important;
+            overflow: hidden !important;
+        }
+        
+        .policy-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 107, 157, 0.1), transparent);
+            transition: left 0.5s ease;
+            z-index: 1;
+        }
+        
+        .policy-card:hover::before {
+            left: 100%;
+        }
+        
+        .policy-card:hover {
+            transform: translateY(-4px) scale(1.02) !important;
+            box-shadow: 0 12px 30px rgba(255, 107, 157, 0.2) !important;
+            border-color: var(--primary-color) !important;
+        }
+        
+        .policy-card.selected {
+            transform: translateY(-6px) scale(1.03) !important;
+            box-shadow: 0 15px 35px var(--primary-shadow) !important;
+            border: 3px solid var(--primary-color) !important;
+            background: linear-gradient(135deg, var(--primary-light), rgba(255, 255, 255, 0.95)) !important;
+        }
+        
+        .policy-card.selected::after {
+            content: '✓ 선택됨';
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: var(--primary-color);
+            color: white;
+            font-size: 0.75rem;
+            font-weight: 700;
+            padding: 0.3rem 0.6rem;
+            border-radius: 50px;
+            animation: selectedPulse 0.5s ease-out;
+            z-index: 2;
+        }
+        
+        .policy-card.budget-warning {
+            border: 2px solid #f59e0b !important;
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(255, 255, 255, 0.9)) !important;
+        }
+        
+        .policy-card.budget-warning::after {
+            content: '💸 예산 부족';
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: #f59e0b;
+            color: white;
+            font-size: 0.7rem;
+            font-weight: 600;
+            padding: 0.25rem 0.5rem;
+            border-radius: 50px;
+            z-index: 2;
+        }
+        
+        .policy-card.category-disabled {
+            opacity: 0.6 !important;
+            cursor: not-allowed !important;
+            filter: grayscale(0.3) !important;
+        }
+        
+        .policy-card.category-disabled::after {
+            content: '🚫 카테고리 제한';
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: #6b7280;
+            color: white;
+            font-size: 0.7rem;
+            font-weight: 600;
+            padding: 0.25rem 0.5rem;
+            border-radius: 50px;
+            z-index: 2;
+        }
+        
+        @keyframes selectedPulse {
+            0% { transform: scale(0.8); opacity: 0; }
+            50% { transform: scale(1.1); opacity: 1; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        
+        /* 정책 효과 시각적 개선 */
+        .effect-item.positive {
+            background: linear-gradient(135deg, rgba(34, 197, 94, 0.15), rgba(134, 239, 172, 0.1)) !important;
+            color: #059669 !important;
+            border: 1px solid rgba(34, 197, 94, 0.3) !important;
+            font-weight: 700 !important;
+        }
+        
+        .effect-item.negative {
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.15), rgba(252, 165, 165, 0.1)) !important;
+            color: #dc2626 !important;
+            border: 1px solid rgba(239, 68, 68, 0.3) !important;
+            font-weight: 700 !important;
+        }
+    `;
+    document.head.appendChild(style);
+}
+
+// 🔧 2. 실시간 예산 부족 경고 시스템
+function addRealTimeBudgetWarning() {
+    // 기존 togglePolicySelection 함수를 강화
+    const originalToggle = window.togglePolicySelection;
+    
+    window.togglePolicySelection = function(policyName) {
+        if (typeof gameAPI === 'undefined') {
+            console.log('gameAPI 로드되지 않음 - 정책 선택:', policyName);
+            return;
+        }
+        
+        const gameStatus = gameAPI.getGameStatus();
+        const policyCard = [...document.querySelectorAll('.policy-card')]
+            .find(card => card.querySelector('.policy-name').textContent === policyName);
+        
+        if (!policyCard) return;
+        
+        // 선택 해제인 경우
+        if (gameStatus.currentSelection.includes(policyName)) {
+            const result = gameAPI.deselectPolicy(policyName);
+            if (result.success) {
+                if (typeof gameUtils !== 'undefined') gameUtils.playSound('select');
+                updatePolicyCardsWithWarnings();
+                updateSelectionSummary();
+                updateCurrentSelectionPreview();
+            }
+            return;
+        }
+        
+        // 새로운 선택인 경우 - 예산 검사
+        const policy = GameData.findPolicy(policyName);
+        if (policy) {
+            const cost = calculateAdjustedCost(policy, gameStatus.nation);
+            const wouldExceedBudget = (gameStatus.budget - cost) < gameStatus.debtLimit;
+            
+            if (wouldExceedBudget) {
+                // 예산 부족 경고 표시
+                showBudgetWarningToast(cost, gameStatus.budget, gameStatus.debtLimit);
+                
+                // 카드에 경고 표시
+                policyCard.classList.add('budget-warning');
+                setTimeout(() => {
+                    policyCard.classList.remove('budget-warning');
+                }, 3000);
+                
+                if (typeof gameUtils !== 'undefined') gameUtils.playSound('error');
+                return;
+            }
+        }
+        
+        // 정상 선택 진행
+        const result = gameAPI.selectPolicy(policyName);
+        if (result.success) {
+            if (typeof gameUtils !== 'undefined') gameUtils.playSound('select');
+            updatePolicyCardsWithWarnings();
+            updateSelectionSummary();
+            updateCurrentSelectionPreview();
+            
+            // 선택 성공 피드백
+            policyCard.classList.add('selected');
+            showSelectionSuccessToast(policyName);
+        } else {
+            if (typeof gameUtils !== 'undefined') {
+                gameUtils.showToast(result.error, 'error');
+                gameUtils.playSound('error');
+            }
+        }
+    };
+}
+
+// 예산 부족 경고 토스트
+function showBudgetWarningToast(cost, currentBudget, debtLimit) {
+    const deficit = cost - (currentBudget - debtLimit);
+    const message = `💸 예산 부족! ${deficit}pt 초과됩니다. (필요: ${cost}pt, 가용: ${currentBudget - debtLimit}pt)`;
+    
+    if (typeof gameUtils !== 'undefined') {
+        gameUtils.showToast(message, 'error');
+    } else {
+        // 커스텀 토스트 표시
+        showCustomToast(message, 'error', 4000);
+    }
+}
+
+// 선택 성공 토스트
+function showSelectionSuccessToast(policyName) {
+    const message = `✅ "${policyName}" 선택됨`;
+    
+    if (typeof gameUtils !== 'undefined') {
+        gameUtils.showToast(message, 'success');
+    } else {
+        showCustomToast(message, 'success', 2000);
+    }
+}
+
+// 커스텀 토스트 함수 (gameUtils 없을 때 사용)
+function showCustomToast(message, type, duration = 3000) {
+    const toast = document.createElement('div');
+    toast.className = `custom-toast ${type}`;
+    toast.textContent = message;
+    
+    toast.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: ${type === 'error' ? '#ef4444' : '#22c55e'};
+        color: white;
+        padding: 12px 20px;
+        border-radius: 25px;
+        font-weight: 600;
+        font-size: 14px;
+        z-index: 10000;
+        animation: slideInRight 0.3s ease-out;
+        max-width: 300px;
+        word-wrap: break-word;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    `;
+    
+    // 애니메이션 CSS 추가
+    if (!document.getElementById('customToastStyles')) {
+        const style = document.createElement('style');
+        style.id = 'customToastStyles';
+        style.textContent = `
+            @keyframes slideInRight {
+                from { transform: translateX(100%); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+            @keyframes slideOutRight {
+                from { transform: translateX(0); opacity: 1; }
+                to { transform: translateX(100%); opacity: 0; }
+            }
+        `;
+        document.head.appendChild(style);
+    }
+    
+    document.body.appendChild(toast);
+    
+    setTimeout(() => {
+        toast.style.animation = 'slideOutRight 0.3s ease-in';
+        setTimeout(() => {
+            if (document.body.contains(toast)) {
+                document.body.removeChild(toast);
+            }
+        }, 300);
+    }, duration);
+}
+
+// 🔧 3. 카테고리 제한 UI 개선
+function improveCategoryLimitUI() {
+    // 카테고리 탭 클릭 방지 및 시각적 피드백
+    const originalSwitchToCategory = window.switchToCategory;
+    
+    window.switchToCategory = function(category) {
+        if (typeof gameAPI === 'undefined') {
+            originalSwitchToCategory(category);
+            return;
+        }
+        
+        const gameStatus = gameAPI.getGameStatus();
+        const canSelect = gameAPI.canSelectFromCategory(category);
+        const categoryCount = gameStatus.categoryStats[category] || 0;
+        
+        // 4/4 완료된 카테고리 클릭 시
+        if (categoryCount >= 4) {
+            showCategoryLimitWarning(category, categoryCount);
+            if (typeof gameUtils !== 'undefined') gameUtils.playSound('error');
+            return;
+        }
+        
+        // 정상 전환
+        originalSwitchToCategory(category);
+        
+        // 카테고리 전환 후 정책 카드 상태 업데이트
+        setTimeout(() => {
+            updatePolicyCardsWithWarnings();
+        }, 100);
+    };
+}
+
+// 카테고리 제한 경고
+function showCategoryLimitWarning(category, count) {
+    const message = `🚫 ${category} 카테고리는 이미 최대치입니다! (${count}/4)`;
+    
+    if (typeof gameUtils !== 'undefined') {
+        gameUtils.showToast(message, 'warning');
+    } else {
+        showCustomToast(message, 'warning', 3000);
+    }
+    
+    // 해당 탭에 시각적 피드백
+    const tabButton = document.querySelector(`[data-category="${category}"]`);
+    if (tabButton) {
+        tabButton.classList.add('shake');
+        setTimeout(() => {
+            tabButton.classList.remove('shake');
+        }, 500);
+    }
+}
+
+// 정책 카드 상태 업데이트 (경고 포함)
+function updatePolicyCardsWithWarnings() {
+    if (typeof gameAPI === 'undefined') return;
+    
+    const gameStatus = gameAPI.getGameStatus();
+    const cards = document.querySelectorAll('.policy-card');
+    
+    cards.forEach(card => {
+        const policyName = card.querySelector('.policy-name').textContent;
+        const isSelected = gameStatus.currentSelection.includes(policyName);
+        
+        // 기본 클래스 리셋
+        card.classList.remove('selected', 'budget-warning', 'category-disabled');
+        
+        // 선택 상태
+        if (isSelected) {
+            card.classList.add('selected');
+        } else {
+            // 카테고리 제한 체크
+            const category = gameAPI.findPolicyCategory(policyName);
+            const canSelect = gameAPI.canSelectFromCategory(category);
+            
+            if (!canSelect) {
+                card.classList.add('category-disabled');
+            }
+            
+            // 예산 체크 (선택되지 않은 카드만)
+            const policy = GameData.findPolicy(policyName);
+            if (policy) {
+                const cost = calculateAdjustedCost(policy, gameStatus.nation);
+                const wouldExceedBudget = (gameStatus.budget - cost) < gameStatus.debtLimit;
+                
+                if (wouldExceedBudget) {
+                    card.classList.add('budget-warning');
+                }
+            }
+        }
+    });
+    
+    // 선택 정보 업데이트
+    updateTurnInfo(gameStatus);
+    updateCategoryStats(gameStatus);
+}
+
+// 🔧 4. 턴 진행 안내 강화
+function enhanceTurnProgressFeedback() {
+    // 기존 proceedToNextTurn 함수 강화
+    const originalProceedToNextTurn = window.proceedToNextTurn;
+    
+    window.proceedToNextTurn = function() {
+        if (typeof gameAPI === 'undefined') {
+            originalProceedToNextTurn();
+            return;
+        }
+        
+        const beforeStatus = gameAPI.getGameStatus();
+        console.log('다음 턴 진행 시작 - 현재 상태:', beforeStatus);
+        
+        const result = gameAPI.advanceToNextTurn();
+        console.log('턴 진행 결과:', result);
+        
+        if (!result.success) {
+            console.error('턴 진행 실패:', result.error);
+            if (typeof gameUtils !== 'undefined') {
+                gameUtils.showToast(result.error, 'error');
+            }
+            return;
+        }
+
+        if (result.finished) {
+            console.log('게임 완료! 결과 화면 표시');
+            showResultsScreen(result);
+        } else {
+            console.log('다음 턴 진행:', result.status);
+            
+            // 📢 턴 변화 안내 표시
+            showTurnChangeNotification(beforeStatus, result.status);
+            
+            // 게임 헤더로 부드럽게 스크롤
+            scrollToGameHeader();
+            
+            // UI 업데이트
+            updateGameHeader(result.status);
+            updateCategoryStats(result.status);
+            updateTurnInfo(result.status);
+            loadPoliciesForCategory(currentActiveCategory);
+            clearSelection();
+            
+            // 미리보기 강제 초기화
+            const previewContainer = document.getElementById('currentSelectionPreview');
+            if (previewContainer) {
+                previewContainer.style.display = 'none';
+                previewContainer.classList.remove('active');
+            }
+            
+            const previewPolicies = document.getElementById('previewPolicies');
+            if (previewPolicies) {
+                previewPolicies.innerHTML = '';
+            }
+        }
+    };
+}
+
+// 턴 변화 안내 팝업
+function showTurnChangeNotification(beforeStatus, afterStatus) {
+    const turnChangePopup = document.createElement('div');
+    turnChangePopup.className = 'turn-change-notification';
+    turnChangePopup.innerHTML = `
+        <div class="turn-change-content">
+            <div class="turn-change-header">
+                <h3>🎯 턴 ${afterStatus.turn} 시작!</h3>
+            </div>
+            <div class="turn-change-body">
+                <div class="turn-progress">
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: ${(afterStatus.turn - 1) / afterStatus.maxTurns * 100}%"></div>
+                    </div>
+                    <span class="progress-text">${afterStatus.turn}/${afterStatus.maxTurns} 턴 진행 중</span>
+                </div>
+                
+                <div class="budget-change">
+                    <p><strong>💰 현재 예산:</strong> ${afterStatus.budget}pt</p>
+                    <p><strong>📊 선택 가능:</strong> 최대 2개 정책</p>
+                </div>
+                
+                <div class="category-status">
+                    <p><strong>📋 카테고리별 선택 현황:</strong></p>
+                    <div class="category-chips">
+                        ${Object.entries(afterStatus.categoryStats || {}).map(([cat, count]) => 
+                            `<span class="category-chip ${count >= 4 ? 'completed' : count >= 3 ? 'limited' : 'available'}">
+                                ${getCategoryIcon(cat)} ${cat}: ${count}/4
+                            </span>`
+                        ).join('')}
+                    </div>
+                </div>
+            </div>
+            <div class="turn-change-footer">
+                <button class="pixel-btn" onclick="closeTurnChangeNotification()">
+                    ✨ 정책 선택하러 가기
+                </button>
+            </div>
+        </div>
+    `;
+    
+    // 스타일 추가
+    turnChangePopup.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: rgba(0, 0, 0, 0.7);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 10000;
+        animation: fadeIn 0.3s ease-out;
+    `;
+    
+    // 턴 변화 알림 스타일 추가
+    if (!document.getElementById('turnChangeStyles')) {
+        const style = document.createElement('style');
+        style.id = 'turnChangeStyles';
+        style.textContent = `
+            .turn-change-content {
+                background: white;
+                border-radius: 16px;
+                padding: 30px;
+                max-width: 500px;
+                width: 90%;
+                text-align: center;
+                box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+                animation: bounceIn 0.5s ease-out;
+            }
+            
+            .turn-change-header h3 {
+                color: var(--primary-color);
+                margin-bottom: 20px;
+                font-size: 24px;
+            }
+            
+            .turn-progress {
+                margin-bottom: 20px;
+            }
+            
+            .turn-progress .progress-bar {
+                width: 100%;
+                height: 8px;
+                background: #e2e8f0;
+                border-radius: 10px;
+                overflow: hidden;
+                margin-bottom: 8px;
+            }
+            
+            .turn-progress .progress-fill {
+                height: 100%;
+                background: linear-gradient(90deg, var(--primary-color), var(--primary-dark));
+                border-radius: 10px;
+                transition: width 0.5s ease;
+            }
+            
+            .budget-change {
+                background: var(--primary-light);
+                padding: 15px;
+                border-radius: 12px;
+                margin-bottom: 20px;
+            }
+            
+            .category-chips {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 8px;
+                justify-content: center;
+                margin-top: 10px;
+            }
+            
+            .category-chip {
+                padding: 6px 12px;
+                border-radius: 20px;
+                font-size: 12px;
+                font-weight: 600;
+                white-space: nowrap;
+            }
+            
+            .category-chip.available {
+                background: #e0f2fe;
+                color: #0277bd;
+                border: 1px solid #81d4fa;
+            }
+            
+            .category-chip.limited {
+                background: #fff3e0;
+                color: #e65100;
+                border: 1px solid #ffb74d;
+            }
+            
+            .category-chip.completed {
+                background: #e8f5e8;
+                color: #2e7d32;
+                border: 1px solid #a5d6a7;
+            }
+            
+            @keyframes bounceIn {
+                0% { opacity: 0; transform: scale(0.3); }
+                50% { opacity: 1; transform: scale(1.05); }
+                70% { transform: scale(0.9); }
+                100% { transform: scale(1); }
+            }
+        `;
+        document.head.appendChild(style);
+    }
+    
+    document.body.appendChild(turnChangePopup);
+    
+    // 3초 후 자동 닫기
+    setTimeout(() => {
+        closeTurnChangeNotification();
+    }, 4000);
+}
+
+// 턴 변화 알림 닫기
+function closeTurnChangeNotification() {
+    const notification = document.querySelector('.turn-change-notification');
+    if (notification) {
+        notification.style.animation = 'fadeOut 0.3s ease-in';
+        setTimeout(() => {
+            if (document.body.contains(notification)) {
+                document.body.removeChild(notification);
+            }
+        }, 300);
+    }
+}
+
+// 🔧 5. 실시간 정책 미리보기 강화
+function enhancePolicyPreview() {
+    // 정책 카드 호버 시 상세 미리보기
+    function addHoverPreview() {
+        const cards = document.querySelectorAll('.policy-card');
+        
+        cards.forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                if (this.classList.contains('disabled') || this.classList.contains('category-disabled')) {
+                    return;
+                }
+                
+                showPolicyHoverPreview(this);
+            });
+            
+            card.addEventListener('mouseleave', function() {
+                hidePolicyHoverPreview();
+            });
+        });
+    }
+    
+    // 정책 카드가 새로 생성될 때마다 호버 이벤트 추가
+    const originalLoadPolicies = window.loadPoliciesForCategory;
+    if (originalLoadPolicies) {
+        window.loadPoliciesForCategory = function(category) {
+            originalLoadPolicies(category);
+            setTimeout(() => {
+                addHoverPreview();
+            }, 100);
+        };
+    }
+}
+
+// 정책 호버 미리보기
+function showPolicyHoverPreview(card) {
+    const policyName = card.querySelector('.policy-name').textContent;
+    const policy = GameData.findPolicy(policyName);
+    if (!policy) return;
+    
+    const gameStatus = gameAPI.getGameStatus();
+    const cost = calculateAdjustedCost(policy, gameStatus.nation);
+    const remainingBudget = gameStatus.budget - cost;
+    
+    const preview = document.createElement('div');
+    preview.className = 'policy-hover-preview';
+    preview.innerHTML = `
+        <div class="preview-header">
+            <h4>${policyName}</h4>
+            <span class="preview-cost">${cost}pt</span>
+        </div>
+        <div class="preview-effects">
+            ${Object.entries(policy.효과).map(([indicator, value]) => {
+                const sign = value > 0 ? '+' : '';
+                const color = value > 0 ? '#22c55e' : '#ef4444';
+                return `<span style="color: ${color}; font-weight: 600;">${indicator}: ${sign}${value}</span>`;
+            }).join(', ')}
+        </div>
+        <div class="preview-budget">
+            <strong>예산 후:</strong> ${remainingBudget}pt
+            ${remainingBudget < gameStatus.debtLimit ? '<span style="color: #ef4444;">⚠️ 적자 한도 초과</span>' : ''}
+        </div>
+    `;
+    
+    preview.style.cssText = `
+        position: absolute;
+        top: -10px;
+        left: 105%;
+        background: rgba(255, 255, 255, 0.98);
+        border: 2px solid var(--primary-color);
+        border-radius: 12px;
+        padding: 15px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        z-index: 1000;
+        width: 250px;
+        font-size: 14px;
+        line-height: 1.4;
+        backdrop-filter: blur(10px);
+        animation: slideInLeft 0.2s ease-out;
+    `;
+    
+    card.style.position = 'relative';
+    card.appendChild(preview);
+}
+
+// 정책 호버 미리보기 숨기기
+function hidePolicyHoverPreview() {
+    const preview = document.querySelector('.policy-hover-preview');
+    if (preview) {
+        preview.remove();
+    }
+}
+
+// 🔧 6. 초기화 및 바인딩
+function initializeGameplayUXImprovements() {
+    console.log('🎮 게임플레이 UX 개선 시작...');
+    
+    // 모든 개선사항 적용
+    enhancePolicySelectionFeedback();
+    addRealTimeBudgetWarning();
+    improveCategoryLimitUI();
+    enhanceTurnProgressFeedback();
+    enhancePolicyPreview();
+    
+    // 전역 함수 등록
+    window.closeTurnChangeNotification = closeTurnChangeNotification;
+    window.updatePolicyCardsWithWarnings = updatePolicyCardsWithWarnings;
+    
+    console.log('✅ 게임플레이 UX 개선 완료!');
+}
+
+// DOM 로드 시 자동 실행
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializeGameplayUXImprovements);
+} else {
+    initializeGameplayUXImprovements();
+}
+
+// 추가 CSS 애니메이션
+const additionalStyles = `
+    @keyframes slideInLeft {
+        from { opacity: 0; transform: translateX(10px); }
+        to { opacity: 1; transform: translateX(0); }
+    }
+    
+    @keyframes fadeOut {
+        from { opacity: 1; }
+        to { opacity: 0; }
+    }
+    
+    .shake {
+        animation: shake 0.5s ease-in-out;
+    }
+    
+    @keyframes shake {
+        0%, 100% { transform: translateX(0); }
+        25% { transform: translateX(-8px); }
+        75% { transform: translateX(8px); }
+    }
+`;
+
+// 스타일 추가
+if (!document.getElementById('gameplayUXStyles')) {
+    const style = document.createElement('style');
+    style.id = 'gameplayUXStyles';
+    style.textContent = additionalStyles;
+    document.head.appendChild(style);
+}
+
 
 
 
