@@ -2633,6 +2633,21 @@ button:focus-visible,
     min-height: 400px !important;
 }
 
+.policy-card.category-disabled {
+    border-color: #f6ad55 !important;
+    opacity: 0.6;
+}
+
+.policy-card.budget-disabled {
+    border-color: #e53e3e !important;
+    opacity: 0.6;
+}
+
+.policy-card.requirement-disabled {
+    border-color: #9f7aea !important;
+    opacity: 0.6;
+}
+
 
 
 
