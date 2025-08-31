@@ -976,30 +976,81 @@ function createPolicyCard(policy) {
     return card;
 }
 
-// 정책 비용 계산 (로컬 버전)
+// 🔧 정책 비용 계산 함수 개선 (국가별 특성 반영)
 function calculateAdjustedCost(policy, nationName) {
     let cost = policy.비용;
     
-    if (nationName === '복지 강국' && policy.정책명.includes('복지')) {
-        cost = Math.floor(cost * 0.85);
-    } else if (nationName === '위기국가') {
-        cost = Math.floor(cost * 1.2);
+    // 국가별 특성에 따른 비용 조정
+    switch (nationName) {
+        case '복지 강국':
+            // 복지 정책 15% 할인
+            if (policy.정책명.includes('복지') || 
+                ['기본소득 도입', '의료 인프라 확충', '공공주택 확대', '노인 복지 강화', '청년 지원 확대'].includes(policy.정책명)) {
+                cost = Math.floor(cost * 0.85);
+            }
+            // 경제 정책 10% 증가
+            else if (['디지털 세금 도입', '대기업 감세', '중소기업 지원', '금융 규제 강화', '해외 투자 유치'].includes(policy.정책명)) {
+                cost = Math.floor(cost * 1.1);
+            }
+            break;
+            
+        case '자원 풍부국':
+            // 환경 정책 10% 증가
+            if (['탄소세 도입', '재생에너지 투자', '석탄 산업 보조금', '원자력 확대', '도시 녹지 확대'].includes(policy.정책명)) {
+                cost = Math.floor(cost * 1.1);
+            }
+            break;
+            
+        case '기술 선진국':
+            // 기술/교육 정책 20% 할인
+            if (['공교육 강화', '디지털 교육 확대', '평생학습 확대', '사교육 지원 확대', '전통 교육 강화'].includes(policy.정책명) ||
+                ['기술 협력 확대'].includes(policy.정책명)) {
+                cost = Math.floor(cost * 0.8);
+            }
+            // 복지 정책 30% 증가
+            else if (['기본소득 도입', '의료 인프라 확충', '공공주택 확대', '노인 복지 강화', '청년 지원 확대'].includes(policy.정책명)) {
+                cost = Math.floor(cost * 1.3);
+            }
+            break;
+            
+        case '위기국가':
+            // 긴급정책은 할인, 일반 정책은 20% 증가
+            if (policy.emergency_only) {
+                cost = Math.floor(cost * 0.8); // 20% 할인
+            } else {
+                cost = Math.floor(cost * 1.2); // 20% 증가
+            }
+            break;
+            
+        case '신흥 개발국':
+        default:
+            // 기본값 적용 (변경 없음)
+            break;
     }
     
-    return cost;
+    return Math.max(1, cost); // 최소 1pt
 }
 
-// 정책 요구조건 확인 (로컬 버전)
+// 🔧 요구조건 체크 함수 개선
 function checkPolicyRequirementsLocal(policy, indicators) {
     if (!policy.요구조건) return true;
     
-    return Object.entries(policy.요구조건).every(([indicator, required]) => {
+    const result = Object.entries(policy.요구조건).every(([indicator, required]) => {
         const current = indicators[indicator] || 0;
-        return current >= required;
+        const met = current >= required;
+        
+        if (!met) {
+            console.log(`요구조건 미달: ${indicator} 현재 ${current} < 필요 ${required}`);
+        }
+        
+        return met;
     });
+    
+    console.log(`요구조건 체크 결과: ${policy.정책명} -> ${result ? '통과' : '실패'}`);
+    return result;
 }
 
-// 정책 선택 토글
+// 🔧 정책 선택 토글 함수 - 완전히 수정된 버전
 function togglePolicySelection(policyName) {
     if (typeof gameAPI === 'undefined') {
         console.log('gameAPI 로드되지 않음 - 정책 선택:', policyName);
@@ -1007,51 +1058,215 @@ function togglePolicySelection(policyName) {
     }
     
     const gameStatus = gameAPI.getGameStatus();
+    console.log('정책 선택 시도:', policyName, '현재 선택:', gameStatus.currentSelection);
     
+    // 이미 선택된 정책인 경우 선택 해제
     if (gameStatus.currentSelection.includes(policyName)) {
-        // 선택 해제
         deselectPolicy(policyName);
-    } else {
-        // 선택
-        const result = gameAPI.selectPolicy(policyName);
-        if (result.success) {
-            if (typeof gameUtils !== 'undefined') gameUtils.playSound('select');
-            updatePolicyCards();
-            updateSelectionSummary();
-            updateCurrentSelectionPreview(); // 🔧 미리보기 즉시 업데이트
+        return;
+    }
+    
+    // 🔥 새로 선택하는 경우 - 모든 제한 조건 체크
+    
+    // 1. 최대 선택 개수 체크 (2개 제한)
+    if (gameStatus.currentSelection.length >= GAME_CONFIG.policies_per_turn) {
+        if (typeof gameUtils !== 'undefined') {
+            gameUtils.showToast(`최대 ${GAME_CONFIG.policies_per_turn}개까지만 선택 가능합니다!`, 'error');
+            gameUtils.playSound('error');
         } else {
-            if (typeof gameUtils !== 'undefined') {
-                gameUtils.showToast(result.error, 'error');
-                gameUtils.playSound('error');
-            } else {
-                alert(result.error);
-            }
+            alert(`최대 ${GAME_CONFIG.policies_per_turn}개까지만 선택 가능합니다!`);
+        }
+        return;
+    }
+    
+    // 2. 정책 찾기 및 존재 여부 확인
+    const policy = GameData.findPolicy(policyName);
+    if (!policy) {
+        console.error('정책을 찾을 수 없습니다:', policyName);
+        if (typeof gameUtils !== 'undefined') {
+            gameUtils.showToast('정책 정보를 찾을 수 없습니다!', 'error');
+            gameUtils.playSound('error');
+        }
+        return;
+    }
+    
+    // 3. 카테고리 제한 체크
+    const category = gameAPI.findPolicyCategory(policyName);
+    if (!category) {
+        console.error('정책 카테고리를 찾을 수 없습니다:', policyName);
+        return;
+    }
+    
+    const canSelectFromCategory = gameAPI.canSelectFromCategory(category);
+    if (!canSelectFromCategory) {
+        if (typeof gameUtils !== 'undefined') {
+            gameUtils.showToast(`${category} 카테고리는 더 이상 선택할 수 없습니다! (최대 4개)`, 'error');
+            gameUtils.playSound('error');
+        } else {
+            alert(`${category} 카테고리는 더 이상 선택할 수 없습니다! (최대 4개)`);
+        }
+        return;
+    }
+    
+    // 4. 예산 제약 체크
+    const adjustedCost = calculateAdjustedCost(policy, gameStatus.nation);
+    const canAfford = gameStatus.budget - adjustedCost >= gameStatus.debtLimit;
+    if (!canAfford) {
+        const shortage = adjustedCost - (gameStatus.budget - gameStatus.debtLimit);
+        if (typeof gameUtils !== 'undefined') {
+            gameUtils.showToast(`예산이 부족합니다! (${shortage}pt 부족)`, 'error');
+            gameUtils.playSound('error');
+        } else {
+            alert(`예산이 부족합니다! (${shortage}pt 부족)`);
+        }
+        return;
+    }
+    
+    // 5. 요구조건 체크
+    const requirementsMet = checkPolicyRequirementsLocal(policy, gameStatus.indicators);
+    if (!requirementsMet) {
+        let missingRequirements = [];
+        if (policy.요구조건) {
+            Object.entries(policy.요구조건).forEach(([indicator, required]) => {
+                const current = gameStatus.indicators[indicator] || 0;
+                if (current < required) {
+                    const indicatorName = GameData.getIndicatorInfo ? 
+                        GameData.getIndicatorInfo(indicator)?.name || indicator : indicator;
+                    missingRequirements.push(`${indicatorName} ${required} 이상 필요 (현재: ${current})`);
+                }
+            });
+        }
+        
+        const message = `요구조건을 충족하지 않습니다!\n${missingRequirements.join('\n')}`;
+        if (typeof gameUtils !== 'undefined') {
+            gameUtils.showToast('요구조건을 충족하지 않습니다!', 'error');
+            gameUtils.playSound('error');
+        } else {
+            alert(message);
+        }
+        return;
+    }
+    
+    // 6. 모든 조건을 통과한 경우에만 실제 선택
+    console.log('모든 조건 통과 - 정책 선택 진행:', policyName);
+    const result = gameAPI.selectPolicy(policyName);
+    
+    if (result.success) {
+        if (typeof gameUtils !== 'undefined') {
+            gameUtils.playSound('select');
+            gameUtils.showToast(`${policyName} 선택됨!`, 'success');
+        }
+        
+        // UI 업데이트
+        updatePolicyCards();
+        updateSelectionSummary();
+        updateCurrentSelectionPreview();
+        
+        console.log('정책 선택 완료:', policyName);
+    } else {
+        // API 레벨에서도 실패한 경우
+        console.error('API 레벨 정책 선택 실패:', result.error);
+        if (typeof gameUtils !== 'undefined') {
+            gameUtils.showToast(result.error, 'error');
+            gameUtils.playSound('error');
+        } else {
+            alert(result.error);
         }
     }
 }
 
-// 정책 카드 상태 업데이트
+// 🔧 정책 카드 상태 업데이트 - 더 엄격한 체크
 function updatePolicyCards() {
     if (typeof gameAPI === 'undefined') return;
     
     const gameStatus = gameAPI.getGameStatus();
     const cards = document.querySelectorAll('.policy-card');
     
+    console.log('정책 카드 상태 업데이트:', {
+        currentSelection: gameStatus.currentSelection,
+        budget: gameStatus.budget,
+        categoryStats: gameStatus.categoryStats
+    });
+    
     cards.forEach(card => {
-        const policyName = card.querySelector('.policy-name').textContent;
+        const policyNameElement = card.querySelector('.policy-name');
+        if (!policyNameElement) return;
+        
+        const policyName = policyNameElement.textContent.trim();
+        const policy = GameData.findPolicy(policyName);
+        if (!policy) return;
+        
         const isSelected = gameStatus.currentSelection.includes(policyName);
         
         // 선택 상태 업데이트
         card.classList.toggle('selected', isSelected);
         
-        // 카테고리 제한 체크
-        const category = gameAPI.findPolicyCategory(policyName);
-        const canSelect = gameAPI.canSelectFromCategory(category);
-        
-        if (!canSelect && !isSelected) {
-            card.classList.add('category-disabled');
+        // 비활성화 조건 체크 (선택되지 않은 카드만)
+        if (!isSelected) {
+            let shouldDisable = false;
+            let disableReason = '';
+            
+            // 1. 최대 선택 개수 체크
+            if (gameStatus.currentSelection.length >= GAME_CONFIG.policies_per_turn) {
+                shouldDisable = true;
+                disableReason = '최대 선택 개수 초과';
+            }
+            
+            // 2. 카테고리 제한 체크
+            if (!shouldDisable) {
+                const category = gameAPI.findPolicyCategory(policyName);
+                if (category && !gameAPI.canSelectFromCategory(category)) {
+                    shouldDisable = true;
+                    disableReason = '카테고리 제한 초과';
+                    card.classList.add('category-disabled');
+                } else {
+                    card.classList.remove('category-disabled');
+                }
+            }
+            
+            // 3. 예산 제약 체크
+            if (!shouldDisable) {
+                const adjustedCost = calculateAdjustedCost(policy, gameStatus.nation);
+                const canAfford = gameStatus.budget - adjustedCost >= gameStatus.debtLimit;
+                if (!canAfford) {
+                    shouldDisable = true;
+                    disableReason = '예산 부족';
+                    card.classList.add('budget-disabled');
+                } else {
+                    card.classList.remove('budget-disabled');
+                }
+            }
+            
+            // 4. 요구조건 체크
+            if (!shouldDisable) {
+                const requirementsMet = checkPolicyRequirementsLocal(policy, gameStatus.indicators);
+                if (!requirementsMet) {
+                    shouldDisable = true;
+                    disableReason = '요구조건 미달';
+                    card.classList.add('requirement-disabled');
+                } else {
+                    card.classList.remove('requirement-disabled');
+                }
+            }
+            
+            // 비활성화 상태 적용
+            card.classList.toggle('disabled', shouldDisable);
+            
+            // 디버그용 로그
+            if (shouldDisable) {
+                console.log(`정책 비활성화: ${policyName} - ${disableReason}`);
+            }
+            
+            // 툴팁이나 제목으로 비활성화 이유 표시
+            if (shouldDisable) {
+                card.title = `선택 불가: ${disableReason}`;
+            } else {
+                card.title = `${policyName} - 클릭하여 선택`;
+            }
         } else {
-            card.classList.remove('category-disabled');
+            // 선택된 카드는 모든 제한 클래스 제거
+            card.classList.remove('disabled', 'category-disabled', 'budget-disabled', 'requirement-disabled');
+            card.title = `${policyName} - 선택됨 (클릭하여 해제)`;
         }
     });
 
@@ -1059,6 +1274,8 @@ function updatePolicyCards() {
     updateTurnInfo(gameStatus);
     updateCurrentSelectionPreview();
     updateCategoryStats(gameStatus);
+    
+    console.log('정책 카드 상태 업데이트 완료');
 }
 
 // 선택 요약 업데이트
@@ -1191,11 +1408,10 @@ function showAllPoliciesOverview() {
     }
 }
 
-// 정책 확정
+// 🔧 정책 확정 시에도 재검증
 function confirmPolicies() {
     if (typeof gameAPI === 'undefined') return;
     
-    // 🔧 선택된 정책 확인 로직 강화
     const gameStatus = gameAPI.getGameStatus();
     console.log('확정 시도 - 현재 선택:', gameStatus.currentSelection);
     
@@ -1209,6 +1425,57 @@ function confirmPolicies() {
         return;
     }
     
+    // 🔥 확정 직전 재검증
+    let validationFailed = false;
+    let errorMessages = [];
+    
+    for (const policyName of gameStatus.currentSelection) {
+        const policy = GameData.findPolicy(policyName);
+        if (!policy) {
+            errorMessages.push(`${policyName}: 정책 정보 없음`);
+            validationFailed = true;
+            continue;
+        }
+        
+        // 카테고리 체크
+        const category = gameAPI.findPolicyCategory(policyName);
+        if (category && !gameAPI.canSelectFromCategory(category)) {
+            errorMessages.push(`${policyName}: ${category} 카테고리 제한 초과`);
+            validationFailed = true;
+        }
+        
+        // 예산 체크
+        const cost = calculateAdjustedCost(policy, gameStatus.nation);
+        if (gameStatus.budget - cost < gameStatus.debtLimit) {
+            errorMessages.push(`${policyName}: 예산 부족 (${cost}pt 필요)`);
+            validationFailed = true;
+        }
+        
+        // 요구조건 체크
+        if (!checkPolicyRequirementsLocal(policy, gameStatus.indicators)) {
+            errorMessages.push(`${policyName}: 요구조건 미달`);
+            validationFailed = true;
+        }
+    }
+    
+    if (validationFailed) {
+        console.error('확정 시 검증 실패:', errorMessages);
+        if (typeof gameUtils !== 'undefined') {
+            gameUtils.showToast('선택된 정책에 문제가 있습니다! 다시 선택해주세요.', 'error');
+            gameUtils.playSound('error');
+        } else {
+            alert('선택된 정책에 문제가 있습니다!\n' + errorMessages.join('\n'));
+        }
+        
+        // 문제있는 정책들 선택 해제
+        gameStatus.currentSelection.forEach(policyName => {
+            gameAPI.deselectPolicy(policyName);
+        });
+        updatePolicyCards();
+        return;
+    }
+    
+    // 검증 통과 시 실제 확정 진행
     const result = gameAPI.confirmPolicies();
     
     if (!result.success) {
@@ -1221,16 +1488,16 @@ function confirmPolicies() {
         return;
     }
 
+    // 성공 시 UI 업데이트
     if (typeof gameUtils !== 'undefined') {
         gameUtils.playSound('confirm');
         gameUtils.showToast('정책이 확정되었습니다!', 'success');
     }
 
-    // UI 업데이트
     updateIndicators(result.status.indicators);
     updateBudgetDisplay(result.status.budget, result.status.debtLimit);
     
-    // 🔧 확정 후 즉시 미리보기 초기화
+    // 확정 후 즉시 미리보기 초기화
     const previewContainer = document.getElementById('currentSelectionPreview');
     if (previewContainer) {
         previewContainer.style.display = 'none';
@@ -3896,6 +4163,7 @@ function bindHelpButtons() {
     
     console.log('🔧 버튼 바인딩 완료 - 전역함수 등록됨');
 }
+
 
 
 
