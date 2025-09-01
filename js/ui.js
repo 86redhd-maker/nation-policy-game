@@ -2560,20 +2560,22 @@ function showResultsScreen(gameResult) {
             overflow-y: auto !important;
         `;
         
-        // 🔥 7단계: 완전한 HTML 컨텐츠 생성 (모든 기존 기능 포함)
+         // 🔥 7단계: 완전한 HTML 컨텐츠 생성 (모든 기존 기능 포함)
         resultsScreen.innerHTML = `
             <div class="results-container" style="
-                padding: 2rem;
+                padding: 4rem 2rem 2rem 2rem;
                 min-height: 100vh;
                 background: rgba(255, 255, 255, 0.15);
                 backdrop-filter: blur(10px);
+                position: relative;
+                z-index: 1;
             ">
                 <!-- 최종 타이틀 -->
                 <div class="final-title" id="finalTitle" style="
                     font-size: 3rem;
                     font-weight: 800;
                     text-align: center;
-                    margin-bottom: 2rem;
+                    margin: 2rem auto 3rem auto;
                     background: rgba(255, 255, 255, 0.98);
                     border-radius: 20px;
                     padding: 2rem;
@@ -2583,6 +2585,9 @@ function showResultsScreen(gameResult) {
                     line-height: 1.2;
                     color: #f6ad55;
                     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+                    position: relative;
+                    z-index: 10;
+                    max-width: 800px;
                 ">
                     🏆 ${safeEnding.grade}<br>${safeEnding.title}
                 </div>
@@ -4783,6 +4788,7 @@ function bindHelpButtons() {
     
     console.log('🔧 버튼 바인딩 완료 - 전역함수 등록됨');
 }
+
 
 
 
