@@ -1010,7 +1010,6 @@ body::before {
     position: relative;
     z-index: 1;
     width: 100%;
-    max-width: 1200px;
     margin: 0 auto;
 }
 
@@ -1027,7 +1026,6 @@ body::before {
     border: 2px solid #f6ad55 !important;
     line-height: 1.2 !important;
     color: #f6ad55 !important;
-    max-width: 800px !important;
 }
 
 .ending-info {
@@ -2669,6 +2667,7 @@ button:focus-visible,
     border-color: #9f7aea !important;
     opacity: 0.6;
 }
+
 
 
 
