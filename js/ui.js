@@ -1777,12 +1777,12 @@ function selectEventChoice(choiceKey) {
     }
 }
 
-// 🔧 1. 결과 화면 안정화 - showResultsScreen 함수 완전 교체
+// 🔧 완전한 showResultsScreen - 기존 모든 기능 유지 + 안정성 개선
 function showResultsScreen(gameResult) {
     try {
         console.log('결과 화면 표시 시작:', gameResult);
 
-        // ✅ 기존 요소 재사용하되, 내용만 업데이트 (DOM 삭제/생성 방지)
+        // ✅ 안전한 방식: 기존 요소 재사용, DOM 삭제 금지
         let resultsScreen = document.getElementById('resultsScreen');
         
         if (!resultsScreen) {
@@ -1828,6 +1828,7 @@ function showResultsScreen(gameResult) {
         resultsScreen.style.cssText = `
             display: block !important;
             visibility: visible !important;
+            opacity: 1 !important;
             position: relative !important;
             z-index: 1 !important;
         `;
@@ -1841,6 +1842,8 @@ function showResultsScreen(gameResult) {
             });
             console.log('🔝 결과 화면 상단으로 스크롤');
         }, 100);
+        
+        console.log('새 결과 화면 생성 완료!');
         
         // 게임 결과가 없으면 기본값 생성
         if (!gameResult) {
@@ -1889,6 +1892,8 @@ function showResultsScreen(gameResult) {
         if (finalTitle) {
             finalTitle.innerHTML = `${gameResult.ending.grade}<br>${gameResult.ending.title}`;
             console.log('최종 타이틀 설정 완료');
+        } else {
+            console.warn('finalTitle 요소를 찾을 수 없음');
         }
         
         // 엔딩 정보 업데이트
@@ -1902,9 +1907,11 @@ function showResultsScreen(gameResult) {
                 </div>
             `;
             console.log('엔딩 정보 설정 완료');
+        } else {
+            console.warn('endingInfo 요소를 찾을 수 없음');
         }
         
-        // 최종 통계 업데이트 (기존 상세 버전 그대로 유지)
+        // 🔧 최종 통계 업데이트 - 기존 상세 분석 버전 완전 복원
         const finalStats = document.getElementById('finalStats');
         if (finalStats) {
             let indicatorRows = '';
@@ -1944,14 +1951,97 @@ function showResultsScreen(gameResult) {
                 indicatorRows = '<div class="stat-row"><span>지표 데이터 없음</span></div>';
             }
             
-            finalStats.innerHTML = `
-                <div class="stat-group">
-                    <div class="stat-group-title">📊 종합 지표</div>
-                    ${indicatorRows}
-                </div>
-                
-                <div class="stat-group">
-                    <div class="stat-group-title">💰 예산 운용</div>
+            // 🔧 예산 운용 상세 분석 생성 - 기존 버전 완전 복원
+            let budgetAnalysisHTML = '';
+            if (typeof gameAPI !== 'undefined') {
+                try {
+                    const efficiencyGrade = gameAPI.getEfficiencyGrade(stats.budgetEfficiency);
+                    const satisfactionGrade = gameAPI.getSatisfactionGrade(stats.citizenSatisfaction);
+                    const sustainabilityGrade = gameAPI.getSustainabilityGrade(stats.sustainability);
+                    
+                    const efficiencyExplanation = gameAPI.getStatExplanation('budgetEfficiency');
+                    const satisfactionExplanation = gameAPI.getStatExplanation('citizenSatisfaction');
+                    const sustainabilityExplanation = gameAPI.getStatExplanation('sustainability');
+                    
+                    const efficiencyLevel = gameAPI.getInterpretationLevel(stats.budgetEfficiency, 'budgetEfficiency');
+                    const satisfactionLevel = gameAPI.getInterpretationLevel(stats.citizenSatisfaction, 'citizenSatisfaction');
+                    const sustainabilityLevel = gameAPI.getInterpretationLevel(stats.sustainability, 'sustainability');
+                    
+                    budgetAnalysisHTML = `
+                        <div class="detailed-stat">
+                            <div class="stat-header">
+                                <div class="stat-main">
+                                    <span class="stat-name">예산 효율성</span>
+                                    <span class="stat-value">${stats.budgetEfficiency}</span>
+                                </div>
+                                <span class="stat-grade" style="background-color: ${efficiencyGrade.bgColor}; color: ${efficiencyGrade.color};">
+                                    ${efficiencyGrade.grade}급 - ${efficiencyGrade.text}
+                                </span>
+                            </div>
+                            <div class="stat-description">
+                                ${efficiencyExplanation.interpretations[efficiencyLevel]}
+                            </div>
+                            <div class="stat-tips">
+                                ${efficiencyExplanation.tips[0]}
+                            </div>
+                        </div>
+                        
+                        <div class="detailed-stat">
+                            <div class="stat-header">
+                                <div class="stat-main">
+                                    <span class="stat-name">시민 만족도</span>
+                                    <span class="stat-value">${stats.citizenSatisfaction}</span>
+                                </div>
+                                <span class="stat-grade" style="background-color: ${satisfactionGrade.bgColor}; color: ${satisfactionGrade.color};">
+                                    ${satisfactionGrade.grade}급 - ${satisfactionGrade.text}
+                                </span>
+                            </div>
+                            <div class="stat-description">
+                                ${satisfactionExplanation.interpretations[satisfactionLevel]}
+                            </div>
+                            <div class="stat-tips">
+                                ${satisfactionExplanation.tips[0]}
+                            </div>
+                        </div>
+                        
+                        <div class="detailed-stat">
+                            <div class="stat-header">
+                                <div class="stat-main">
+                                    <span class="stat-name">지속가능성</span>
+                                    <span class="stat-value">${stats.sustainability}</span>
+                                </div>
+                                <span class="stat-grade" style="background-color: ${sustainabilityGrade.bgColor}; color: ${sustainabilityGrade.color};">
+                                    ${sustainabilityGrade.grade}급 - ${sustainabilityGrade.text}
+                                </span>
+                            </div>
+                            <div class="stat-description">
+                                ${sustainabilityExplanation.interpretations[sustainabilityLevel]}
+                            </div>
+                            <div class="stat-tips">
+                                ${sustainabilityExplanation.tips[0]}
+                            </div>
+                        </div>
+                    `;
+                } catch (error) {
+                    console.warn('상세 분석 생성 실패, 기본 버전 사용:', error);
+                    budgetAnalysisHTML = `
+                        <div class="stat-row">
+                            <span>예산 효율성</span>
+                            <span>${stats.budgetEfficiency}</span>
+                        </div>
+                        <div class="stat-row">
+                            <span>시민 만족도</span>
+                            <span>${stats.citizenSatisfaction}</span>
+                        </div>
+                        <div class="stat-row">
+                            <span>지속가능성</span>
+                            <span>${stats.sustainability}</span>
+                        </div>
+                    `;
+                }
+            } else {
+                // gameAPI가 없는 경우 기본 표시
+                budgetAnalysisHTML = `
                     <div class="stat-row">
                         <span>예산 효율성</span>
                         <span>${stats.budgetEfficiency}</span>
@@ -1964,6 +2054,18 @@ function showResultsScreen(gameResult) {
                         <span>지속가능성</span>
                         <span>${stats.sustainability}</span>
                     </div>
+                `;
+            }
+            
+            finalStats.innerHTML = `
+                <div class="stat-group">
+                    <div class="stat-group-title">📊 종합 지표</div>
+                    ${indicatorRows}
+                </div>
+                
+                <div class="stat-group">
+                    <div class="stat-group-title">💰 예산 운용 분석</div>
+                    ${budgetAnalysisHTML}
                 </div>
                 
                 <div class="stat-group">
@@ -1983,9 +2085,11 @@ function showResultsScreen(gameResult) {
                 </div>
             `;
             console.log('최종 통계 설정 완료');
+        } else {
+            console.warn('finalStats 요소를 찾을 수 없음');
         }
         
-        // 🔧 업적 표시 (수정된 기준 적용)
+        // 🔧 업적 표시 - 수정된 기준 적용
         try {
             const achievements = calculateAchievements(gameResult, stats);
             const achievementsElement = document.getElementById('achievements');
@@ -2000,30 +2104,32 @@ function showResultsScreen(gameResult) {
                     }
                 `;
                 console.log('업적 설정 완료:', achievements.length);
+            } else {
+                console.warn('achievements 요소를 찾을 수 없음');
             }
         } catch (error) {
             console.warn('업적 계산 실패:', error);
         }
         
-        // 교육적 해설 섹션 추가
+        // 🔧 교육적 해설 섹션 추가 - 기존 버전 완전 복원
         try {
             const educationalHTML = createEducationalSection(gameResult, stats, gameResult.nationName || selectedNationName);
-            if (educationalHTML) {
-                const achievementsElement = document.getElementById('achievements');
-                if (achievementsElement) {
-                    achievementsElement.insertAdjacentHTML('afterend', educationalHTML);
-                    console.log('교육적 해설 섹션 추가 완료');
-                }
+            
+            // 기존 업적 섹션 뒤에 교육 섹션 삽입
+            const achievementsElement = document.getElementById('achievements');
+            if (achievementsElement && educationalHTML) {
+                achievementsElement.insertAdjacentHTML('afterend', educationalHTML);
+                console.log('교육적 해설 섹션 추가 완료');
             }
             
-            // 실패 사례 분석도 추가 (낮은 등급일 때)
+            // 실패 사례 분석도 추가 (낮은 등급일 때) - 기존 버전 복원
             const failureHTML = createFailureAnalysisSection(gameResult);
             if (failureHTML) {
                 const educationalSection = document.querySelector('.educational-section');
                 if (educationalSection) {
                     educationalSection.insertAdjacentHTML('afterend', failureHTML);
-                } else if (document.getElementById('achievements')) {
-                    document.getElementById('achievements').insertAdjacentHTML('afterend', failureHTML);
+                } else if (achievementsElement) {
+                    achievementsElement.insertAdjacentHTML('afterend', failureHTML);
                 }
                 console.log('실패 사례 분석 추가 완료');
             }
@@ -2032,7 +2138,9 @@ function showResultsScreen(gameResult) {
         }
         
         // 화면 전환 확실히 하기
-        console.log('결과 화면으로 전환 완료');
+        console.log('결과 화면으로 전환 시작');
+        
+        // 효과음 및 상태 업데이트
         if (typeof gameUtils !== 'undefined') gameUtils.playSound('success');
         updateStatusBar('게임 완료!');
         
@@ -2043,14 +2151,31 @@ function showResultsScreen(gameResult) {
         console.error('결과 화면 표시 실패:', error);
         console.error('Error Stack:', error.stack);
         
-        // 폴백 처리 - 간단한 알림
-        alert(`게임 완료! 최종 점수: ${gameResult?.totalScore || 0}점`);
-        showScreen('startScreen'); // 시작 화면으로 돌아가기
+        // 폴백 처리 - 기본 결과 화면 표시
+        try {
+            const score = gameResult?.totalScore || 0;
+            const grade = gameResult?.ending?.grade || 'C급';
+            const title = gameResult?.ending?.title || '발전 중인 국가';
+            
+            alert(`🎮 게임 완료!\n\n등급: ${grade}\n제목: ${title}\n최종 점수: ${score}점`);
+            
+            showScreen('startScreen');
+            updateStatusBar('게임 완료 (오류 발생)');
+            
+            if (typeof gameUtils !== 'undefined') {
+                gameUtils.showToast('결과 화면 로딩 중 일부 오류가 발생했습니다', 'warning');
+            }
+            
+        } catch (fallbackError) {
+            console.error('폴백 결과 화면도 실패:', fallbackError);
+            alert('결과 화면 표시에 오류가 발생했습니다. 콘솔을 확인해주세요.');
+        }
+        
         return false;
     }
 }
 
-// 🔧 2. 업적 계산 기준 수정 - calculateAchievements 함수 교체
+// 🔧 업적 계산도 기존 기능 유지하면서 수정된 기준 적용
 function calculateAchievements(gameResult, stats) {
     const achievements = [];
     
@@ -4052,6 +4177,7 @@ function bindHelpButtons() {
     
     console.log('🔧 버튼 바인딩 완료 - 전역함수 등록됨');
 }
+
 
 
 
