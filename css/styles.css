@@ -1027,7 +1027,6 @@ body::before {
     border: 2px solid #f6ad55 !important;
     line-height: 1.2 !important;
     color: #f6ad55 !important;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3) !important;
     max-width: 800px !important;
 }
 
@@ -2670,6 +2669,7 @@ button:focus-visible,
     border-color: #9f7aea !important;
     opacity: 0.6;
 }
+
 
 
 
