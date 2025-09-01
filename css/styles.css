@@ -990,7 +990,7 @@ body::before {
     opacity: 1 !important;
     position: relative !important;
     z-index: 4000 !important;
-    background: white !important;
+    background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 50%, #fad0c4 100%) !important;
     min-height: 100vh !important;
     width: 100% !important;
 }
@@ -999,6 +999,9 @@ body::before {
 .results-container {
     text-align: center;
     padding: 2rem;
+    min-height: 100vh;
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(10px);
 }
 
 .final-title {
@@ -2647,6 +2650,7 @@ button:focus-visible,
     border-color: #9f7aea !important;
     opacity: 0.6;
 }
+
 
 
 
