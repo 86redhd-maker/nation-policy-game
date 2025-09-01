@@ -2574,11 +2574,15 @@ function showResultsScreen(gameResult) {
                     font-weight: 800;
                     text-align: center;
                     margin-bottom: 2rem;
-                    background: linear-gradient(135deg, #f6ad55, #ed8936);
-                    -webkit-background-clip: text;
-                    -webkit-text-fill-color: transparent;
-                    background-clip: text;
+                    background: rgba(255, 255, 255, 0.98);
+                    border-radius: 20px;
+                    padding: 2rem;
+                    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+                    backdrop-filter: blur(10px);
+                    border: 1px solid rgba(255, 255, 255, 0.3);
                     line-height: 1.2;
+                    color: #f6ad55;
+                    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
                 ">
                     🏆 ${safeEnding.grade}<br>${safeEnding.title}
                 </div>
@@ -4779,6 +4783,7 @@ function bindHelpButtons() {
     
     console.log('🔧 버튼 바인딩 완료 - 전역함수 등록됨');
 }
+
 
 
 
