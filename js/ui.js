@@ -1985,7 +1985,132 @@ function generateEducationalSectionHTML(gameResult, stats, nationName) {
                     background: linear-gradient(135deg, rgba(168, 85, 247, 0.1), rgba(196, 181, 253, 0.1));
                     border-left: 4px solid #a855f7;
                 ">
-                    <ul// 🔧 상세 통계 HTML 생성 (기존 모든 기능 포함)
+                    <ul class="example-list" style="list-style: none; margin: 0; padding: 0;">
+                        ${analysis.real_world_examples.map(example => `
+                            <li class="example-item" style="
+                                margin-bottom: 0.5rem;
+                                padding-left: 1.5rem;
+                                position: relative;
+                                line-height: 1.4;
+                            ">
+                                <span class="example-icon" style="
+                                    position: absolute;
+                                    left: 0;
+                                    color: #a855f7;
+                                    font-weight: bold;
+                                ">🏛️</span>
+                                ${example}
+                            </li>
+                        `).join('')}
+                    </ul>
+                </div>
+            </div>
+        `;
+    }
+    
+    // 정책 교훈
+    if (analysis.policy_lessons) {
+        html += `
+            <div class="analysis-subsection" style="
+                margin-bottom: 2rem;
+                transition: all 0.3s ease;
+            ">
+                <h4 class="analysis-header" style="
+                    color: #2d3748;
+                    margin-bottom: 1rem;
+                    font-size: 1.1rem;
+                    font-weight: 700;
+                    display: flex;
+                    align-items: center;
+                    gap: 0.5rem;
+                ">💡 정책학적 교훈</h4>
+                <div class="analysis-content policy-lessons" style="
+                    padding: 1rem;
+                    border-radius: 8px;
+                    line-height: 1.6;
+                    background: linear-gradient(135deg, rgba(34, 197, 94, 0.1), rgba(134, 239, 172, 0.1));
+                    border-left: 4px solid #22c55e;
+                ">
+                    ${analysis.policy_lessons}
+                </div>
+            </div>
+        `;
+    }
+    
+    html += `</div>`;
+    return html;
+}
+
+// 🔧 실패 분석 섹션 HTML 생성
+function generateFailureAnalysisHTML(gameResult) {
+    if (!gameResult || !gameResult.ending) {
+        return '';
+    }
+    
+    // S급, A급은 실패 분석 표시하지 않음
+    if (gameResult.ending.grade === 'S급' || gameResult.ending.grade === 'A급') {
+        return '';
+    }
+    
+    const grade = gameResult.ending.grade;
+    let failureTitle = '개선 방향';
+    let failureContent = '';
+    
+    if (grade === 'F급' || grade === 'D급') {
+        failureTitle = '심각한 위기 상황';
+        failureContent = `
+            <p>현재 상황은 국가적 위기에 해당합니다. 이런 상황에서는 다음과 같은 점들을 고려해야 합니다:</p>
+            <ul>
+                <li><strong>즉각적 안정화:</strong> 안정성과 시민 반응을 우선적으로 개선</li>
+                <li><strong>재정 건전성:</strong> 무리한 지출보다는 점진적 개선이 필요</li>
+                <li><strong>사회적 합의:</strong> 급진적 변화보다는 단계적 접근</li>
+                <li><strong>국제 협력:</strong> 외부 지원과 협력을 통한 회복</li>
+            </ul>
+        `;
+    } else if (grade === 'C급') {
+        failureTitle = '성장 정체기';
+        failureContent = `
+            <p>현재는 성장이 정체된 상태입니다. 다음 단계로 도약하기 위해서는:</p>
+            <ul>
+                <li><strong>혁신적 정책:</strong> 기존 틀을 벗어난 창의적 접근 필요</li>
+                <li><strong>균형 개발:</strong> 특정 분야에만 치중하지 말고 균형 잡힌 발전</li>
+                <li><strong>장기 비전:</strong> 단기 성과보다는 지속가능한 발전 전략</li>
+                <li><strong>시민 참여:</strong> 정책 결정 과정에서 시민의 목소리 반영</li>
+            </ul>
+        `;
+    }
+    
+    if (!failureContent) return '';
+    
+    return `
+        <div class="failure-analysis-section" style="
+            background: rgba(239, 68, 68, 0.1);
+            border: 2px solid #ef4444;
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            backdrop-filter: blur(10px);
+        ">
+            <div class="failure-title" style="
+                font-size: 1.5rem;
+                font-weight: 700;
+                color: #dc2626;
+                margin-bottom: 1.5rem;
+                text-align: center;
+            ">
+                ⚠️ ${failureTitle}
+            </div>
+            <div class="failure-content" style="
+                line-height: 1.6;
+                color: #7f1d1d;
+            ">
+                ${failureContent}
+            </div>
+        </div>
+    `;
+}
+
+// 🔧 상세 통계 HTML 생성 (기존 모든 기능 포함)
 function generateDetailedStatsHTML(finalIndicators, stats, nationName) {
     let html = '';
     
@@ -2322,6 +2447,46 @@ function generateDetailedStatsHTML(finalIndicators, stats, nationName) {
     return html;
 }
 
+// 🔧 지표 HTML 생성 함수
+function generateIndicatorHTML(indicators) {
+    if (!indicators || Object.keys(indicators).length === 0) {
+        return '<div style="text-align: center; color: #666;">지표 데이터 없음</div>';
+    }
+    
+    let html = '';
+    Object.entries(indicators).forEach(([indicator, value]) => {
+        let indicatorName = indicator;
+        let iconColor = value >= 0 ? '#00ff88' : '#ff6666';
+        
+        // 지표 이름과 아이콘 가져오기
+        if (typeof GameData !== 'undefined') {
+            const info = GameData.getIndicatorInfo(indicator);
+            if (info) indicatorName = info.name;
+        }
+        
+        html += `
+            <div class="stat-row" style="
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 0.5rem;
+                padding: 0.5rem;
+                background: rgba(255, 255, 255, 0.3);
+                border-radius: 8px;
+            ">
+                <span style="font-weight: 500;">${indicatorName}</span>
+                <span style="
+                    font-weight: 700;
+                    color: ${iconColor};
+                    font-size: 1.1rem;
+                ">${value > 0 ? '+' : ''}${value}</span>
+            </div>
+        `;
+    });
+    
+    return html;
+}
+
 // 🔧 완전한 결과 화면 표시 함수 - 모든 기존 기능 유지 + DOM 재생성
 function showResultsScreen(gameResult) {
     console.log('🎯 결과 화면 표시 시작 (완전판):', gameResult);
@@ -2577,132 +2742,6 @@ function showResultsScreen(gameResult) {
         
         return false;
     }
-}
-
-// 🔧 지표 HTML 생성 함수
-function generateIndicatorHTML(indicators) {
-    if (!indicators || Object.keys(indicators).length === 0) {
-        return '<div style="text-align: center; color: #666;">지표 데이터 없음</div>';
-    }
-    
-    let html = '';
-    Object.entries(indicators).forEach(([indicator, value]) => {
-        let indicatorName = indicator;
-        let iconColor = value >= 0 ? '#00ff88' : '#ff6666';
-        
-        // 지표 이름과 아이콘 가져오기
-        if (typeof GameData !== 'undefined') {
-            const info = GameData.getIndicatorInfo(indicator);
-            if (info) indicatorName = info.name;
-        }
-        
-        html += `
-            <div class="stat-row" style="
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                margin-bottom: 0.5rem;
-                padding: 0.5rem;
-                background: rgba(255, 255, 255, 0.3);
-                border-radius: 8px;
-            ">
-                <span style="font-weight: 500;">${indicatorName}</span>
-                <span style="
-                    font-weight: 700;
-                    color: ${iconColor};
-                    font-size: 1.1rem;
-                ">${value > 0 ? '+' : ''}${value}</span>
-            </div>
-        `;
-    });
-    
-    return html;
-}
-
-// 🔧 게임 통계 HTML 생성 함수
-function generateGameStatsHTML(gameResult) {
-    const selectedPolicies = gameResult.selectedPolicies || [];
-    const nationName = gameResult.nationName || selectedNationName || '알 수 없음';
-    
-    return `
-        <div class="stat-row" style="
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 0.5rem;
-            padding: 0.5rem;
-            background: rgba(255, 255, 255, 0.3);
-            border-radius: 8px;
-        ">
-            <span>선택한 국가</span>
-            <span style="font-weight: 700;">${nationName}</span>
-        </div>
-        <div class="stat-row" style="
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 0.5rem;
-            padding: 0.5rem;
-            background: rgba(255, 255, 255, 0.3);
-            border-radius: 8px;
-        ">
-            <span>선택한 정책</span>
-            <span style="font-weight: 700;">${selectedPolicies.length}개</span>
-        </div>
-        <div class="stat-row" style="
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 0.5rem;
-            padding: 0.5rem;
-            background: rgba(255, 255, 255, 0.3);
-            border-radius: 8px;
-        ">
-            <span>완료한 턴</span>
-            <span style="font-weight: 700;">5/5</span>
-        </div>
-    `;
-}
-
-// 🔧 업적 HTML 생성 함수
-function generateAchievementsHTML(gameResult, totalScore) {
-    const achievements = [];
-    const grade = gameResult.ending?.grade || 'C급';
-    
-    // 등급별 업적
-    if (grade === 'S급') {
-        achievements.push('🏆 완벽한 설계자 - S급 달성');
-    } else if (grade === 'A급') {
-        achievements.push('🌟 우수한 지도자 - A급 달성');
-    }
-    
-    // 점수별 업적
-    if (totalScore >= 100) {
-        achievements.push('📈 고득점 달성 - 100점 이상');
-    } else if (totalScore >= 50) {
-        achievements.push('📊 균형잡힌 발전 - 50점 이상');
-    }
-    
-    // 특별 업적
-    if (selectedNationName === '위기국가' && totalScore >= 0) {
-        achievements.push('🔥 재건의 희망 - 위기국가 플러스 달성');
-    }
-    
-    if (achievements.length === 0) {
-        return '';
-    }
-    
-    return achievements.map(achievement => `
-        <div class="achievement-item" style="
-            background: rgba(246, 173, 85, 0.2);
-            border: 1px solid #f6ad55;
-            border-radius: 50px;
-            padding: 1rem;
-            margin-bottom: 1rem;
-            font-weight: 600;
-            color: #d69e2e;
-        ">${achievement}</div>
-    `).join('');
 }
 
 // 🔧 디버깅용 함수
@@ -4737,6 +4776,7 @@ function bindHelpButtons() {
     
     console.log('🔧 버튼 바인딩 완료 - 전역함수 등록됨');
 }
+
 
 
 
