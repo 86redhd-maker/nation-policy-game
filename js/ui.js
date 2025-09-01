@@ -2565,7 +2565,7 @@ function showResultsScreen(gameResult) {
             <div class="results-container" style="
                 padding: 2rem;
                 min-height: 100vh;
-                background: rgba(255, 255, 255, 0.1);
+                background: rgba(255, 255, 255, 0.15);
                 backdrop-filter: blur(10px);
             ">
                 <!-- 최종 타이틀 -->
@@ -2585,13 +2585,14 @@ function showResultsScreen(gameResult) {
                 
                 <!-- 엔딩 정보 -->
                 <div class="ending-info" id="endingInfo" style="
-                    background: rgba(255, 255, 255, 0.95);
+                    background: rgba(255, 255, 255, 0.98);
                     border-radius: 16px;
                     padding: 2rem;
                     margin-bottom: 2rem;
                     backdrop-filter: blur(10px);
-                    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+                    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
                     text-align: center;
+                    border: 1px solid rgba(255, 255, 255, 0.3);
                 ">
                     <div class="ending-title" style="
                         font-size: 1.5rem;
@@ -2630,12 +2631,14 @@ function showResultsScreen(gameResult) {
                 
                 <!-- 업적 섹션 -->
                 <div class="achievements" id="achievements" style="
-                    background: rgba(246, 173, 85, 0.1);
+                    background: rgba(255, 255, 255, 0.98);
                     border: 2px solid #f6ad55;
                     border-radius: 16px;
                     padding: 2rem;
                     margin-bottom: 2rem;
                     text-align: center;
+                    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+                    backdrop-filter: blur(10px);
                 ">
                     <div class="achievements-title" style="
                         font-size: 1.5rem;
@@ -4776,6 +4779,7 @@ function bindHelpButtons() {
     
     console.log('🔧 버튼 바인딩 완료 - 전역함수 등록됨');
 }
+
 
 
 
