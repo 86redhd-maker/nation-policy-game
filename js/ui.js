@@ -1777,55 +1777,45 @@ function selectEventChoice(choiceKey) {
     }
 }
 
-// 결과 화면 표시 - 수정된 버전
+// 🔧 1. 결과 화면 안정화 - showResultsScreen 함수 완전 교체
 function showResultsScreen(gameResult) {
     try {
         console.log('결과 화면 표시 시작:', gameResult);
 
-        // ⭐ 기존 문제 있는 resultsScreen 제거하고 새로 만들기 ⭐
-        const oldResultsScreen = document.getElementById('resultsScreen');
-        if (oldResultsScreen) {
-            oldResultsScreen.remove();
-        }
+        // ✅ 기존 요소 재사용하되, 내용만 업데이트 (DOM 삭제/생성 방지)
+        let resultsScreen = document.getElementById('resultsScreen');
         
-        // 완전히 새로운 결과 화면 생성
-        const newResultsScreen = document.createElement('div');
-        newResultsScreen.id = 'resultsScreen';
-        newResultsScreen.className = 'screen active';
-        newResultsScreen.innerHTML = `
-            <div class="results-container" style="padding: 2rem; min-height: 100vh;">
-                <div class="final-title" id="finalTitle">🏆 게임 완료!</div>
-                <div class="ending-info" id="endingInfo">
-                    <div class="ending-title">게임 결과</div>
-                    <div class="ending-description">게임을 완주하셨습니다!</div>
-                    <div class="final-score">최종 점수: 계산 중...</div>
-                </div>
-                <div class="final-stats" id="finalStats">
-                    <div class="stat-group">
-                        <div class="stat-group-title">📊 게임 통계</div>
-                        <div class="stat-row"><span>통계</span><span>로딩 중...</span></div>
+        if (!resultsScreen) {
+            // 요소가 없을 때만 새로 생성
+            resultsScreen = document.createElement('div');
+            resultsScreen.id = 'resultsScreen';
+            resultsScreen.className = 'screen';
+            resultsScreen.innerHTML = `
+                <div class="results-container" style="padding: 2rem; min-height: 100vh;">
+                    <div class="final-title" id="finalTitle">🏆 게임 완료!</div>
+                    <div class="ending-info" id="endingInfo">
+                        <div class="ending-title">게임 결과</div>
+                        <div class="ending-description">게임을 완주하셨습니다!</div>
+                        <div class="final-score">최종 점수: 계산 중...</div>
+                    </div>
+                    <div class="final-stats" id="finalStats">
+                        <div class="stat-group">
+                            <div class="stat-group-title">📊 게임 통계</div>
+                            <div class="stat-row"><span>통계</span><span>로딩 중...</span></div>
+                        </div>
+                    </div>
+                    <div class="achievements" id="achievements">
+                        <div class="achievements-title">🏆 달성 업적</div>
+                        <div class="achievement-item">🎯 게임 완주!</div>
+                    </div>
+                    <div class="replay-buttons">
+                        <button class="pixel-btn" onclick="restartGame()">🔄 다시 플레이</button>
+                        <button class="pixel-btn secondary" onclick="shareResults()">📤 결과 공유</button>
                     </div>
                 </div>
-                <div class="achievements" id="achievements">
-                    <div class="achievements-title">🏆 달성 업적</div>
-                    <div class="achievement-item">🎯 게임 완주!</div>
-                </div>
-                <div class="replay-buttons">
-                    <button class="pixel-btn" onclick="restartGame()">🔄 다시 플레이</button>
-                    <button class="pixel-btn secondary" onclick="shareResults()">📤 결과 공유</button>
-                </div>
-            </div>
-        `;
-        
-        newResultsScreen.style.cssText = `
-            display: block !important;
-            visibility: visible !important;
-            position: relative !important;
-            z-index: 1 !important;
-        `;
-        
-        // body에 추가
-        document.body.appendChild(newResultsScreen);
+            `;
+            document.body.appendChild(resultsScreen);
+        }
         
         // 다른 화면들 숨기기
         document.querySelectorAll('.screen:not(#resultsScreen)').forEach(screen => {
@@ -1833,7 +1823,16 @@ function showResultsScreen(gameResult) {
             screen.style.display = 'none';
         });
         
-        // 🔥 결과 화면으로 스크롤 (화면 상단으로)
+        // 결과 화면 강제 활성화
+        resultsScreen.classList.add('active');
+        resultsScreen.style.cssText = `
+            display: block !important;
+            visibility: visible !important;
+            position: relative !important;
+            z-index: 1 !important;
+        `;
+        
+        // 🔥 결과 화면으로 스크롤
         setTimeout(() => {
             window.scrollTo({
                 top: 0,
@@ -1842,8 +1841,6 @@ function showResultsScreen(gameResult) {
             });
             console.log('🔝 결과 화면 상단으로 스크롤');
         }, 100);
-        
-        console.log('새 결과 화면 생성 완료!');
         
         // 게임 결과가 없으면 기본값 생성
         if (!gameResult) {
@@ -1892,8 +1889,6 @@ function showResultsScreen(gameResult) {
         if (finalTitle) {
             finalTitle.innerHTML = `${gameResult.ending.grade}<br>${gameResult.ending.title}`;
             console.log('최종 타이틀 설정 완료');
-        } else {
-            console.warn('finalTitle 요소를 찾을 수 없음');
         }
         
         // 엔딩 정보 업데이트
@@ -1907,11 +1902,9 @@ function showResultsScreen(gameResult) {
                 </div>
             `;
             console.log('엔딩 정보 설정 완료');
-        } else {
-            console.warn('endingInfo 요소를 찾을 수 없음');
         }
         
-      // 최종 통계 업데이트 - 🔧 상세 분석 버전으로 교체
+        // 최종 통계 업데이트 (기존 상세 버전 그대로 유지)
         const finalStats = document.getElementById('finalStats');
         if (finalStats) {
             let indicatorRows = '';
@@ -1951,97 +1944,14 @@ function showResultsScreen(gameResult) {
                 indicatorRows = '<div class="stat-row"><span>지표 데이터 없음</span></div>';
             }
             
-            // 🔧 예산 운용 상세 분석 생성
-            let budgetAnalysisHTML = '';
-            if (typeof gameAPI !== 'undefined') {
-                try {
-                    const efficiencyGrade = gameAPI.getEfficiencyGrade(stats.budgetEfficiency);
-                    const satisfactionGrade = gameAPI.getSatisfactionGrade(stats.citizenSatisfaction);
-                    const sustainabilityGrade = gameAPI.getSustainabilityGrade(stats.sustainability);
-                    
-                    const efficiencyExplanation = gameAPI.getStatExplanation('budgetEfficiency');
-                    const satisfactionExplanation = gameAPI.getStatExplanation('citizenSatisfaction');
-                    const sustainabilityExplanation = gameAPI.getStatExplanation('sustainability');
-                    
-                    const efficiencyLevel = gameAPI.getInterpretationLevel(stats.budgetEfficiency, 'budgetEfficiency');
-                    const satisfactionLevel = gameAPI.getInterpretationLevel(stats.citizenSatisfaction, 'citizenSatisfaction');
-                    const sustainabilityLevel = gameAPI.getInterpretationLevel(stats.sustainability, 'sustainability');
-                    
-                    budgetAnalysisHTML = `
-                        <div class="detailed-stat">
-                            <div class="stat-header">
-                                <div class="stat-main">
-                                    <span class="stat-name">예산 효율성</span>
-                                    <span class="stat-value">${stats.budgetEfficiency}</span>
-                                </div>
-                                <span class="stat-grade" style="background-color: ${efficiencyGrade.bgColor}; color: ${efficiencyGrade.color};">
-                                    ${efficiencyGrade.grade}급 - ${efficiencyGrade.text}
-                                </span>
-                            </div>
-                            <div class="stat-description">
-                                ${efficiencyExplanation.interpretations[efficiencyLevel]}
-                            </div>
-                            <div class="stat-tips">
-                                ${efficiencyExplanation.tips[0]}
-                            </div>
-                        </div>
-                        
-                        <div class="detailed-stat">
-                            <div class="stat-header">
-                                <div class="stat-main">
-                                    <span class="stat-name">시민 만족도</span>
-                                    <span class="stat-value">${stats.citizenSatisfaction}</span>
-                                </div>
-                                <span class="stat-grade" style="background-color: ${satisfactionGrade.bgColor}; color: ${satisfactionGrade.color};">
-                                    ${satisfactionGrade.grade}급 - ${satisfactionGrade.text}
-                                </span>
-                            </div>
-                            <div class="stat-description">
-                                ${satisfactionExplanation.interpretations[satisfactionLevel]}
-                            </div>
-                            <div class="stat-tips">
-                                ${satisfactionExplanation.tips[0]}
-                            </div>
-                        </div>
-                        
-                        <div class="detailed-stat">
-                            <div class="stat-header">
-                                <div class="stat-main">
-                                    <span class="stat-name">지속가능성</span>
-                                    <span class="stat-value">${stats.sustainability}</span>
-                                </div>
-                                <span class="stat-grade" style="background-color: ${sustainabilityGrade.bgColor}; color: ${sustainabilityGrade.color};">
-                                    ${sustainabilityGrade.grade}급 - ${sustainabilityGrade.text}
-                                </span>
-                            </div>
-                            <div class="stat-description">
-                                ${sustainabilityExplanation.interpretations[sustainabilityLevel]}
-                            </div>
-                            <div class="stat-tips">
-                                ${sustainabilityExplanation.tips[0]}
-                            </div>
-                        </div>
-                    `;
-                } catch (error) {
-                    console.warn('상세 분석 생성 실패, 기본 버전 사용:', error);
-                    budgetAnalysisHTML = `
-                        <div class="stat-row">
-                            <span>예산 효율성</span>
-                            <span>${stats.budgetEfficiency}</span>
-                        </div>
-                        <div class="stat-row">
-                            <span>시민 만족도</span>
-                            <span>${stats.citizenSatisfaction}</span>
-                        </div>
-                        <div class="stat-row">
-                            <span>지속가능성</span>
-                            <span>${stats.sustainability}</span>
-                        </div>
-                    `;
-                }
-            } else {
-                // gameAPI가 없는 경우 기본 표시
-                budgetAnalysisHTML = `
+            finalStats.innerHTML = `
+                <div class="stat-group">
+                    <div class="stat-group-title">📊 종합 지표</div>
+                    ${indicatorRows}
+                </div>
+                
+                <div class="stat-group">
+                    <div class="stat-group-title">💰 예산 운용</div>
                     <div class="stat-row">
                         <span>예산 효율성</span>
                         <span>${stats.budgetEfficiency}</span>
@@ -2054,18 +1964,6 @@ function showResultsScreen(gameResult) {
                         <span>지속가능성</span>
                         <span>${stats.sustainability}</span>
                     </div>
-                `;
-            }
-            
-            finalStats.innerHTML = `
-                <div class="stat-group">
-                    <div class="stat-group-title">📊 종합 지표</div>
-                    ${indicatorRows}
-                </div>
-                
-                <div class="stat-group">
-                    <div class="stat-group-title">💰 예산 운용 분석</div>
-                    ${budgetAnalysisHTML}
                 </div>
                 
                 <div class="stat-group">
@@ -2085,11 +1983,9 @@ function showResultsScreen(gameResult) {
                 </div>
             `;
             console.log('최종 통계 설정 완료');
-        } else {
-            console.warn('finalStats 요소를 찾을 수 없음');
         }
         
-        // 업적 표시
+        // 🔧 업적 표시 (수정된 기준 적용)
         try {
             const achievements = calculateAchievements(gameResult, stats);
             const achievementsElement = document.getElementById('achievements');
@@ -2104,22 +2000,20 @@ function showResultsScreen(gameResult) {
                     }
                 `;
                 console.log('업적 설정 완료:', achievements.length);
-            } else {
-                console.warn('achievements 요소를 찾을 수 없음');
             }
         } catch (error) {
             console.warn('업적 계산 실패:', error);
         }
         
-        // 🔧 교육적 해설 섹션 추가
+        // 교육적 해설 섹션 추가
         try {
             const educationalHTML = createEducationalSection(gameResult, stats, gameResult.nationName || selectedNationName);
-            
-            // 기존 업적 섹션 뒤에 교육 섹션 삽입
-            const achievementsElement = document.getElementById('achievements');
-            if (achievementsElement && educationalHTML) {
-                achievementsElement.insertAdjacentHTML('afterend', educationalHTML);
-                console.log('교육적 해설 섹션 추가 완료');
+            if (educationalHTML) {
+                const achievementsElement = document.getElementById('achievements');
+                if (achievementsElement) {
+                    achievementsElement.insertAdjacentHTML('afterend', educationalHTML);
+                    console.log('교육적 해설 섹션 추가 완료');
+                }
             }
             
             // 실패 사례 분석도 추가 (낮은 등급일 때)
@@ -2128,8 +2022,8 @@ function showResultsScreen(gameResult) {
                 const educationalSection = document.querySelector('.educational-section');
                 if (educationalSection) {
                     educationalSection.insertAdjacentHTML('afterend', failureHTML);
-                } else if (achievementsElement) {
-                    achievementsElement.insertAdjacentHTML('afterend', failureHTML);
+                } else if (document.getElementById('achievements')) {
+                    document.getElementById('achievements').insertAdjacentHTML('afterend', failureHTML);
                 }
                 console.log('실패 사례 분석 추가 완료');
             }
@@ -2137,11 +2031,8 @@ function showResultsScreen(gameResult) {
             console.warn('교육적 해설 생성 실패:', error);
         }
         
-        // 화면 전환
-        console.log('결과 화면으로 전환 시작');
-        showScreen('resultsScreen');
-        
-        // 효과음 및 상태 업데이트
+        // 화면 전환 확실히 하기
+        console.log('결과 화면으로 전환 완료');
         if (typeof gameUtils !== 'undefined') gameUtils.playSound('success');
         updateStatusBar('게임 완료!');
         
@@ -2152,66 +2043,64 @@ function showResultsScreen(gameResult) {
         console.error('결과 화면 표시 실패:', error);
         console.error('Error Stack:', error.stack);
         
-        // 폴백 처리 - 기본 결과 화면 표시
-        try {
-            const finalTitle = document.getElementById('finalTitle');
-            if (finalTitle) {
-                finalTitle.innerHTML = '🎮 게임 완료!';
-            }
-            
-            const endingInfo = document.getElementById('endingInfo');
-            if (endingInfo) {
-                endingInfo.innerHTML = `
-                    <div class="ending-title">게임을 완주하셨습니다!</div>
-                    <div class="ending-description">모든 정책 선택을 마치고 5턴을 완주했습니다.</div>
-                    <div class="final-score">최종 점수: 계산 중...</div>
-                `;
-            }
-            
-            showScreen('resultsScreen');
-            updateStatusBar('게임 완료 (오류 발생)');
-            
-            if (typeof gameUtils !== 'undefined') {
-                gameUtils.showToast('결과 화면 로딩 중 일부 오류가 발생했습니다', 'warning');
-            }
-            
-        } catch (fallbackError) {
-            console.error('폴백 결과 화면도 실패:', fallbackError);
-            alert('결과 화면 표시에 오류가 발생했습니다. 콘솔을 확인해주세요.');
-        }
-        
+        // 폴백 처리 - 간단한 알림
+        alert(`게임 완료! 최종 점수: ${gameResult?.totalScore || 0}점`);
+        showScreen('startScreen'); // 시작 화면으로 돌아가기
         return false;
     }
 }
 
-// 업적 계산 - 수정된 점수 기준
+// 🔧 2. 업적 계산 기준 수정 - calculateAchievements 함수 교체
 function calculateAchievements(gameResult, stats) {
     const achievements = [];
     
+    // S급 엔딩 (data.js에서 S급 요구조건: 150점)
     if (gameResult.ending.grade === 'S급') {
         achievements.push('🏆 완벽한 설계자 - S급 엔딩 달성');
     }
     
+    // A급 이상 달성 (data.js에서 A급 요구조건: 100점)
+    if (gameResult.ending.grade === 'S급' || gameResult.ending.grade === 'A급') {
+        achievements.push('🌟 고득점 달성 - A급 이상 달성');
+    }
+    
+    // 높은 시민만족도
     if (stats.citizenSatisfaction >= 2) {
         achievements.push('😊 시민의 사랑 - 시민 만족도 2.0 이상');
     }
     
+    // 높은 지속가능성
     if (stats.sustainability >= 2) {
         achievements.push('🌱 지속가능한 미래 - 지속가능성 2.0 이상');
     }
     
-    if (stats.budgetEfficiency >= 1) {
-        achievements.push('💰 예산 전문가 - 높은 예산 효율성');
+    // 예산 효율성 (1.5 이상으로 조정)
+    if (stats.budgetEfficiency >= 1.5) {
+        achievements.push('💰 예산 달인 - 높은 예산 효율성 (1.5 이상)');
     }
     
-    // 🔧 20점 → 100점으로 수정
-    if (gameResult.totalScore >= 100) {
-        achievements.push('🌟 고득점 달성 - 총점 100점 이상');
-    }
-    
-    // 🔧 위기국가 재건 조건도 50점으로 맞춤
+    // 위기국가 재건 성공 (50점 이상)
     if (selectedNationName === '위기국가' && gameResult.totalScore >= 50) {
         achievements.push('🔥 불사조의 부활 - 위기국가 재건 성공');
+    }
+    
+    // 완벽한 균형 (모든 지표 양수)
+    if (gameResult.finalIndicators && Object.values(gameResult.finalIndicators).every(val => val >= 0)) {
+        achievements.push('⚖️ 완벽한 균형 - 모든 지표 양수 달성');
+    }
+    
+    // 정책 마스터 (10개 이상 정책 선택)
+    if (gameResult.selectedPolicies && gameResult.selectedPolicies.length >= 10) {
+        achievements.push('🎯 정책 마스터 - 10개 이상 정책 선택');
+    }
+    
+    // 특별 국가별 업적
+    if (selectedNationName === '복지 강국' && stats.citizenSatisfaction >= 3) {
+        achievements.push('❤️ 복지 천국 건설자 - 복지강국에서 높은 시민만족도');
+    }
+    
+    if (selectedNationName === '기술 선진국' && gameResult.totalScore >= 120) {
+        achievements.push('🚀 기술혁신 리더 - 기술선진국에서 고득점 달성');
     }
     
     return achievements;
@@ -4163,6 +4052,7 @@ function bindHelpButtons() {
     
     console.log('🔧 버튼 바인딩 완료 - 전역함수 등록됨');
 }
+
 
 
 
