@@ -2584,7 +2584,6 @@ function showResultsScreen(gameResult) {
                     border: 1px solid rgba(255, 255, 255, 0.3);
                     line-height: 1.2;
                     color: #f6ad55;
-                    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
                     position: relative;
                     z-index: 10;
                     max-width: 800px;
@@ -4788,6 +4787,7 @@ function bindHelpButtons() {
     
     console.log('🔧 버튼 바인딩 완료 - 전역함수 등록됨');
 }
+
 
 
 
