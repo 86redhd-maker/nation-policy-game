@@ -3579,7 +3579,6 @@ function generateRealCasesTabHTML(selectedPolicies, nationName) {
 function generateTab3RealCasesHTML(selectedPolicies, nationName) {
 const nationStyle = getNationStyle(nationName);
 
-```
 return `
     <div style="max-width: 1200px; margin: 0 auto;">
         <!-- 탭 3 헤더 -->
@@ -3651,7 +3650,6 @@ return `
         </div>
     </div>
 `;
-```
 
 }
 
@@ -3673,7 +3671,6 @@ if (!selectedPolicies || selectedPolicies.length === 0) {
 return `<div style=" background: rgba(255, 255, 255, 0.95); border-radius: 16px; padding: 2rem; text-align: center; margin-bottom: 2rem; "> <p style="color: #666; font-size: 1.1rem;">선택된 정책이 없습니다.</p> </div>`;
 }
 
-```
 let html = `
     <div style="
         background: rgba(255, 255, 255, 0.95);
