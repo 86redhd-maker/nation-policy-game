@@ -938,7 +938,10 @@ function createPolicyCard(policy) {
     const canAfford = gameStatus.budget - cost >= gameStatus.debtLimit;
     const requirementsMet = checkPolicyRequirementsLocal(policy, gameStatus.indicators);
     const isSelected = gameStatus.currentSelection.includes(policy.정책명);
+    
+    // 🔧 이 줄을 추가해서 realWorldTip 변수를 여기에 선언하세요!
     const realWorldTip = window.POLICY_REAL_WORLD_TIPS?.[policy.정책명];
+    console.log('realWorldTip 최종값:', realWorldTip); // 🔧 이 로그도 추가!
 
     const card = document.createElement('div');
     card.className = `policy-card ${isSelected ? 'selected' : ''} ${!canAfford || !requirementsMet ? 'disabled' : ''}`;
@@ -963,6 +966,7 @@ function createPolicyCard(policy) {
     const synergyText = (policy.시너지정책 && policy.시너지정책.length > 0) ? 
         `✨ 시너지: ${policy.시너지정책.join(', ')}` : '';
 
+    // 🔧 HTML 생성 부분 - 여기가 핵심!
     card.innerHTML = `
         <div class="policy-header">
             <div class="policy-name">
@@ -4794,6 +4798,7 @@ function bindHelpButtons() {
     
     console.log('🔧 버튼 바인딩 완료 - 전역함수 등록됨');
 }
+
 
 
 
