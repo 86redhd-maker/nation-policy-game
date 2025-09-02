@@ -2692,8 +2692,9 @@ const POLICY_REAL_WORLD_TIPS = {
     "기술 협력 확대": "EU 호라이즌 프로그램"
 };
 
-// 전역으로 내보내기
+// 전역 변수로 확실히 내보내기
 window.POLICY_REAL_WORLD_TIPS = POLICY_REAL_WORLD_TIPS;
+
 
 
 
