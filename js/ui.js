@@ -2075,11 +2075,13 @@ function generateEducationalSectionHTML(gameResult, stats, nationName) {
         return ''; // 교육적 해설이 없으면 빈 문자열 반환
     }
 
-    let html = generateExperiencedConceptsHTML(gameResult, stats);
+    // 🔧 첫 번째 html 변수: 경험한 개념들
+    let conceptsHTML = generateExperiencedConceptsHTML(gameResult, stats);
     
     const analysis = gameResult.ending.educational_analysis;
     
-    let html = `
+    // 🔧 두 번째 html 변수를 educationalHTML로 변경
+    let educationalHTML = `
         <div class="educational-section" style="
             background: rgba(255, 255, 255, 0.95);
             border-radius: 16px;
@@ -2107,7 +2109,7 @@ function generateEducationalSectionHTML(gameResult, stats, nationName) {
     
     // 성취 분석
     if (analysis.achievement_summary) {
-        html += `
+        educationalHTML += `
             <div class="analysis-subsection" style="
                 margin-bottom: 2rem;
                 transition: all 0.3s ease;
@@ -2136,7 +2138,7 @@ function generateEducationalSectionHTML(gameResult, stats, nationName) {
     
     // 성공 요인
     if (analysis.success_factors && Array.isArray(analysis.success_factors)) {
-        html += `
+        educationalHTML += `
             <div class="analysis-subsection" style="
                 margin-bottom: 2rem;
                 transition: all 0.3s ease;
@@ -2182,7 +2184,7 @@ function generateEducationalSectionHTML(gameResult, stats, nationName) {
     
     // 실제 사례
     if (analysis.real_world_examples && Array.isArray(analysis.real_world_examples)) {
-        html += `
+        educationalHTML += `
             <div class="analysis-subsection" style="
                 margin-bottom: 2rem;
                 transition: all 0.3s ease;
@@ -2228,7 +2230,7 @@ function generateEducationalSectionHTML(gameResult, stats, nationName) {
     
     // 정책 교훈
     if (analysis.policy_lessons) {
-        html += `
+        educationalHTML += `
             <div class="analysis-subsection" style="
                 margin-bottom: 2rem;
                 transition: all 0.3s ease;
@@ -2255,8 +2257,10 @@ function generateEducationalSectionHTML(gameResult, stats, nationName) {
         `;
     }
     
-    html += `</div>`;
-    return html;
+    educationalHTML += `</div>`;
+    
+    // 🔧 두 HTML을 합쳐서 반환
+    return conceptsHTML + educationalHTML;
 }
 
 // 🔧 실패 분석 섹션 HTML 생성
@@ -5005,6 +5009,7 @@ function bindHelpButtons() {
     
     console.log('🔧 버튼 바인딩 완료 - 전역함수 등록됨');
 }
+
 
 
 
