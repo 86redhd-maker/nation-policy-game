@@ -2682,6 +2682,75 @@ button:focus-visible,
     transform: scale(1.1);
 }
 
+/* 🔧 styles.css에 추가할 스타일: */
+
+/* 기존 아이콘 스타일 */
+.policy-tip-icon {
+    font-size: 0.8rem;
+    margin-left: 0.5rem;
+    cursor: help;
+    opacity: 0.7;
+    transition: all 0.2s ease;
+    display: inline-block;
+}
+
+.policy-tip-icon:hover {
+    opacity: 1;
+    transform: scale(1.1);
+}
+
+/* 💡 새로 추가: 모바일용 실제 사례 표시 */
+.policy-real-world-tip {
+    background: rgba(255, 107, 157, 0.1);
+    border-left: 3px solid #ff6b9d;
+    padding: 0.5rem 0.75rem;
+    margin: 0.75rem 0;
+    border-radius: 0 8px 8px 0;
+    font-size: 0.8rem;
+    color: #666;
+    line-height: 1.4;
+}
+
+/* 데스크톱에서는 숨기고 호버시에만 표시 */
+@media (min-width: 769px) {
+    .policy-real-world-tip {
+        display: none;
+    }
+    
+    .policy-card:hover .policy-real-world-tip {
+        display: block;
+        animation: fadeIn 0.3s ease;
+    }
+}
+
+/* 모바일에서는 항상 표시 */
+@media (max-width: 768px) {
+    .policy-real-world-tip {
+        display: block;
+        font-size: 0.75rem;
+        padding: 0.4rem 0.6rem;
+        margin: 0.5rem 0;
+    }
+    
+    /* 모바일에서 💡 아이콘 약간 크게 */
+    .policy-tip-icon {
+        font-size: 0.9rem;
+        margin-left: 0.3rem;
+    }
+}
+
+/* 페이드인 애니메이션 */
+@keyframes fadeIn {
+    from { 
+        opacity: 0; 
+        transform: translateY(-5px); 
+    }
+    to { 
+        opacity: 1; 
+        transform: translateY(0); 
+    }
+}
+
 
 
 
