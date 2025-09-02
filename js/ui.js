@@ -3573,6 +3573,769 @@ function generateRealCasesTabHTML(selectedPolicies, nationName) {
     `;
 }
 
+// 🌍 탭 3: 실제 사례 완전 구현
+
+// 탭 3 메인 HTML 생성
+function generateTab3RealCasesHTML(selectedPolicies, nationName) {
+const nationStyle = getNationStyle(nationName);
+
+```
+return `
+    <div style="max-width: 1200px; margin: 0 auto;">
+        <!-- 탭 3 헤더 -->
+        <div style="
+            text-align: center;
+            margin-bottom: 2rem;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 16px;
+            padding: 2rem;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        ">
+            <h2 style="
+                font-size: 2rem;
+                font-weight: 800;
+                color: #f6ad55;
+                margin-bottom: 1rem;
+                background: linear-gradient(135deg, #f6ad55, #ed8936);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                background-clip: text;
+            ">🌍 실제 사례와 역사</h2>
+            <p style="
+                color: #6b7280;
+                font-size: 1.1rem;
+                line-height: 1.6;
+                max-width: 600px;
+                margin: 0 auto;
+            ">
+                당신이 게임에서 선택한 정책들과 국가 모델이 
+                <strong style="color: #f6ad55;">실제 역사에서는 어떻게 나타났는지</strong> 살펴보세요.
+            </p>
+        </div>
+        
+        <!-- 선택한 정책들의 실제 사례 -->
+        ${generatePoliciesRealWorldSection(selectedPolicies)}
+        
+        <!-- 선택한 국가 모델 분석 -->
+        ${generateNationModelSection(nationName, nationStyle)}
+        
+        <!-- 마무리 섹션 -->
+        <div style="
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 16px;
+            padding: 2rem;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            border: 2px solid #f6ad55;
+        ">
+            <h3 style="
+                color: #ed8936;
+                font-size: 1.3rem;
+                font-weight: 700;
+                margin-bottom: 1rem;
+            ">🎯 이제 이해하셨나요?</h3>
+            <p style="
+                color: #6b7280;
+                line-height: 1.6;
+                font-size: 1rem;
+                max-width: 500px;
+                margin: 0 auto;
+            ">
+                게임에서의 선택이 단순한 숫자가 아니라 
+                <strong style="color: #f6ad55;">실제 국가들의 역사와 현실</strong>이었습니다. 
+                <br><br>
+                정치와 정책이 얼마나 복잡하고 흥미로운지 느껴지셨나요?
+            </p>
+        </div>
+    </div>
+`;
+```
+
+}
+
+// 국가 스타일 정보 가져오기
+function getNationStyle(nationName) {
+const styles = {
+‘복지 강국’: { icon: ‘🏥’, color: ‘#ef4444’, bgColor: ‘rgba(239, 68, 68, 0.1)’, flag: ‘🇸🇪’ },
+‘자원 풍부국’: { icon: ‘⛏️’, color: ‘#f59e0b’, bgColor: ‘rgba(245, 158, 11, 0.1)’, flag: ‘🇳🇴’ },
+‘기술 선진국’: { icon: ‘🚀’, color: ‘#8b5cf6’, bgColor: ‘rgba(139, 92, 246, 0.1)’, flag: ‘🇰🇷’ },
+‘신흥 개발국’: { icon: ‘📈’, color: ‘#06b6d4’, bgColor: ‘rgba(6, 182, 212, 0.1)’, flag: ‘🇸🇬’ },
+‘위기국가’: { icon: ‘🔥’, color: ‘#dc2626’, bgColor: ‘rgba(220, 38, 38, 0.1)’, flag: ‘🏳️’ }
+};
+return styles[nationName] || { icon: ‘🏛️’, color: ‘#6b7280’, bgColor: ‘rgba(107, 114, 128, 0.1)’, flag: ‘🌍’ };
+}
+
+// 선택한 정책들의 실제 사례 섹션
+function generatePoliciesRealWorldSection(selectedPolicies) {
+if (!selectedPolicies || selectedPolicies.length === 0) {
+return `<div style=" background: rgba(255, 255, 255, 0.95); border-radius: 16px; padding: 2rem; text-align: center; margin-bottom: 2rem; "> <p style="color: #666; font-size: 1.1rem;">선택된 정책이 없습니다.</p> </div>`;
+}
+
+```
+let html = `
+    <div style="
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 16px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        backdrop-filter: blur(10px);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        border-left: 6px solid #3b82f6;
+    ">
+        <h3 style="
+            color: #3b82f6;
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        ">📋 당신이 선택한 정책들의 실제 사례</h3>
+        
+        <div style="
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+        ">
+`;
+
+// 각 정책별 상세 카드 생성
+selectedPolicies.forEach(policyName => {
+    const realWorldTip = window.POLICY_REAL_WORLD_TIPS?.[policyName];
+    const policyData = window.GameData?.findPolicy ? window.GameData.findPolicy(policyName) : null;
+    const category = window.gameAPI?.findPolicyCategory ? window.gameAPI.findPolicyCategory(policyName) : '정책';
+    const categoryIcon = getCategoryIcon(category);
+    
+    html += `
+        <div style="
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(248, 250, 252, 0.9));
+            border-radius: 16px;
+            padding: 2rem;
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(59, 130, 246, 0.1);
+        " onmouseover="
+            this.style.transform='translateY(-8px)'; 
+            this.style.boxShadow='0 12px 40px rgba(59, 130, 246, 0.2)';
+        " onmouseout="
+            this.style.transform='translateY(0)'; 
+            this.style.boxShadow='0 4px 20px rgba(59, 130, 246, 0.1)';
+        ">
+            <!-- 정책 헤더 -->
+            <div style="
+                display: flex;
+                align-items: center;
+                gap: 1rem;
+                margin-bottom: 1.5rem;
+                padding-bottom: 1rem;
+                border-bottom: 2px solid rgba(59, 130, 246, 0.1);
+            ">
+                <div style="
+                    width: 50px;
+                    height: 50px;
+                    background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+                    border-radius: 12px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-size: 20px;
+                    box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+                ">${categoryIcon}</div>
+                <div style="flex: 1;">
+                    <h4 style="
+                        color: #1e40af;
+                        font-size: 1.2rem;
+                        font-weight: 700;
+                        margin: 0 0 0.25rem 0;
+                        line-height: 1.3;
+                    ">${policyName}</h4>
+                    <span style="
+                        display: inline-block;
+                        background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+                        color: #1e40af;
+                        padding: 0.25rem 0.75rem;
+                        border-radius: 20px;
+                        font-size: 0.8rem;
+                        font-weight: 600;
+                    ">${category} 정책</span>
+                </div>
+            </div>
+            
+            <!-- 실제 사례 (핵심!) -->
+            ${realWorldTip ? `
+                <div style="
+                    background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(147, 197, 253, 0.1));
+                    border-left: 4px solid #3b82f6;
+                    padding: 1.5rem;
+                    border-radius: 12px;
+                    margin-bottom: 1.5rem;
+                    position: relative;
+                ">
+                    <div style="
+                        position: absolute;
+                        top: -8px;
+                        left: 15px;
+                        background: #3b82f6;
+                        color: white;
+                        padding: 0.25rem 0.75rem;
+                        border-radius: 12px;
+                        font-size: 0.75rem;
+                        font-weight: 700;
+                    ">🌍 REAL CASE</div>
+                    
+                    <div style="margin-top: 0.5rem;">
+                        <p style="
+                            color: #1e3a8a;
+                            line-height: 1.6;
+                            margin: 0;
+                            font-size: 1rem;
+                            text-indent: 1rem;
+                            font-weight: 500;
+                        ">${realWorldTip}</p>
+                    </div>
+                </div>
+            ` : `
+                <div style="
+                    background: rgba(107, 114, 128, 0.1);
+                    border: 2px dashed #6b7280;
+                    padding: 1.5rem;
+                    border-radius: 8px;
+                    margin-bottom: 1.5rem;
+                    text-align: center;
+                ">
+                    <p style="color: #6b7280; font-style: italic; font-size: 0.95rem;">
+                        📚 이 정책의 실제 사례는 데이터베이스 업데이트 중입니다.
+                    </p>
+                </div>
+            `}
+            
+            <!-- 정책 효과 요약 -->
+            ${policyData?.효과 ? `
+                <div style="
+                    background: rgba(34, 197, 94, 0.1);
+                    border-radius: 10px;
+                    padding: 1.25rem;
+                    margin-bottom: 1.25rem;
+                ">
+                    <p style="
+                        font-weight: 600;
+                        color: #059669;
+                        margin-bottom: 0.75rem;
+                        font-size: 0.9rem;
+                    ">📊 게임에서의 효과</p>
+                    <div style="
+                        display: flex;
+                        flex-wrap: wrap;
+                        gap: 0.5rem;
+                    ">
+                        ${Object.entries(policyData.효과).map(([indicator, value]) => `
+                            <span style="
+                                background: ${value > 0 ? '#dcfce7' : '#fee2e2'};
+                                color: ${value > 0 ? '#166534' : '#991b1b'};
+                                padding: 0.25rem 0.5rem;
+                                border-radius: 20px;
+                                font-size: 0.8rem;
+                                font-weight: 600;
+                            ">${indicator} ${value > 0 ? '+' : ''}${value}</span>
+                        `).join('')}
+                    </div>
+                </div>
+            ` : ''}
+            
+            <!-- 시민 반응 -->
+            ${policyData?.예상_시민반응 ? `
+                <div style="
+                    background: linear-gradient(135deg, rgba(168, 85, 247, 0.1), rgba(196, 181, 253, 0.1));
+                    border-left: 4px solid #a855f7;
+                    padding: 1.25rem;
+                    border-radius: 0 10px 10px 0;
+                    text-align: center;
+                ">
+                    <p style="
+                        color: #7c3aed;
+                        line-height: 1.4;
+                        margin: 0;
+                        font-size: 1rem;
+                        font-style: italic;
+                        font-weight: 600;
+                    ">💬 "${policyData.예상_시민반응}"</p>
+                </div>
+            ` : ''}
+        </div>
+    `;
+});
+
+html += `
+        </div>
+        
+        <!-- 정책 조합 인사이트 -->
+        <div style="
+            margin-top: 2rem;
+            padding: 2rem;
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.05), rgba(147, 197, 253, 0.05));
+            border-radius: 12px;
+            border: 2px solid rgba(59, 130, 246, 0.2);
+        ">
+            <h4 style="
+                color: #1e40af;
+                font-size: 1.2rem;
+                font-weight: 700;
+                margin-bottom: 1rem;
+                text-align: center;
+            ">🔍 당신의 정책 조합 분석</h4>
+            
+            ${generatePolicyComboAnalysis(selectedPolicies)}
+        </div>
+    </div>
+`;
+
+return html;
+
+}
+
+// 국가 모델 섹션 생성
+function generateNationModelSection(nationName, style) {
+if (!nationName) {
+return ‘<div style="text-align: center; color: #666;">국가 정보가 없습니다.</div>’;
+}
+
+const nationContent = window.NATION_EDUCATIONAL_CONTENT?.[nationName];
+
+return `
+    <div style="
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 16px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        backdrop-filter: blur(10px);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        border-left: 6px solid ${style.color};
+    ">
+        <!-- 국가 헤더 -->
+        <div style="
+            text-align: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 2px solid rgba(0, 0, 0, 0.1);
+        ">
+            <div style="
+                font-size: 4rem;
+                margin-bottom: 1rem;
+                background: ${style.bgColor};
+                width: 100px;
+                height: 100px;
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                margin: 0 auto 1rem auto;
+                box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            ">${style.icon}</div>
+            <h3 style="
+                color: ${style.color};
+                font-size: 1.6rem;
+                font-weight: 700;
+                margin-bottom: 0.5rem;
+            ">${nationName} 모델 심층 분석</h3>
+            <p style="color: #6b7280;">실제 역사 속 국가들의 성공과 실패를 통해 배우는 정치학</p>
+        </div>
+        
+        ${nationContent ? `
+            <!-- 실제 모델 국가들 -->
+            <div style="
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+                gap: 1.5rem;
+                margin-bottom: 2rem;
+            ">
+                <div style="
+                    background: rgba(255, 255, 255, 0.8);
+                    border-radius: 12px;
+                    padding: 1.5rem;
+                    border: 1px solid rgba(${style.color.slice(1)}, 0.2);
+                ">
+                    <h4 style="
+                        color: ${style.color};
+                        font-size: 1.1rem;
+                        font-weight: 700;
+                        margin-bottom: 1rem;
+                        display: flex;
+                        align-items: center;
+                        gap: 0.5rem;
+                    ">${style.flag} 실제 모델 국가들</h4>
+                    
+                    <div style="
+                        background: ${style.bgColor};
+                        padding: 1rem;
+                        border-radius: 8px;
+                        margin-bottom: 1rem;
+                    ">
+                        <p style="
+                            font-weight: 600;
+                            color: ${style.color};
+                            margin-bottom: 0.5rem;
+                        ">${nationContent.model_name || nationName + ' 모델'}</p>
+                        <p style="
+                            color: #374151;
+                            font-size: 0.95rem;
+                            line-height: 1.4;
+                            margin: 0;
+                        ">${(nationContent.model_countries || [nationName]).join(', ')}</p>
+                    </div>
+                    
+                    ${nationContent.historical_development ? `
+                        <div style="
+                            background: rgba(107, 114, 128, 0.1);
+                            padding: 1rem;
+                            border-radius: 8px;
+                        ">
+                            <p style="
+                                font-weight: 600;
+                                color: #374151;
+                                margin-bottom: 0.5rem;
+                                font-size: 0.9rem;
+                            ">📚 역사적 발전</p>
+                            <p style="
+                                color: #6b7280;
+                                font-size: 0.9rem;
+                                line-height: 1.4;
+                                margin: 0;
+                            ">${nationContent.historical_development}</p>
+                        </div>
+                    ` : ''}
+                </div>
+                
+                <!-- 핵심 특성 -->
+                <div style="
+                    background: rgba(255, 255, 255, 0.8);
+                    border-radius: 12px;
+                    padding: 1.5rem;
+                    border: 1px solid rgba(${style.color.slice(1)}, 0.2);
+                ">
+                    <h4 style="
+                        color: ${style.color};
+                        font-size: 1.1rem;
+                        font-weight: 700;
+                        margin-bottom: 1rem;
+                    ">⭐ 핵심 특성</h4>
+                    
+                    ${nationContent.key_characteristics ? `
+                        <ul style="
+                            margin: 0 0 1rem 0;
+                            padding-left: 1.2rem;
+                            color: #374151;
+                            line-height: 1.6;
+                        ">
+                            ${nationContent.key_characteristics.slice(0, 3).map(char => `
+                                <li style="
+                                    margin-bottom: 0.5rem; 
+                                    font-size: 0.9rem;
+                                ">${char}</li>
+                            `).join('')}
+                        </ul>
+                    ` : ''}
+                    
+                    ${nationContent.main_challenge ? `
+                        <div style="
+                            background: rgba(245, 158, 11, 0.1);
+                            border-left: 4px solid #f59e0b;
+                            padding: 1rem;
+                            border-radius: 0 8px 8px 0;
+                        ">
+                            <p style="
+                                font-weight: 600;
+                                color: #92400e;
+                                margin-bottom: 0.5rem;
+                                font-size: 0.9rem;
+                            ">⚠️ 현재 도전과제</p>
+                            <p style="
+                                color: #78350f;
+                                line-height: 1.4;
+                                margin: 0;
+                                font-size: 0.9rem;
+                            ">${nationContent.main_challenge}</p>
+                        </div>
+                    ` : ''}
+                </div>
+            </div>
+            
+            <!-- 교훈과 현대적 의미 -->
+            <div style="
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+                gap: 1.5rem;
+            ">
+                ${nationContent.lessons_learned ? `
+                    <div style="
+                        background: rgba(139, 92, 246, 0.1);
+                        border-left: 4px solid #8b5cf6;
+                        padding: 1.5rem;
+                        border-radius: 0 12px 12px 0;
+                    ">
+                        <h5 style="
+                            color: #6d28d9;
+                            font-weight: 700;
+                            margin-bottom: 1rem;
+                            font-size: 1rem;
+                        ">💡 핵심 교훈</h5>
+                        <p style="
+                            color: #581c87;
+                            line-height: 1.5;
+                            margin: 0;
+                            font-size: 0.95rem;
+                            font-style: italic;
+                        ">"${nationContent.lessons_learned}"</p>
+                    </div>
+                ` : ''}
+                
+                ${nationContent.relevance ? `
+                    <div style="
+                        background: rgba(236, 72, 153, 0.1);
+                        border-left: 4px solid #ec4899;
+                        padding: 1.5rem;
+                        border-radius: 0 12px 12px 0;
+                    ">
+                        <h5 style="
+                            color: #be185d;
+                            font-weight: 700;
+                            margin-bottom: 1rem;
+                            font-size: 1rem;
+                        ">🎯 현대적 의미</h5>
+                        <p style="
+                            color: #9d174d;
+                            line-height: 1.5;
+                            margin: 0;
+                            font-size: 0.95rem;
+                        ">${nationContent.relevance}</p>
+                    </div>
+                ` : ''}
+            </div>
+        ` : `
+            <!-- 기본 국가 정보 (교육 컨텐츠가 없는 경우) -->
+            <div style="
+                text-align: center;
+                padding: 2rem;
+                background: ${style.bgColor};
+                border-radius: 12px;
+            ">
+                <p style="
+                    color: ${style.color};
+                    font-size: 1.1rem;
+                    font-weight: 600;
+                ">${nationName}의 상세 분석은 곧 업데이트됩니다!</p>
+                <p style="
+                    color: #6b7280;
+                    margin-top: 0.5rem;
+                ">현재 기본 게임 데이터만 제공됩니다.</p>
+            </div>
+        `}
+    </div>
+`;
+
+}
+
+// 정책 조합 분석 생성
+function generatePolicyComboAnalysis(selectedPolicies) {
+if (!selectedPolicies || selectedPolicies.length === 0) {
+return ‘<p style="text-align: center; color: #666;">선택된 정책이 없습니다.</p>’;
+}
+
+// 카테고리별 분류
+const categories = {};
+selectedPolicies.forEach(policy => {
+    const category = window.gameAPI?.findPolicyCategory ? 
+        window.gameAPI.findPolicyCategory(policy) : '기타';
+    if (!categories[category]) categories[category] = [];
+    categories[category].push(policy);
+});
+
+let html = `
+    <!-- 카테고리 분포 -->
+    <div style="
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    ">
+`;
+
+Object.entries(categories).forEach(([category, policies]) => {
+    const categoryIcon = getCategoryIcon(category);
+    html += `
+        <div style="
+            background: rgba(255, 255, 255, 0.8);
+            padding: 1rem;
+            border-radius: 8px;
+            text-align: center;
+            border-left: 4px solid #3b82f6;
+            transition: all 0.3s ease;
+        " onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+            <div style="font-size: 24px; margin-bottom: 0.5rem;">${categoryIcon}</div>
+            <strong style="color: #1e40af; display: block; margin-bottom: 0.25rem;">${category}</strong>
+            <span style="color: #6b7280; font-size: 0.9rem;">${policies.length}개 정책</span>
+        </div>
+    `;
+});
+
+html += `</div>`;
+
+// 전략 분석
+const categoryCount = Object.keys(categories).length;
+let strategyAnalysis = "";
+let strategyColor = "#1e40af";
+let strategyIcon = "🎯";
+
+if (categoryCount === 1) {
+    strategyAnalysis = "<strong>전문화 전략:</strong> 한 분야에 집중한 정책 조합입니다. 깊이 있는 발전이 가능하지만 균형 발전에는 한계가 있을 수 있습니다.";
+    strategyIcon = "🎯";
+    strategyColor = "#dc2626";
+} else if (categoryCount >= 4) {
+    strategyAnalysis = "<strong>균형 발전 전략:</strong> 다양한 분야를 아우르는 종합적 접근입니다. 시너지 효과를 기대할 수 있지만 자원 분산의 위험도 있습니다.";
+    strategyIcon = "⚖️";
+    strategyColor = "#059669";
+} else {
+    strategyAnalysis = "<strong>선택과 집중 전략:</strong> 핵심 분야를 선별한 전략적 조합입니다. 효율성과 효과성의 균형을 추구한 현명한 선택으로 보입니다.";
+    strategyIcon = "🔄";
+    strategyColor = "#7c3aed";
+}
+
+html += `
+    <div style="
+        background: rgba(255, 255, 255, 0.9);
+        padding: 1.5rem;
+        border-radius: 10px;
+        border-left: 4px solid ${strategyColor};
+        margin-bottom: 1rem;
+    ">
+        <p style="
+            color: ${strategyColor};
+            line-height: 1.6;
+            margin: 0;
+            font-size: 1rem;
+            display: flex;
+            align-items: flex-start;
+            gap: 0.5rem;
+        ">
+            <span style="font-size: 1.2rem; margin-top: 0.1rem;">${strategyIcon}</span>
+            <span>${strategyAnalysis}</span>
+        </p>
+    </div>
+    
+    <!-- 실제 정치에서의 의미 -->
+    <div style="
+        background: rgba(246, 173, 85, 0.1);
+        border: 1px solid #f6ad55;
+        border-radius: 10px;
+        padding: 1.5rem;
+        text-align: center;
+    ">
+        <h5 style="
+                color: #d97706;
+                font-weight: 700;
+                margin-bottom: 1rem;
+                font-size: 1.1rem;
+            ">🏛️ 실제 정치에서의 의미</h5>
+            <p style="
+                color: #92400e;
+                line-height: 1.6;
+                margin: 0;
+                font-size: 0.95rem;
+            ">
+                현실 정치에서도 이런 ${categoryCount === 1 ? '전문화' : categoryCount >= 4 ? '균형' : '선택적'} 접근을 하는 정당이나 정치인들이 있습니다. 
+                각각의 장단점을 이해하고 상황에 맞는 선택을 하는 것이 정치의 핵심입니다.
+            </p>
+        </div>
+    `;
+    
+    return html;
+}
+
+// 개별 정책의 세계 사례 분석
+function generatePolicyWorldCaseAnalysis(policyName) {
+    const worldCases = {
+        "기본소득 도입": {
+            countries: ["핀란드", "케냐", "알래스카"],
+            details: "핀란드는 2017-2018 실험으로 실업급여 대신 기본소득 지급. 케냐는 GiveDirectly를 통한 장기 실험 진행 중. 알래스카는 1982년부터 석유 수익으로 연간 배당금 지급.",
+            result: "고용 효과는 제한적이지만 정신건강과 삶의 질 개선 효과 확인"
+        },
+        "탄소세 도입": {
+            countries: ["스웨덴", "캐나다", "프랑스"],
+            details: "스웨덴은 1991년 세계 최초 도입으로 30년간 GDP 성장과 탄소 감축 동시 달성. 캐나다는 연방 차원에서 주별 탄소세 의무화. 프랑스는 노란조끼 시위로 정책 수정.",
+            result: "환경 효과는 입증되지만 사회적 수용성과 경제적 부담이 관건"
+        },
+        "디지털 교육 확대": {
+            countries: ["에스토니아", "싱가포르", "한국"],
+            details: "에스토니아는 7세부터 코딩 교육 의무화. 싱가포르는 Smart Nation 프로젝트로 전 국민 디지털 리터러시 교육. 한국은 코로나19로 원격교육 급속 확산.",
+            result: "디지털 격차 해소와 미래 인재 양성에 효과적이지만 교사 역량과 인프라 필요"
+        },
+        "의료 인프라 확충": {
+            countries: ["영국", "캐나다", "쿠바"],
+            details: "영국 NHS는 1948년 설립된 무료 의료 시스템의 대표. 캐나다는 연방정부와 주정부가 분담하는 공적 의료보험. 쿠바는 의료 외교로 유명한 사회주의 의료 시스템.",
+            result: "형평성 개선과 건강 지표 향상에 효과적이지만 재정 부담과 효율성 문제 상존"
+        },
+        "재생에너지 투자": {
+            countries: ["덴마크", "독일", "중국"],
+            details: "덴마크는 풍력발전으로 전체 전력의 50% 이상 생산. 독일은 에너지벤데 정책으로 재생에너지 전환 추진. 중국은 세계 최대 규모의 태양광·풍력 설비 보유.",
+            result: "환경 개선과 에너지 안보에 기여하지만 초기 투자비용과 전력망 안정성 이슈"
+        }
+    };
+    
+    const caseData = worldCases[policyName];
+    if (!caseData) {
+        return `
+            <div style="
+                background: rgba(107, 114, 128, 0.1);
+                border: 2px dashed #6b7280;
+                padding: 1rem;
+                border-radius: 8px;
+                text-align: center;
+            ">
+                <p style="color: #6b7280; font-style: italic;">
+                    📚 ${policyName}의 상세 사례는 준비 중입니다.
+                </p>
+            </div>
+        `;
+    }
+    
+    return `
+        <div style="
+            background: rgba(16, 185, 129, 0.1);
+            border-left: 4px solid #10b981;
+            padding: 1.5rem;
+            border-radius: 0 12px 12px 0;
+            margin-bottom: 1rem;
+        ">
+            <h6 style="
+                color: #047857;
+                font-weight: 700;
+                margin-bottom: 0.75rem;
+                font-size: 0.95rem;
+            ">🌍 세계 사례: ${caseData.countries.join(', ')}</h6>
+            <p style="
+                color: #065f46;
+                line-height: 1.5;
+                margin-bottom: 0.75rem;
+                font-size: 0.9rem;
+            ">${caseData.details}</p>
+            <div style="
+                background: rgba(255, 255, 255, 0.8);
+                padding: 0.75rem;
+                border-radius: 6px;
+                border-left: 3px solid #10b981;
+            ">
+                <p style="
+                    color: #047857;
+                    font-weight: 600;
+                    margin: 0;
+                    font-size: 0.85rem;
+                ">📊 결과: ${caseData.result}</p>
+            </div>
+        </div>
+    `;
+}
+
 // 콘솔에서 테스트 가능하도록 전역 함수로 등록
 window.testResultsScreen = window.forceShowResults;
 
