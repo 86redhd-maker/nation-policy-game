@@ -1873,11 +1873,209 @@ function generateComprehensiveAchievementsHTML(gameResult, stats) {
     `).join('');
 }
 
+// 플레이어가 경험한 정치학 개념들을 분석하는 함수
+function analyzeExperiencedConcepts(gameResult, stats) {
+    const experiencedConcepts = [];
+    
+    // 예산 부족 경험 → 기회비용
+    if (stats.budgetUsed > 80 || gameResult.finalIndicators?.재정 < -2) {
+        experiencedConcepts.push('opportunity_cost');
+    }
+    
+    // 충돌하는 정책 선택 → 트레이드오프
+    const policies = gameResult.selectedPolicies || [];
+    let hasConflict = false;
+    policies.forEach(policy => {
+        const policyData = GameData.findPolicy(policy);
+        if (policyData?.충돌정책?.some(conflict => policies.includes(conflict))) {
+            hasConflict = true;
+        }
+    });
+    if (hasConflict) {
+        experiencedConcepts.push('trade_offs');
+    }
+    
+    // 복지 vs 재정 딜레마 → 정부실패/시장실패
+    if (gameResult.finalIndicators?.복지 > 2 && gameResult.finalIndicators?.재정 < -1) {
+        experiencedConcepts.push('government_market_failure');
+    }
+    
+    // 다수 정책 선택 → 민주주의 의사결정
+    if (policies.length >= 8) {
+        experiencedConcepts.push('democratic_decision_making');
+    }
+    
+    // 개인 이익 vs 공익 → 공공선택론
+    if (gameResult.finalIndicators?.['시민 반응'] < 0 && stats.totalScore > 50) {
+        experiencedConcepts.push('public_choice_theory');
+    }
+    
+    return experiencedConcepts;
+}
+
+// 경험한 개념들을 HTML로 생성
+function generateExperiencedConceptsHTML(gameResult, stats) {
+    const experiencedConcepts = analyzeExperiencedConcepts(gameResult, stats);
+    
+    if (experiencedConcepts.length === 0) {
+        return ''; // 경험한 개념이 없으면 섹션 생략
+    }
+    
+    let conceptsHTML = `
+        <div class="educational-section" style="
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 16px;
+            padding: 2rem;
+            margin: 2rem 0;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            border-left: 6px solid #6366f1;
+            animation: fadeInUp 0.6s ease-out;
+        ">
+            <div class="educational-title" style="
+                font-size: 1.5rem;
+                font-weight: 700;
+                color: #6366f1;
+                margin-bottom: 1.5rem;
+                text-align: center;
+                background: linear-gradient(135deg, #6366f1, #8b5cf6);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                background-clip: text;
+            ">
+                🎓 이번 게임에서 경험한 정치학 개념들
+            </div>
+    `;
+    
+    experiencedConcepts.forEach(conceptKey => {
+        if (window.POLICY_THEORY_EDUCATION && window.POLICY_THEORY_EDUCATION[conceptKey]) {
+            const concept = window.POLICY_THEORY_EDUCATION[conceptKey];
+            
+            conceptsHTML += `
+                <div class="concept-analysis" style="
+                    margin-bottom: 2rem;
+                    padding: 1.5rem;
+                    background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(139, 92, 246, 0.1));
+                    border-radius: 12px;
+                    border-left: 4px solid #6366f1;
+                    transition: all 0.3s ease;
+                ">
+                    <h4 style="
+                        color: #4338ca;
+                        margin-bottom: 1rem;
+                        font-size: 1.2rem;
+                        font-weight: 700;
+                        display: flex;
+                        align-items: center;
+                        gap: 0.5rem;
+                    ">🧠 ${concept.title}</h4>
+                    
+                    <div style="
+                        background: rgba(255, 255, 255, 0.8);
+                        padding: 1rem;
+                        border-radius: 8px;
+                        margin-bottom: 1rem;
+                    ">
+                        <p style="
+                            font-size: 0.95rem;
+                            line-height: 1.6;
+                            color: #374151;
+                            margin-bottom: 0.75rem;
+                        "><strong>🎯 핵심 개념:</strong> ${concept.core_concept}</p>
+                        
+                        <p style="
+                            font-size: 0.9rem;
+                            line-height: 1.5;
+                            color: #6b7280;
+                            margin: 0;
+                        "><strong>🏛️ 실제 정치에서:</strong> ${concept.real_world_application || concept.practical_wisdom || '정치인들이 항상 고민하는 핵심 문제입니다.'}</p>
+                    </div>
+                    
+                    ${getPersonalizedConceptExplanation(conceptKey, gameResult, stats)}
+                </div>
+            `;
+        }
+    });
+    
+    conceptsHTML += `</div>`;
+    return conceptsHTML;
+}
+
+// 개인화된 개념 설명
+function getPersonalizedConceptExplanation(conceptKey, gameResult, stats) {
+    const explanations = {
+        'opportunity_cost': `
+            <div style="
+                background: rgba(245, 158, 11, 0.1);
+                padding: 0.75rem;
+                border-radius: 6px;
+                border-left: 3px solid #f59e0b;
+                font-style: italic;
+            ">
+                💡 <strong>당신의 경험:</strong> 예산이 부족해서 원하는 정책을 모두 선택할 수 없었죠? 
+                이것이 바로 기회비용입니다. 정치인들도 매일 이런 선택의 고민을 합니다.
+            </div>
+        `,
+        'trade_offs': `
+            <div style="
+                background: rgba(245, 158, 11, 0.1);
+                padding: 0.75rem;
+                border-radius: 6px;
+                border-left: 3px solid #f59e0b;
+                font-style: italic;
+            ">
+                💡 <strong>당신의 경험:</strong> 충돌하는 정책들 때문에 효과가 줄어들었나요? 
+                현실 정치도 마찬가지입니다. 완벽한 정책은 없고, 모든 선택에는 트레이드오프가 따릅니다.
+            </div>
+        `,
+        'government_market_failure': `
+            <div style="
+                background: rgba(245, 158, 11, 0.1);
+                padding: 0.75rem;
+                border-radius: 6px;
+                border-left: 3px solid #f59e0b;
+                font-style: italic;
+            ">
+                💡 <strong>당신의 경험:</strong> 복지를 늘리니 재정이 악화됐죠? 
+                정부도 만능이 아닙니다. 시장 실패를 해결하려다 정부 실패가 생길 수 있어요.
+            </div>
+        `,
+        'democratic_decision_making': `
+            <div style="
+                background: rgba(245, 158, 11, 0.1);
+                padding: 0.75rem;
+                border-radius: 6px;
+                border-left: 3px solid #f59e0b;
+                font-style: italic;
+            ">
+                💡 <strong>당신의 경험:</strong> 많은 정책을 선택하며 복잡한 고민을 하셨군요! 
+                실제 민주주의에서도 다양한 이해관계를 조정하는 것이 가장 어려운 과제입니다.
+            </div>
+        `,
+        'public_choice_theory': `
+            <div style="
+                background: rgba(245, 158, 11, 0.1);
+                padding: 0.75rem;
+                border-radius: 6px;
+                border-left: 3px solid #f59e0b;
+                font-style: italic;
+            ">
+                💡 <strong>당신의 경험:</strong> 시민 반응은 나빴지만 국가 점수는 높았나요? 
+                때로는 장기적 국익과 단기적 인기가 충돌합니다. 정치인의 딜레마죠.
+            </div>
+        `
+    };
+    
+    return explanations[conceptKey] || '';
+}
+
 // 🔧 교육적 해설 섹션 HTML 생성
 function generateEducationalSectionHTML(gameResult, stats, nationName) {
     if (!gameResult.ending || !gameResult.ending.educational_analysis) {
         return ''; // 교육적 해설이 없으면 빈 문자열 반환
     }
+
+    let html = generateExperiencedConceptsHTML(gameResult, stats);
     
     const analysis = gameResult.ending.educational_analysis;
     
@@ -4807,6 +5005,7 @@ function bindHelpButtons() {
     
     console.log('🔧 버튼 바인딩 완료 - 전역함수 등록됨');
 }
+
 
 
 
