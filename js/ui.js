@@ -925,6 +925,9 @@ function createFallbackPolicies(category) {
 
 // 정책 카드 생성
 function createPolicyCard(policy) {
+    console.log('정책 카드 생성:', policy.정책명);
+    console.log('실제 사례 확인:', window.POLICY_REAL_WORLD_TIPS?.[policy.정책명]);
+    
     let gameStatus = { budget: 100, debtLimit: -50, indicators: {}, currentSelection: [], nation: '기본국가' };
     
     if (typeof gameAPI !== 'undefined') {
@@ -4791,6 +4794,7 @@ function bindHelpButtons() {
     
     console.log('🔧 버튼 바인딩 완료 - 전역함수 등록됨');
 }
+
 
 
 
