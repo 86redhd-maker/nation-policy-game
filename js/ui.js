@@ -963,9 +963,9 @@ function createPolicyCard(policy) {
     card.innerHTML = `
         <div class="policy-header">
             <div class="policy-name">
-    ${policy.정책명}
-    ${realWorldTip ? `<span class="policy-tip-icon" title="${realWorldTip}">💡</span>` : ''}
-</div>
+                ${policy.정책명}
+                ${realWorldTip ? `<span class="policy-tip-icon" title="💡 실제 사례: ${realWorldTip}">💡</span>` : ''}
+            </div>
             <div class="policy-cost">${cost}pt</div>
         </div>
         <div class="policy-description">${policy.정책_설명}</div>
@@ -4791,6 +4791,7 @@ function bindHelpButtons() {
     
     console.log('🔧 버튼 바인딩 완료 - 전역함수 등록됨');
 }
+
 
 
 
