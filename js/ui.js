@@ -2965,7 +2965,7 @@ function showResultsScreen(gameResult) {
                 <!-- 탭 3: 실제 사례 (일단 빈 껍데기) -->
                 <!-- 탭 3: 실제 사례 (완성!) -->
 <div class="result-tab-content" id="tab-cases" style="display: none;">
-    ${generateRealCasesTabHTML(selectedPolicies, nationName)}
+    ${generateTab3RealCasesHTML(selectedPolicies, nationName)}
 </div>
                 
                 <!-- 탭 4: 심화분석/위기사례 (일단 빈 껍데기) -->
