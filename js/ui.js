@@ -2710,11 +2710,13 @@ function generateIndicatorHTML(indicators) {
 }
 
 // 🔧 완전한 결과 화면 표시 함수 - 모든 기존 기능 유지 + DOM 재생성
+// 🔧 ui.js의 showResultsScreen() 함수 수정 - 1단계: 탭 구조 만들기
+
 function showResultsScreen(gameResult) {
-    console.log('🎯 결과 화면 표시 시작 (완전판):', gameResult);
+    console.log('🎯 결과 화면 표시 시작 (탭 구조):', gameResult);
     
     try {
-        // 🔥 1단계: 모든 다른 화면 완전 숨기기
+        // 🔥 1단계: 모든 다른 화면 완전 숨기기 (기존과 동일)
         document.querySelectorAll('.screen').forEach(screen => {
             if (screen.id !== 'resultsScreen') {
                 screen.classList.remove('active');
@@ -2723,14 +2725,14 @@ function showResultsScreen(gameResult) {
             }
         });
         
-        // 🔥 2단계: 기존 결과 화면 완전 제거
+        // 🔥 2단계: 기존 결과 화면 완전 제거 (기존과 동일)
         const existingResults = document.getElementById('resultsScreen');
         if (existingResults) {
             existingResults.remove();
             console.log('기존 결과 화면 제거됨');
         }
         
-        // 🔥 3단계: 결과 데이터 안전 처리
+        // 🔥 3단계: 결과 데이터 안전 처리 (기존과 동일)
         const safeGameResult = gameResult || {};
         const safeEnding = safeGameResult.ending || {
             grade: 'C급',
@@ -2742,7 +2744,7 @@ function showResultsScreen(gameResult) {
         const selectedPolicies = safeGameResult.selectedPolicies || [];
         const nationName = safeGameResult.nationName || selectedNationName || '알 수 없음';
         
-        // 🔥 4단계: 통계 계산 (기존 로직 유지)
+        // 🔥 4단계: 통계 계산 (기존과 동일)
         let stats = {
             totalScore,
             budgetUsed: 0,
@@ -2764,12 +2766,12 @@ function showResultsScreen(gameResult) {
             }
         }
         
-        // 🔥 5단계: 새로운 결과 화면 생성
+        // 🔥 5단계: 새로운 결과 화면 생성 (탭 구조 포함)
         const resultsScreen = document.createElement('div');
         resultsScreen.id = 'resultsScreen';
         resultsScreen.className = 'screen active';
         
-        // 🔥 6단계: 강제 스타일 적용
+        // 🔥 6단계: 강제 스타일 적용 (기존과 동일)
         resultsScreen.style.cssText = `
             display: block !important;
             visibility: visible !important;
@@ -2782,7 +2784,7 @@ function showResultsScreen(gameResult) {
             overflow-y: auto !important;
         `;
         
-         // 🔥 7단계: 완전한 HTML 컨텐츠 생성 (모든 기존 기능 포함)
+         // 🔥 7단계: 탭 기반 HTML 컨텐츠 생성 (새로운 부분!)
         resultsScreen.innerHTML = `
             <div class="results-container" style="
                 padding: 4rem 2rem 2rem 2rem;
@@ -2792,7 +2794,7 @@ function showResultsScreen(gameResult) {
                 position: relative;
                 z-index: 1;
             ">
-                <!-- 최종 타이틀 -->
+                <!-- 최종 타이틀 (기존과 동일) -->
                 <div class="final-title" id="finalTitle" style="
                     font-size: 3rem;
                     font-weight: 800;
@@ -2813,79 +2815,180 @@ function showResultsScreen(gameResult) {
                     🏆 ${safeEnding.grade}<br>${safeEnding.title}
                 </div>
                 
-                <!-- 엔딩 정보 -->
-                <div class="ending-info" id="endingInfo" style="
-                    background: rgba(255, 255, 255, 0.98);
+                <!-- 🆕 NEW! 탭 네비게이션 -->
+                <div class="result-tabs" style="
+                    display: flex;
+                    gap: 8px;
+                    margin-bottom: 30px;
+                    flex-wrap: wrap;
+                    justify-content: center;
+                    background: rgba(255, 255, 255, 0.95);
                     border-radius: 16px;
-                    padding: 2rem;
-                    margin-bottom: 2rem;
+                    padding: 15px;
                     backdrop-filter: blur(10px);
-                    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-                    text-align: center;
-                    border: 1px solid rgba(255, 255, 255, 0.3);
+                    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
                 ">
-                    <div class="ending-title" style="
-                        font-size: 1.5rem;
-                        font-weight: 700;
-                        color: #2d3748;
-                        margin-bottom: 1rem;
-                    ">${safeEnding.title}</div>
-                    <div class="ending-description" style="
-                        font-size: 1rem;
+                    <button class="result-tab-btn active" onclick="showResultTab('basic')" style="
+                        background: linear-gradient(135deg, #ff6b9d, #c44569);
+                        color: white;
+                        border: none;
+                        padding: 12px 18px;
+                        border-radius: 25px;
+                        cursor: pointer;
+                        font-weight: 600;
+                        font-size: 14px;
+                        transition: all 0.3s ease;
+                        box-shadow: 0 4px 15px rgba(255, 107, 157, 0.4);
+                    ">🏆 게임 결과</button>
+                    
+                    <button class="result-tab-btn" onclick="showResultTab('theory')" style="
+                        background: rgba(255, 255, 255, 0.9);
                         color: #4a5568;
-                        margin-bottom: 1rem;
-                        line-height: 1.6;
-                    ">${safeEnding.description}</div>
-                    <div class="final-score" style="
-                        font-size: 1.5rem;
-                        font-weight: 700;
-                        color: #f6ad55;
-                        padding: 1rem;
-                        background: rgba(246, 173, 85, 0.1);
-                        border-radius: 12px;
-                        border: 2px solid #f6ad55;
+                        border: 2px solid transparent;
+                        padding: 12px 18px;
+                        border-radius: 25px;
+                        cursor: pointer;
+                        font-weight: 600;
+                        font-size: 14px;
+                        transition: all 0.3s ease;
+                    ">📚 정치학 교실</button>
+                    
+                    <button class="result-tab-btn" onclick="showResultTab('cases')" style="
+                        background: rgba(255, 255, 255, 0.9);
+                        color: #4a5568;
+                        border: 2px solid transparent;
+                        padding: 12px 18px;
+                        border-radius: 25px;
+                        cursor: pointer;
+                        font-weight: 600;
+                        font-size: 14px;
+                        transition: all 0.3s ease;
+                    ">🌍 실제 사례</button>
+                    
+                    <button class="result-tab-btn" onclick="showResultTab('advanced')" style="
+                        background: rgba(255, 255, 255, 0.9);
+                        color: #4a5568;
+                        border: 2px solid transparent;
+                        padding: 12px 18px;
+                        border-radius: 25px;
+                        cursor: pointer;
+                        font-weight: 600;
+                        font-size: 14px;
+                        transition: all 0.3s ease;
+                    ">${safeEnding.grade === 'F급' || safeEnding.grade === 'D급' ? '⚠️ 위기 사례' : '💡 심화 분석'}</button>
+                </div>
+
+                <!-- 🆕 NEW! 탭 컨텐츠들 -->
+                
+                <!-- 탭 1: 기본 게임 결과 (기존 내용 그대로) -->
+                <div class="result-tab-content active" id="tab-basic">
+                    <!-- 엔딩 정보 (기존과 동일) -->
+                    <div class="ending-info" style="
+                        background: rgba(255, 255, 255, 0.98);
+                        border-radius: 16px;
+                        padding: 2rem;
+                        margin-bottom: 2rem;
+                        backdrop-filter: blur(10px);
+                        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+                        text-align: center;
+                        border: 1px solid rgba(255, 255, 255, 0.3);
                     ">
-                        🎯 최종 점수: ${totalScore}점
+                        <div class="ending-title" style="
+                            font-size: 1.5rem;
+                            font-weight: 700;
+                            color: #2d3748;
+                            margin-bottom: 1rem;
+                        ">${safeEnding.title}</div>
+                        <div class="ending-description" style="
+                            font-size: 1rem;
+                            color: #4a5568;
+                            margin-bottom: 1rem;
+                            line-height: 1.6;
+                        ">${safeEnding.description}</div>
+                        <div class="final-score" style="
+                            font-size: 1.5rem;
+                            font-weight: 700;
+                            color: #f6ad55;
+                            padding: 1rem;
+                            background: rgba(246, 173, 85, 0.1);
+                            border-radius: 12px;
+                            border: 2px solid #f6ad55;
+                        ">
+                            🎯 최종 점수: ${totalScore}점
+                        </div>
+                    </div>
+                    
+                    <!-- 최종 통계 (기존과 동일) -->
+                    <div class="final-stats" style="
+                        display: grid;
+                        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+                        gap: 1.5rem;
+                        margin-bottom: 2rem;
+                    ">
+                        ${generateDetailedStatsHTML(finalIndicators, stats, nationName)}
+                    </div>
+                    
+                    <!-- 업적 섹션 (기존과 동일) -->
+                    <div class="achievements" style="
+                        background: rgba(255, 255, 255, 0.98);
+                        border: 2px solid #f6ad55;
+                        border-radius: 16px;
+                        padding: 2rem;
+                        margin-bottom: 2rem;
+                        text-align: center;
+                        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+                        backdrop-filter: blur(10px);
+                    ">
+                        <div class="achievements-title" style="
+                            font-size: 1.5rem;
+                            font-weight: 700;
+                            color: #ed8936;
+                            margin-bottom: 1.5rem;
+                        ">🏆 달성한 업적</div>
+                        ${generateComprehensiveAchievementsHTML(safeGameResult, stats)}
                     </div>
                 </div>
                 
-                <!-- 최종 통계 (기존 상세 분석 유지) -->
-                <div class="final-stats" id="finalStats" style="
-                    display: grid;
-                    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-                    gap: 1.5rem;
-                    margin-bottom: 2rem;
-                ">
-                    ${generateDetailedStatsHTML(finalIndicators, stats, nationName)}
+                <!-- 탭 2: 정치학 교실 (일단 빈 껍데기) -->
+                <div class="result-tab-content" id="tab-theory" style="display: none;">
+                    <div style="
+                        background: rgba(255, 255, 255, 0.98);
+                        border-radius: 16px;
+                        padding: 2rem;
+                        text-align: center;
+                    ">
+                        <h2 style="color: #f6ad55; margin-bottom: 1rem;">📚 정치학 교실</h2>
+                        <p style="color: #666;">곧 업데이트 예정입니다!</p>
+                    </div>
                 </div>
                 
-                <!-- 업적 섹션 -->
-                <div class="achievements" id="achievements" style="
-                    background: rgba(255, 255, 255, 0.98);
-                    border: 2px solid #f6ad55;
-                    border-radius: 16px;
-                    padding: 2rem;
-                    margin-bottom: 2rem;
-                    text-align: center;
-                    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
-                    backdrop-filter: blur(10px);
-                ">
-                    <div class="achievements-title" style="
-                        font-size: 1.5rem;
-                        font-weight: 700;
-                        color: #ed8936;
-                        margin-bottom: 1.5rem;
-                    ">🏆 달성한 업적</div>
-                    ${generateComprehensiveAchievementsHTML(safeGameResult, stats)}
+                <!-- 탭 3: 실제 사례 (일단 빈 껍데기) -->
+                <div class="result-tab-content" id="tab-cases" style="display: none;">
+                    <div style="
+                        background: rgba(255, 255, 255, 0.98);
+                        border-radius: 16px;
+                        padding: 2rem;
+                        text-align: center;
+                    ">
+                        <h2 style="color: #f6ad55; margin-bottom: 1rem;">🌍 실제 사례</h2>
+                        <p style="color: #666;">곧 업데이트 예정입니다!</p>
+                    </div>
                 </div>
                 
-                <!-- 교육적 해설 섹션 -->
-                ${generateEducationalSectionHTML(safeGameResult, stats, nationName)}
+                <!-- 탭 4: 심화분석/위기사례 (일단 빈 껍데기) -->
+                <div class="result-tab-content" id="tab-advanced" style="display: none;">
+                    <div style="
+                        background: rgba(255, 255, 255, 0.98);
+                        border-radius: 16px;
+                        padding: 2rem;
+                        text-align: center;
+                    ">
+                        <h2 style="color: #f6ad55; margin-bottom: 1rem;">${safeEnding.grade === 'F급' || safeEnding.grade === 'D급' ? '⚠️ 위기 사례' : '💡 심화 분석'}</h2>
+                        <p style="color: #666;">곧 업데이트 예정입니다!</p>
+                    </div>
+                </div>
                 
-                <!-- 실패 분석 섹션 (낮은 등급일 때) -->
-                ${generateFailureAnalysisHTML(safeGameResult)}
-                
-                <!-- 재플레이 버튼 -->
+                <!-- 재플레이 버튼 (기존과 동일) -->
                 <div class="replay-buttons" style="
                     display: flex;
                     gap: 1rem;
@@ -2920,10 +3023,10 @@ function showResultsScreen(gameResult) {
             </div>
         `;
         
-        // 🔥 8단계: DOM에 추가
+        // 🔥 8단계: DOM에 추가 (기존과 동일)
         document.body.appendChild(resultsScreen);
         
-        // 🔥 9단계: 추가 안전 조치
+        // 🔥 9단계: 추가 안전 조치 (기존과 동일)
         setTimeout(() => {
             const checkScreen = document.getElementById('resultsScreen');
             if (checkScreen) {
@@ -2938,42 +3041,60 @@ function showResultsScreen(gameResult) {
                     behavior: 'smooth'
                 });
                 
-                console.log('✅ 완전한 결과 화면 최종 확인 완료');
-                console.log('화면 스타일:', {
-                    display: getComputedStyle(checkScreen).display,
-                    visibility: getComputedStyle(checkScreen).visibility,
-                    opacity: getComputedStyle(checkScreen).opacity,
-                    zIndex: getComputedStyle(checkScreen).zIndex
-                });
-            } else {
-                console.error('❌ 결과 화면이 DOM에서 사라짐!');
+                console.log('✅ 탭 기반 결과 화면 표시 완료');
             }
         }, 100);
         
-        // 🔥 10단계: 효과음 및 상태 업데이트
+        // 🔥 10단계: 효과음 및 상태 업데이트 (기존과 동일)
         if (typeof gameUtils !== 'undefined') {
             gameUtils.playSound('success');
         }
         updateStatusBar('🎊 게임 완료!');
         
-        console.log('🎊 완전한 결과 화면 표시 완료!');
+        console.log('🎊 탭 기반 결과 화면 표시 완료!');
         return true;
         
     } catch (error) {
         console.error('💥 결과 화면 표시 실패:', error);
-        console.error('Error stack:', error.stack);
-        
-        // 🔥 최후의 수단: 간단한 알림
-        setTimeout(() => {
-            const grade = gameResult?.ending?.grade || 'C급';
-            const score = gameResult?.totalScore || 0;
-            
-            if (confirm(`🎮 게임 완료!\n\n등급: ${grade}\n점수: ${score}점\n\n결과 화면 표시에 문제가 있습니다.\n게임을 다시 시작하시겠습니까?`)) {
-                restartGame();
-            }
-        }, 500);
-        
         return false;
+    }
+}
+
+// 🆕 NEW! 탭 전환 함수 추가 (도움말 팝업에서 가져옴)
+function showResultTab(tabName) {
+    console.log('결과 탭 전환:', tabName);
+    
+    // 모든 탭 버튼 비활성화
+    document.querySelectorAll('.result-tab-btn').forEach(btn => {
+        btn.style.background = 'rgba(255, 255, 255, 0.9)';
+        btn.style.color = '#4a5568';
+        btn.style.boxShadow = 'none';
+    });
+    
+    // 모든 탭 컨텐츠 숨기기
+    document.querySelectorAll('.result-tab-content').forEach(content => {
+        content.style.display = 'none';
+        content.classList.remove('active');
+    });
+    
+    // 클릭된 탭 버튼 활성화
+    const activeBtn = document.querySelector(`[onclick="showResultTab('${tabName}')"]`);
+    if (activeBtn) {
+        activeBtn.style.background = 'linear-gradient(135deg, #ff6b9d, #c44569)';
+        activeBtn.style.color = 'white';
+        activeBtn.style.boxShadow = '0 4px 15px rgba(255, 107, 157, 0.4)';
+    }
+    
+    // 해당 탭 컨텐츠 표시
+    const activeContent = document.getElementById(`tab-${tabName}`);
+    if (activeContent) {
+        activeContent.style.display = 'block';
+        activeContent.classList.add('active');
+    }
+    
+    // 효과음
+    if (typeof gameUtils !== 'undefined') {
+        gameUtils.playSound('select');
     }
 }
 
@@ -5010,6 +5131,8 @@ function bindHelpButtons() {
     console.log('🔧 버튼 바인딩 완료 - 전역함수 등록됨');
 }
 
+// 🆕 전역 함수로 등록
+window.showResultTab = showResultTab;
 
 
 
