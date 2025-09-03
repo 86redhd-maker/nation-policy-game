@@ -2962,17 +2962,10 @@ function showResultsScreen(gameResult) {
 </div>
                 
                 <!-- 탭 4: 심화분석/위기사례 (일단 빈 껍데기) -->
-                <div class="result-tab-content" id="tab-advanced" style="display: none;">
-                    <div style="
-                        background: rgba(255, 255, 255, 0.98);
-                        border-radius: 16px;
-                        padding: 2rem;
-                        text-align: center;
-                    ">
-                        <h2 style="color: #f6ad55; margin-bottom: 1rem;">${safeEnding.grade === 'F급' || safeEnding.grade === 'D급' ? '⚠️ 위기 사례' : '💡 심화 분석'}</h2>
-                        <p style="color: #666;">곧 업데이트 예정입니다!</p>
-                    </div>
-                </div>
+                <!-- 탭 4: 심화분석/위기사례 (새 버전) -->
+<div class="result-tab-content" id="tab-advanced" style="display: none;">
+    ${generateTab4AdvancedAnalysisHTML(safeGameResult, stats, selectedPolicies, nationName)}
+</div>
                 
                 <!-- 재플레이 버튼 (기존과 동일) -->
                 <div class="replay-buttons" style="
@@ -4053,6 +4046,722 @@ if (!selectedPolicies || !window.GameData?.findPolicy) return false;
 const educationPolicies = ["공교육 강화", "디지털 교육 확대", "평생학습 확대"];
 return selectedPolicies.some(policy => educationPolicies.includes(policy));
 
+}
+
+// 💡⚠️ 탭 4: 심화분석/위기사례 완전 구현
+
+// 탭 4 메인 HTML 생성
+function generateTab4AdvancedAnalysisHTML(gameResult, stats, selectedPolicies, nationName) {
+    const grade = gameResult.ending?.grade || 'C급';
+    const isHighGrade = grade === 'S급' || grade === 'A급';
+    const isLowGrade = grade === 'F급' || grade === 'D급';
+    
+    return `
+        <div style="max-width: 1200px; margin: 0 auto;">
+            <!-- 탭 4 헤더 -->
+            <div style="
+                text-align: center;
+                margin-bottom: 2rem;
+                background: rgba(255, 255, 255, 0.95);
+                border-radius: 16px;
+                padding: 2rem;
+                backdrop-filter: blur(10px);
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+                border: 2px solid ${isLowGrade ? '#ef4444' : '#8b5cf6'};
+            ">
+                <h2 style="
+                    font-size: 2rem;
+                    font-weight: 800;
+                    color: ${isLowGrade ? '#dc2626' : '#7c3aed'};
+                    margin-bottom: 1rem;
+                    background: linear-gradient(135deg, ${isLowGrade ? '#dc2626, #ef4444' : '#7c3aed, #a855f7'});
+                    -webkit-background-clip: text;
+                    -webkit-text-fill-color: transparent;
+                    background-clip: text;
+                ">${isLowGrade ? '⚠️ 위기 사례 분석' : '💡 심화 분석'}</h2>
+                <p style="
+                    color: #6b7280;
+                    font-size: 1.1rem;
+                    line-height: 1.6;
+                    max-width: 600px;
+                    margin: 0 auto;
+                ">
+                    ${isLowGrade ? 
+                        '실패에서 배우는 <strong style="color: #dc2626;">정치적 교훈</strong>과 위기 극복 방안을 살펴보세요.' :
+                        '성공적인 국가 운영의 <strong style="color: #7c3aed;">심화 원리</strong>와 벤치마킹 포인트를 분석해보세요.'
+                    }
+                </p>
+            </div>
+            
+            ${isLowGrade ? 
+                generateCrisisAnalysisContent(gameResult, stats, selectedPolicies, nationName) :
+                generateAdvancedAnalysisContent(gameResult, stats, selectedPolicies, nationName)
+            }
+        </div>
+    `;
+}
+
+// 위기 사례 분석 컨텐츠 (F급, D급)
+function generateCrisisAnalysisContent(gameResult, stats, selectedPolicies, nationName) {
+    const grade = gameResult.ending?.grade || 'F급';
+    
+    return `
+        <!-- 위기 진단 -->
+        ${generateCrisisDiagnosis(gameResult, stats, grade)}
+        
+        <!-- 역사적 위기 사례 -->
+        ${generateHistoricalCrisisCases(grade)}
+        
+        <!-- 위기 극복 방안 -->
+        ${generateCrisisRecoveryPlan(gameResult, nationName)}
+        
+        <!-- 정치적 교훈 -->
+        ${generatePoliticalLessons()}
+    `;
+}
+
+// 심화 분석 컨텐츠 (A급, B급, C급)
+function generateAdvancedAnalysisContent(gameResult, stats, selectedPolicies, nationName) {
+    const grade = gameResult.ending?.grade || 'C급';
+    
+    return `
+        <!-- 성공 요인 분석 -->
+        ${generateSuccessFactorAnalysis(gameResult, stats, selectedPolicies)}
+        
+        <!-- 정책 조합 심화 분석 -->
+        ${generateAdvancedPolicyCombinationAnalysis(selectedPolicies)}
+        
+        <!-- 벤치마킹 모델 -->
+        ${generateBenchmarkingModels(nationName, grade)}
+        
+        <!-- 차세대 발전 전략 -->
+        ${generateNextLevelStrategy(gameResult, stats)}
+    `;
+}
+
+// 위기 진단 섹션
+function generateCrisisDiagnosis(gameResult, stats, grade) {
+    const totalScore = gameResult.totalScore || 0;
+    const criticalIndicators = Object.entries(gameResult.finalIndicators || {})
+        .filter(([_, value]) => value < -3)
+        .map(([indicator, value]) => ({ indicator, value }));
+    
+    let crisisType = "";
+    let crisisIcon = "🔥";
+    let crisisColor = "#dc2626";
+    
+    if (stats.budgetEfficiency < 0.5) {
+        crisisType = "재정 파탄 위기";
+        crisisIcon = "💸";
+    } else if (stats.citizenSatisfaction < -2) {
+        crisisType = "사회 불안 위기";
+        crisisIcon = "😡";
+    } else if (stats.sustainability < -2) {
+        crisisType = "지속가능성 위기";
+        crisisIcon = "🌪️";
+    } else {
+        crisisType = "종합적 국가 위기";
+        crisisIcon = "🔥";
+    }
+    
+    return `
+        <div style="
+            background: rgba(239, 68, 68, 0.1);
+            border: 2px solid #ef4444;
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            backdrop-filter: blur(10px);
+        ">
+            <div style="
+                text-align: center;
+                margin-bottom: 2rem;
+                padding-bottom: 1.5rem;
+                border-bottom: 2px solid rgba(239, 68, 68, 0.2);
+            ">
+                <div style="
+                    font-size: 4rem;
+                    margin-bottom: 1rem;
+                ">${crisisIcon}</div>
+                <h3 style="
+                    color: ${crisisColor};
+                    font-size: 1.6rem;
+                    font-weight: 700;
+                    margin-bottom: 0.5rem;
+                ">${crisisType}</h3>
+                <p style="
+                    color: #7f1d1d;
+                    font-size: 1.1rem;
+                    font-weight: 600;
+                ">최종 점수: ${totalScore}점 (${grade})</p>
+            </div>
+            
+            <div style="
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+                gap: 1.5rem;
+            ">
+                <!-- 위기 지표 -->
+                <div style="
+                    background: rgba(255, 255, 255, 0.9);
+                    border-radius: 12px;
+                    padding: 1.5rem;
+                ">
+                    <h4 style="
+                        color: #dc2626;
+                        font-size: 1.1rem;
+                        font-weight: 700;
+                        margin-bottom: 1rem;
+                    ">📊 위기 지표 분석</h4>
+                    
+                    ${criticalIndicators.length > 0 ? `
+                        <div style="margin-bottom: 1rem;">
+                            <p style="
+                                color: #b91c1c;
+                                font-weight: 600;
+                                margin-bottom: 0.5rem;
+                            ">⚠️ 심각한 상태 (-3 이하):</p>
+                            ${criticalIndicators.map(({indicator, value}) => `
+                                <div style="
+                                    background: rgba(239, 68, 68, 0.1);
+                                    padding: 0.5rem;
+                                    border-radius: 6px;
+                                    margin-bottom: 0.25rem;
+                                    display: flex;
+                                    justify-content: space-between;
+                                    align-items: center;
+                                ">
+                                    <span style="color: #7f1d1d;">${indicator}</span>
+                                    <span style="color: #dc2626; font-weight: 700;">${value}</span>
+                                </div>
+                            `).join('')}
+                        </div>
+                    ` : ''}
+                    
+                    <div style="
+                        background: rgba(245, 158, 11, 0.1);
+                        border-left: 4px solid #f59e0b;
+                        padding: 1rem;
+                        border-radius: 0 8px 8px 0;
+                    ">
+                        <p style="
+                            color: #92400e;
+                            font-size: 0.9rem;
+                            margin: 0;
+                            line-height: 1.4;
+                        ">
+                            <strong>긴급 대응 필요:</strong> 
+                            이 상태가 지속되면 국가 시스템 자체가 위험해질 수 있습니다.
+                        </p>
+                    </div>
+                </div>
+                
+                <!-- 위기의 원인 -->
+                <div style="
+                    background: rgba(255, 255, 255, 0.9);
+                    border-radius: 12px;
+                    padding: 1.5rem;
+                ">
+                    <h4 style="
+                        color: #dc2626;
+                        font-size: 1.1rem;
+                        font-weight: 700;
+                        margin-bottom: 1rem;
+                    ">🔍 위기의 주요 원인</h4>
+                    
+                    ${generateCrisisCauses(gameResult, stats)}
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+// 위기 원인 분석
+function generateCrisisCauses(gameResult, stats) {
+    const causes = [];
+    
+    if (stats.budgetUsed > 150) {
+        causes.push({
+            icon: "💸",
+            cause: "과도한 지출",
+            explanation: "예산을 초과하는 무리한 정책 추진으로 재정 건전성 악화"
+        });
+    }
+    
+    if (stats.citizenSatisfaction < -1) {
+        causes.push({
+            icon: "😠",
+            cause: "시민 신뢰 상실",
+            explanation: "시민들의 요구를 무시한 정책으로 사회적 지지 기반 붕괴"
+        });
+    }
+    
+    if (Object.values(gameResult.finalIndicators || {}).filter(v => v < 0).length >= 5) {
+        causes.push({
+            icon: "⚖️",
+            cause: "균형 실패",
+            explanation: "한쪽에만 치우친 정책으로 다른 분야의 심각한 부작용 발생"
+        });
+    }
+    
+    if (causes.length === 0) {
+        causes.push({
+            icon: "🌪️",
+            cause: "종합적 정책 실패",
+            explanation: "정책 간 시너지 부족과 전략적 일관성 결여"
+        });
+    }
+    
+    return causes.map(({icon, cause, explanation}) => `
+        <div style="
+            background: rgba(239, 68, 68, 0.1);
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 0.75rem;
+            border-left: 3px solid #ef4444;
+        ">
+            <div style="
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+                margin-bottom: 0.5rem;
+            ">
+                <span style="font-size: 1.2rem;">${icon}</span>
+                <strong style="color: #b91c1c; font-size: 1rem;">${cause}</strong>
+            </div>
+            <p style="
+                color: #7f1d1d;
+                font-size: 0.9rem;
+                margin: 0;
+                line-height: 1.4;
+            ">${explanation}</p>
+        </div>
+    `).join('');
+}
+
+// 역사적 위기 사례
+function generateHistoricalCrisisCases(grade) {
+    const crisisCases = {
+        'F급': {
+            title: "베네수엘라 경제 위기 (2010년대)",
+            background: "석유 수익에 의존한 포퓰리즘 정책이 유가 하락과 함께 국가 파탄으로 이어진 사례",
+            causes: ["과도한 복지 지출", "단일 자원 의존", "정치적 양극화", "제도적 부패"],
+            lessons: "지속가능하지 않은 포퓰리즘 정책의 위험성과 경제 다각화의 중요성",
+            flag: "🇻🇪"
+        },
+        'D급': {
+            title: "그리스 재정 위기 (2010-2018)",
+            background: "유로존 가입 후 방만한 재정 운영과 구조 개혁 실패로 인한 국가 부도 위기",
+            causes: ["재정 적자 누적", "생산성 저하", "부채 급증", "구조 개혁 지연"],
+            lessons: "재정 건전성과 경쟁력 강화 없는 복지 확대의 한계",
+            flag: "🇬🇷"
+        }
+    };
+    
+    const caseData = crisisCases[grade] || crisisCases['F급'];
+    
+    return `
+        <div style="
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            border-left: 6px solid #dc2626;
+        ">
+            <h3 style="
+                color: #dc2626;
+                font-size: 1.4rem;
+                font-weight: 700;
+                margin-bottom: 1.5rem;
+                text-align: center;
+            ">📚 역사가 주는 경고: ${caseData.title}</h3>
+            
+            <div style="
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+                gap: 2rem;
+            ">
+                <!-- 사례 배경 -->
+                <div style="
+                    background: rgba(239, 68, 68, 0.1);
+                    border-radius: 12px;
+                    padding: 1.5rem;
+                    border-left: 4px solid #ef4444;
+                ">
+                    <div style="
+                        display: flex;
+                        align-items: center;
+                        gap: 0.5rem;
+                        margin-bottom: 1rem;
+                    ">
+                        <span style="font-size: 2rem;">${caseData.flag}</span>
+                        <h4 style="
+                            color: #b91c1c;
+                            font-size: 1.1rem;
+                            font-weight: 700;
+                            margin: 0;
+                        ">역사적 배경</h4>
+                    </div>
+                    <p style="
+                        color: #7f1d1d;
+                        line-height: 1.5;
+                        margin: 0;
+                        font-size: 0.95rem;
+                    ">${caseData.background}</p>
+                </div>
+                
+                <!-- 위기 원인 -->
+                <div style="
+                    background: rgba(245, 158, 11, 0.1);
+                    border-radius: 12px;
+                    padding: 1.5rem;
+                    border-left: 4px solid #f59e0b;
+                ">
+                    <h4 style="
+                        color: #d97706;
+                        font-size: 1.1rem;
+                        font-weight: 700;
+                        margin-bottom: 1rem;
+                    ">⚠️ 위기의 원인</h4>
+                    <ul style="
+                        margin: 0;
+                        padding-left: 1.2rem;
+                        color: #92400e;
+                        line-height: 1.6;
+                    ">
+                        ${caseData.causes.map(cause => `
+                            <li style="margin-bottom: 0.5rem; font-size: 0.9rem;">${cause}</li>
+                        `).join('')}
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- 교훈 -->
+            <div style="
+                margin-top: 2rem;
+                background: rgba(139, 92, 246, 0.1);
+                border: 2px solid #a855f7;
+                border-radius: 12px;
+                padding: 1.5rem;
+                text-align: center;
+            ">
+                <h4 style="
+                    color: #7c3aed;
+                    font-size: 1.2rem;
+                    font-weight: 700;
+                    margin-bottom: 1rem;
+                ">💡 핵심 교훈</h4>
+                <p style="
+                    color: #581c87;
+                    line-height: 1.6;
+                    margin: 0;
+                    font-size: 1rem;
+                    font-style: italic;
+                ">"${caseData.lessons}"</p>
+            </div>
+        </div>
+    `;
+}
+
+// 위기 극복 방안
+function generateCrisisRecoveryPlan(gameResult, nationName) {
+    const recoverySteps = [
+        {
+            phase: "1단계: 즉시 안정화",
+            icon: "🚨",
+            color: "#dc2626",
+            actions: [
+                "재정 긴축을 통한 출혈 차단",
+                "사회 갈등 완화를 위한 대화 채널 구축",
+                "핵심 서비스(의료, 교육, 치안) 유지",
+                "국제 사회와의 협력 강화"
+            ]
+        },
+        {
+            phase: "2단계: 구조 개혁",
+            icon: "🔧",
+            color: "#f59e0b",
+            actions: [
+                "비효율적 제도와 조직 개편",
+                "투명성과 책임성 강화",
+                "경제 구조 다각화 추진",
+                "인재 육성과 역량 강화"
+            ]
+        },
+        {
+            phase: "3단계: 지속 성장",
+            icon: "🌱",
+            color: "#059669",
+            actions: [
+                "혁신 생태계 구축",
+                "장기 발전 전략 수립",
+                "사회적 합의 기반 강화",
+                "미래 위험 관리 체계 구축"
+            ]
+        }
+    ];
+    
+    return `
+        <div style="
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            border-left: 6px solid #059669;
+        ">
+            <h3 style="
+                color: #059669;
+                font-size: 1.4rem;
+                font-weight: 700;
+                margin-bottom: 1.5rem;
+                text-align: center;
+            ">🛣️ ${nationName} 위기 극복 로드맵</h3>
+            
+            <div style="
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+                gap: 1.5rem;
+            ">
+                ${recoverySteps.map(step => `
+                    <div style="
+                        background: rgba(255, 255, 255, 0.9);
+                        border-radius: 12px;
+                        padding: 1.5rem;
+                        border-left: 4px solid ${step.color};
+                        transition: all 0.3s ease;
+                    " onmouseover="this.style.transform='translateY(-4px)'" onmouseout="this.style.transform='translateY(0)'">
+                        <div style="
+                            display: flex;
+                            align-items: center;
+                            gap: 0.75rem;
+                            margin-bottom: 1rem;
+                        ">
+                            <div style="
+                                width: 40px;
+                                height: 40px;
+                                background: ${step.color};
+                                border-radius: 50%;
+                                display: flex;
+                                align-items: center;
+                                justify-content: center;
+                                font-size: 1.2rem;
+                            ">${step.icon}</div>
+                            <h4 style="
+                                color: ${step.color};
+                                font-size: 1rem;
+                                font-weight: 700;
+                                margin: 0;
+                            ">${step.phase}</h4>
+                        </div>
+                        
+                        <ul style="
+                            margin: 0;
+                            padding-left: 1rem;
+                            color: #374151;
+                            line-height: 1.5;
+                        ">
+                            ${step.actions.map(action => `
+                                <li style="
+                                    margin-bottom: 0.5rem; 
+                                    font-size: 0.9rem;
+                                    position: relative;
+                                    padding-left: 0.5rem;
+                                ">
+                                    <span style="
+                                        position: absolute;
+                                        left: -0.75rem;
+                                        color: ${step.color};
+                                        font-weight: bold;
+                                    ">•</span>
+                                    ${action}
+                                </li>
+                            `).join('')}
+                        </ul>
+                    </div>
+                `).join('')}
+            </div>
+        </div>
+    `;
+}
+
+// 정치적 교훈 섹션
+function generatePoliticalLessons() {
+    return `
+        <div style="
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 16px;
+            padding: 2rem;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            border: 2px solid #8b5cf6;
+            text-align: center;
+        ">
+            <h3 style="
+                color: #7c3aed;
+                font-size: 1.4rem;
+                font-weight: 700;
+                margin-bottom: 1.5rem;
+            ">🎓 정치적 교훈과 성찰</h3>
+            
+            <div style="
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+                gap: 1rem;
+                margin-bottom: 2rem;
+                text-align: left;
+            ">
+                <div style="background: rgba(139, 92, 246, 0.1); padding: 1rem; border-radius: 8px;">
+                    <strong style="color: #7c3aed; display: block; margin-bottom: 0.5rem;">📊 데이터의 중요성</strong>
+                    <p style="color: #6b7280; font-size: 0.9rem; margin: 0;">
+                        감정보다는 객관적 데이터를 바탕으로 한 정책 결정이 필요합니다.
+                    </p>
+                </div>
+                <div style="background: rgba(34, 197, 94, 0.1); padding: 1rem; border-radius: 8px;">
+                    <strong style="color: #059669; display: block; margin-bottom: 0.5rem;">⚖️ 균형의 지혜</strong>
+                    <p style="color: #6b7280; font-size: 0.9rem; margin: 0;">
+                        극단적 정책보다는 균형 잡힌 접근이 안정적 발전을 가져옵니다.
+                    </p>
+                </div>
+                <div style="background: rgba(245, 158, 11, 0.1); padding: 1rem; border-radius: 8px;">
+                    <strong style="color: #d97706; display: block; margin-bottom: 0.5rem;">🕰️ 장기적 관점</strong>
+                    <p style="color: #6b7280; font-size: 0.9rem; margin: 0;">
+                        단기적 인기보다는 장기적 국가 발전을 고려해야 합니다.
+                    </p>
+                </div>
+                <div style="background: rgba(236, 72, 153, 0.1); padding: 1rem; border-radius: 8px;">
+                    <strong style="color: #be185d; display: block; margin-bottom: 0.5rem;">🤝 소통과 합의</strong>
+                    <p style="color: #6b7280; font-size: 0.9rem; margin: 0;">
+                        독단적 결정보다는 사회적 합의를 통한 정책이 지속가능합니다.
+                    </p>
+                </div>
+            </div>
+            
+            <div style="
+                background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(168, 85, 247, 0.1));
+                padding: 2rem;
+                border-radius: 12px;
+            ">
+                <h4 style="
+                    color: #7c3aed;
+                    font-size: 1.2rem;
+                    font-weight: 700;
+                    margin-bottom: 1rem;
+                ">💪 실패는 성공의 어머니</h4>
+                <p style="
+                    color: #6b7280;
+                    line-height: 1.6;
+                    font-size: 1rem;
+                    margin: 0;
+                ">
+                    이번 경험을 통해 정치의 어려움을 깊이 이해하셨습니다. 
+                    <br><br>
+                    <strong style="color: #7c3aed;">실패에서 배운 교훈</strong>이야말로 
+                    더 나은 정치인, 더 현명한 시민이 되는 밑거름입니다.
+                </p>
+            </div>
+        </div>
+    `;
+}
+
+// 성공 요인 분석 (고등급용)
+function generateSuccessFactorAnalysis(gameResult, stats, selectedPolicies) {
+    const successFactors = [];
+    
+    if (stats.budgetEfficiency >= 1.5) {
+        successFactors.push({
+            factor: "효율적 예산 운영",
+            icon: "💰",
+            description: "한정된 자원으로 최대의 효과를 달성하는 재정 관리 능력"
+        });
+    }
+    
+    if (stats.citizenSatisfaction >= 1) {
+        successFactors.push({
+            factor: "시민 중심 정책",
+            icon: "😊",
+            description: "시민의 요구를 정확히 파악하고 이에 부응하는 정책 개발"
+        });
+    }
+    
+    if (stats.sustainability >= 1) {
+        successFactors.push({
+            factor: "지속가능한 발전",
+            icon: "🌱",
+            description: "단기적 성과와 장기적 안정성을 동시에 고려한 균형 잡힌 접근"
+        });
+    }
+    
+    if (Object.values(gameResult.finalIndicators || {}).filter(v => v >= 2).length >= 3) {
+        successFactors.push({
+            factor: "복합적 시너지 창출",
+            icon: "⚡",
+            description: "서로 다른 정책들이 상호 보완하며 만들어낸 시너지 효과"
+        });
+    }
+    
+    return `
+        <div style="
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            border-left: 6px solid #059669;
+        ">
+            <h3 style="
+                color: #059669;
+                font-size: 1.4rem;
+                font-weight: 700;
+                margin-bottom: 1.5rem;
+                text-align: center;
+            ">🏆 성공 요인 분석</h3>
+            
+            <div style="
+                        background: linear-gradient(135deg, rgba(5, 150, 105, 0.1), rgba(16, 185, 129, 0.1));
+                        border-radius: 12px;
+                        padding: 1.5rem;
+                        border-left: 4px solid #10b981;
+                        transition: all 0.3s ease;
+                    " onmouseover="this.style.transform='translateY(-4px)'" onmouseout="this.style.transform='translateY(0)'">
+                        <div style="
+                            display: flex;
+                            align-items: center;
+                            gap: 0.75rem;
+                            margin-bottom: 1rem;
+                        ">
+                            <div style="
+                                width: 50px;
+                                height: 50px;
+                                background: #10b981;
+                                border-radius: 12px;
+                                display: flex;
+                                align-items: center;
+                                justify-content: center;
+                                font-size: 1.5rem;
+                            ">${icon}</div>
+                            <h4 style="
+                                color: #047857;
+                                font-size: 1.1rem;
+                                font-weight: 700;
+                                margin: 0;
+                            ">${factor}</h4>
+                        </div>
+                        <p style="
+                            color: #065f46;
+                            line-height: 1.5;
+                            margin: 0;
+                            font-size: 0.95rem;
+                        ">${description}</p>
+                    </div>
+                `).join('')}
+            </div>
+        </div>
+    `;
 }
 
 // 콘솔에서 테스트 가능하도록 전역 함수로 등록
@@ -6063,6 +6772,7 @@ function bindHelpButtons() {
 
 // 🆕 전역 함수로 등록
 window.showResultTab = showResultTab;
+
 
 
 
