@@ -4770,6 +4770,232 @@ function generateSuccessFactorAnalysis(gameResult, stats, selectedPolicies) {
     `;
 }
 
+// 고급 정책 조합 분석
+function generateAdvancedPolicyCombinationAnalysis(selectedPolicies) {
+    if (!selectedPolicies || selectedPolicies.length === 0) {
+        return '<div style="text-align: center; color: #666;">분석할 정책 조합이 없습니다.</div>';
+    }
+    
+    // 정책 조합 패턴 분석
+    const policyPatterns = analyzePolicyPatterns(selectedPolicies);
+    
+    return `
+        <div style="
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            border-left: 6px solid #8b5cf6;
+        ">
+            <h3 style="
+                color: #8b5cf6;
+                font-size: 1.4rem;
+                font-weight: 700;
+                margin-bottom: 1.5rem;
+                text-align: center;
+            ">🔬 정책 조합 심화 분석</h3>
+            
+            <div style="
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+                gap: 2rem;
+            ">
+                <!-- 패턴 분석 -->
+                <div style="
+                    background: rgba(139, 92, 246, 0.1);
+                    border-radius: 12px;
+                    padding: 1.5rem;
+                    border-left: 4px solid #8b5cf6;
+                ">
+                    <h4 style="
+                        color: #7c3aed;
+                        font-size: 1.1rem;
+                        font-weight: 700;
+                        margin-bottom: 1rem;
+                    ">📊 정책 패턴 분석</h4>
+                    
+                    ${policyPatterns.map(pattern => `
+                        <div style="
+                            background: rgba(255, 255, 255, 0.8);
+                            padding: 1rem;
+                            border-radius: 8px;
+                            margin-bottom: 1rem;
+                        ">
+                            <p style="
+                                font-weight: 600;
+                                color: #6d28d9;
+                                margin-bottom: 0.5rem;
+                                font-size: 0.9rem;
+                            ">${pattern.type}:</p>
+                            <p style="
+                                color: #581c87;
+                                line-height: 1.4;
+                                margin: 0;
+                                font-size: 0.9rem;
+                            ">${pattern.description}</p>
+                        </div>
+                    `).join('')}
+                </div>
+                
+                <!-- 시너지 효과 -->
+                <div style="
+                    background: rgba(34, 197, 94, 0.1);
+                    border-radius: 12px;
+                    padding: 1.5rem;
+                    border-left: 4px solid #22c55e;
+                ">
+                    <h4 style="
+                        color: #059669;
+                        font-size: 1.1rem;
+                        font-weight: 700;
+                        margin-bottom: 1rem;
+                    ">⚡ 시너지 효과 분석</h4>
+                    
+                    ${generateSynergyAnalysis(selectedPolicies)}
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+// 벤치마킹 모델 제시
+function generateBenchmarkingModels(nationName, grade) {
+    const benchmarkModels = {
+        'S급': {
+            model: "덴마크 모델",
+            flag: "🇩🇰",
+            description: "높은 복지 수준과 경제 효율성을 동시에 달성한 북유럽 모델의 대표",
+            keyFeatures: ["높은 세율, 높은 복지", "강력한 노동조합과 사회적 협약", "혁신 기반 경제", "높은 사회적 신뢰"]
+        },
+        'A급': {
+            model: "싱가포르 모델",
+            flag: "🇸🇬",
+            description: "효율적 정부와 장기적 계획으로 선진국 도약에 성공한 도시국가 모델",
+            keyFeatures: ["실용주의 정책", "장기적 국가 전략", "인재 중심 발전", "청렴한 정부"]
+        },
+        'B급': {
+            model: "캐나다 모델",
+            flag: "🇨🇦",
+            description: "다문화 사회의 안정적 통합과 지속가능한 발전을 이룬 선진국",
+            keyFeatures: ["다문화주의", "자원의 지속가능한 활용", "점진적 개혁", "사회적 포용성"]
+        }
+    };
+    
+    const model = benchmarkModels[grade] || benchmarkModels['A급'];
+    
+    return `
+        <div style="
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            border-left: 6px solid #f59e0b;
+        ">
+            <h3 style="
+                color: #f59e0b;
+                font-size: 1.4rem;
+                font-weight: 700;
+                margin-bottom: 1.5rem;
+                text-align: center;
+            ">🌟 벤치마킹 모델: ${model.model}</h3>
+            
+            <div style="
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+                gap: 2rem;
+            ">
+                <!-- 모델 소개 -->
+                <div style="
+                    background: rgba(245, 158, 11, 0.1);
+                    border-radius: 12px;
+                    padding: 1.5rem;
+                    text-align: center;
+                ">
+                    <div style="
+                        font-size: 4rem;
+                        margin-bottom: 1rem;
+                    ">${model.flag}</div>
+                    <h4 style="
+                        color: #d97706;
+                        font-size: 1.2rem;
+                        font-weight: 700;
+                        margin-bottom: 1rem;
+                    ">${model.model}</h4>
+                    <p style="
+                        color: #92400e;
+                        line-height: 1.5;
+                        margin: 0;
+                        font-size: 0.95rem;
+                    ">${model.description}</p>
+                </div>
+                
+                <!-- 핵심 특징 -->
+                <div style="
+                    background: rgba(255, 255, 255, 0.9);
+                    border-radius: 12px;
+                    padding: 1.5rem;
+                ">
+                    <h4 style="
+                        color: #d97706;
+                        font-size: 1.1rem;
+                        font-weight: 700;
+                        margin-bottom: 1rem;
+                    ">🔑 핵심 특징</h4>
+                    
+                    <ul style="
+                        margin: 0;
+                        padding-left: 1.2rem;
+                        color: #78350f;
+                        line-height: 1.6;
+                    ">
+                        ${model.keyFeatures.map(feature => `
+                            <li style="
+                                margin-bottom: 0.75rem; 
+                                font-size: 0.9rem;
+                            ">${feature}</li>
+                        `).join('')}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+// 차세대 발전 전략
+function generateNextLevelStrategy(gameResult, stats) {
+    return `
+        <div style="
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 16px;
+            padding: 2rem;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            border: 2px solid #06b6d4;
+            text-align: center;
+        ">
+            <h3 style="
+                color: #0891b2;
+                font-size: 1.4rem;
+                font-weight: 700;
+                margin-bottom: 1.5rem;
+            ">🚀 차세대 발전 전략</h3>
+            
+            <p style="
+                color: #6b7280;
+                line-height: 1.6;
+                font-size: 1rem;
+                margin: 0;
+            ">
+                축하합니다! 다음 게임에서는 더 높은 목표에 도전해보세요!
+            </p>
+        </div>
+    `;
+}
+
 // 콘솔에서 테스트 가능하도록 전역 함수로 등록
 window.testResultsScreen = window.forceShowResults;
 
@@ -6778,6 +7004,7 @@ function bindHelpButtons() {
 
 // 🆕 전역 함수로 등록
 window.showResultTab = showResultTab;
+
 
 
 
