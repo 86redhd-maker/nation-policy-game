@@ -3573,6 +3573,495 @@ function generateRealCasesTabHTML(selectedPolicies, nationName) {
     `;
 }
 
+// 📚 탭 2: 정치학 교실 완전 구현
+
+// 탭 2 메인 HTML 생성
+function generateTab2PoliticalTheoryHTML(gameResult, stats, selectedPolicies) {
+return `
+<div style="max-width: 1200px; margin: 0 auto;">
+<!-- 탭 2 헤더 -->
+<div style="
+text-align: center;
+margin-bottom: 2rem;
+background: rgba(255, 255, 255, 0.95);
+border-radius: 16px;
+padding: 2rem;
+backdrop-filter: blur(10px);
+box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+">
+<h2 style="
+font-size: 2rem;
+font-weight: 800;
+color: #6366f1;
+margin-bottom: 1rem;
+background: linear-gradient(135deg, #6366f1, #8b5cf6);
+-webkit-background-clip: text;
+-webkit-text-fill-color: transparent;
+background-clip: text;
+">📚 정치학 교실</h2>
+<p style="
+color: #6b7280;
+font-size: 1.1rem;
+line-height: 1.6;
+max-width: 600px;
+margin: 0 auto;
+">
+게임 속에서 <strong style="color: #6366f1;">실제로 경험한 정치학 개념들</strong>을
+이론과 현실로 연결해보세요.
+</p>
+</div>
+
+        <!-- 경험한 개념들 분석 -->
+        ${generateExperiencedConceptsSection(gameResult, stats, selectedPolicies)}
+        
+        <!-- 정치학 핵심 개념 총정리 -->
+        ${generateCoreConceptsSection()}
+        
+        <!-- 게임에서 정치 현실로 -->
+        ${generateGameToRealitySection()}
+    </div>
+`;
+
+}
+
+// 경험한 개념들 분석 섹션
+function generateExperiencedConceptsSection(gameResult, stats, selectedPolicies) {
+const experiencedConcepts = analyzePlayerExperience(gameResult, stats, selectedPolicies);
+
+if (experiencedConcepts.length === 0) {
+    return `
+        <div style="
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 16px;
+            padding: 2rem;
+            text-align: center;
+            margin-bottom: 2rem;
+        ">
+            <p style="color: #666;">이번 게임에서 특별히 경험한 정치학 개념을 분석 중입니다...</p>
+        </div>
+    `;
+}
+
+let html = `
+    <div style="
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 16px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        backdrop-filter: blur(10px);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        border-left: 6px solid #6366f1;
+    ">
+        <h3 style="
+            color: #6366f1;
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        ">🎓 이번 게임에서 경험한 정치학 개념들</h3>
+        
+        <div style="
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 1.5rem;
+        ">
+`;
+
+experiencedConcepts.forEach(concept => {
+    html += `
+        <div style="
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(139, 92, 246, 0.1));
+            border-radius: 12px;
+            padding: 1.5rem;
+            border-left: 4px solid #6366f1;
+            transition: all 0.3s ease;
+        " onmouseover="this.style.transform='translateY(-4px)'" onmouseout="this.style.transform='translateY(0)'">
+            <h4 style="
+                color: #4338ca;
+                margin-bottom: 1rem;
+                font-size: 1.1rem;
+                font-weight: 700;
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+            ">🧠 ${concept.title}</h4>
+            
+            <div style="
+                background: rgba(255, 255, 255, 0.8);
+                padding: 1rem;
+                border-radius: 8px;
+                margin-bottom: 1rem;
+            ">
+                <p style="
+                    font-size: 0.95rem;
+                    line-height: 1.6;
+                    color: #374151;
+                    margin: 0;
+                ">${concept.explanation}</p>
+            </div>
+            
+            <div style="
+                background: rgba(245, 158, 11, 0.1);
+                padding: 1rem;
+                border-radius: 8px;
+                border-left: 3px solid #f59e0b;
+            ">
+                <p style="
+                    font-weight: 600;
+                    color: #92400e;
+                    margin-bottom: 0.5rem;
+                    font-size: 0.9rem;
+                ">💡 당신의 경험:</p>
+                <p style="
+                    color: #78350f;
+                    line-height: 1.4;
+                    margin: 0;
+                    font-size: 0.9rem;
+                    font-style: italic;
+                ">${concept.personalExperience}</p>
+            </div>
+        </div>
+    `;
+});
+
+html += `
+        </div>
+    </div>
+`;
+
+return html;
+
+}
+
+// 플레이어 경험 분석 함수
+function analyzePlayerExperience(gameResult, stats, selectedPolicies) {
+const concepts = [];
+
+// 예산 부족 경험 → 기회비용
+if (stats.budgetUsed > 80 || gameResult.finalIndicators?.재정 < -2) {
+    concepts.push({
+        title: "기회비용 (Opportunity Cost)",
+        explanation: "하나를 선택할 때 포기해야 하는 다른 선택의 가치. 정치에서는 한정된 예산으로 모든 문제를 해결할 수 없습니다.",
+        personalExperience: "예산이 부족해서 원하는 정책을 모두 선택할 수 없었죠? 이것이 바로 기회비용입니다. 정치인들도 매일 이런 선택의 고민을 합니다."
+    });
+}
+
+// 정책 효과의 상충 → 트레이드오프
+if (hasConflictingEffects(selectedPolicies) || stats.totalScore < stats.budgetUsed) {
+    concepts.push({
+        title: "트레이드오프 (Trade-off)",
+        explanation: "한 가지를 얻기 위해 다른 것을 포기하는 관계. 모든 정책 결정에는 득과 실이 공존하며, 완벽한 정책은 거의 존재하지 않습니다.",
+        personalExperience: "환경을 지키려니 경제 성장이 어려웠고, 복지를 늘리니 재정이 악화됐죠? 현실 정치도 마찬가지입니다. 모든 선택에는 트레이드오프가 따릅니다."
+    });
+}
+
+// 복지 vs 재정 딜레마 → 정부실패/시장실패
+if (gameResult.finalIndicators?.복지 > 2 && gameResult.finalIndicators?.재정 < -1) {
+    concepts.push({
+        title: "정부실패 vs 시장실패",
+        explanation: "시장이 해결하지 못하는 문제(시장실패)를 정부가 개입해 해결하려 하지만, 때로는 정부 개입이 더 큰 비효율을 만들기도 합니다(정부실패).",
+        personalExperience: "복지를 늘리니 재정이 악화됐죠? 정부도 만능이 아닙니다. 시장 실패를 해결하려다 정부 실패가 생길 수 있어요."
+    });
+}
+
+// 다수 정책 선택 → 민주주의 의사결정
+if (selectedPolicies.length >= 8) {
+    concepts.push({
+        title: "민주주의 의사결정의 복잡성",
+        explanation: "민주주의에서는 다양한 이해관계자들의 의견을 조정해야 합니다. 모든 사람을 만족시키는 정책을 만들기는 거의 불가능합니다.",
+        personalExperience: "많은 정책을 선택하며 복잡한 고민을 하셨군요! 실제 민주주의에서도 다양한 이해관계를 조정하는 것이 가장 어려운 과제입니다."
+    });
+}
+
+// 개인 이익 vs 공익 → 공공선택론
+if (gameResult.finalIndicators?.['시민 반응'] < 0 && stats.totalScore > 50) {
+    concepts.push({
+        title: "공공선택론 (Public Choice Theory)",
+        explanation: "정치인도 재선을 위해 유권자의 지지가 필요한 합리적 행위자입니다. 때로는 장기적 국익보다 단기적 인기를 추구할 수밖에 없는 구조적 한계가 있습니다.",
+        personalExperience: "시민 반응은 나빴지만 국가 점수는 높았나요? 때로는 장기적 국익과 단기적 인기가 충돌합니다. 정치인의 영원한 딜레마죠."
+    });
+}
+
+// 외부효과 경험
+if (hasPositiveExternalities(selectedPolicies)) {
+    concepts.push({
+        title: "외부효과 (Externalities)",
+        explanation: "한 정책이 의도하지 않은 다른 분야에 미치는 영향. 긍정적 외부효과는 사회 전체에 이익을, 부정적 외부효과는 손해를 가져다줍니다.",
+        personalExperience: "교육 투자가 기술 발전뿐만 아니라 시민 만족도까지 올렸던 것처럼, 모든 정책은 연결되어 있어요."
+    });
+}
+
+return concepts;
+
+}
+
+// 핵심 개념 총정리 섹션
+function generateCoreConceptsSection() {
+return `
+<div style="
+background: rgba(255, 255, 255, 0.95);
+border-radius: 16px;
+padding: 2rem;
+margin-bottom: 2rem;
+backdrop-filter: blur(10px);
+box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+border-left: 6px solid #8b5cf6;
+">
+<h3 style="
+color: #8b5cf6;
+font-size: 1.4rem;
+font-weight: 700;
+margin-bottom: 1.5rem;
+text-align: center;
+">🎓 정치학 핵심 개념 총정리</h3>
+
+        <div style="
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 1.5rem;
+        ">
+            <!-- 기회비용 -->
+            <div style="
+                background: rgba(99, 102, 241, 0.1);
+                border-radius: 12px;
+                padding: 1.5rem;
+                border-left: 4px solid #6366f1;
+                transition: all 0.3s ease;
+            " onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'">
+                <h4 style="color: #4338ca; font-size: 1.1rem; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+                    💰 기회비용 (Opportunity Cost)
+                </h4>
+                <p style="color: #374151; line-height: 1.5; font-size: 0.95rem; margin-bottom: 1rem;">
+                    하나를 선택할 때 포기해야 하는 다른 선택의 가치. 정치에서는 한정된 예산으로 모든 문제를 해결할 수 없음.
+                </p>
+                <div style="background: rgba(255, 255, 255, 0.8); padding: 1rem; border-radius: 8px;">
+                    <p style="font-weight: 600; color: #1e40af; margin-bottom: 0.5rem; font-size: 0.9rem;">🎯 실제 정치에서:</p>
+                    <p style="color: #1e3a8a; font-size: 0.9rem; margin: 0;">
+                        "복지 예산을 늘리면 국방비를 줄여야 한다" - 모든 정책 결정의 기본 원리
+                    </p>
+                </div>
+            </div>
+            
+            <!-- 트레이드오프 -->
+            <div style="
+                background: rgba(139, 92, 246, 0.1);
+                border-radius: 12px;
+                padding: 1.5rem;
+                border-left: 4px solid #8b5cf6;
+                transition: all 0.3s ease;
+            " onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'">
+                <h4 style="color: #7c3aed; font-size: 1.1rem; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+                    ⚖️ 트레이드오프 (Trade-off)
+                </h4>
+                <p style="color: #374151; line-height: 1.5; font-size: 0.95rem; margin-bottom: 1rem;">
+                    한 가지를 얻기 위해 다른 것을 포기하는 관계. 모든 정책 결정에는 득과 실이 공존함.
+                </p>
+                <div style="background: rgba(255, 255, 255, 0.8); padding: 1rem; border-radius: 8px;">
+                    <p style="font-weight: 600; color: #6d28d9; margin-bottom: 0.5rem; font-size: 0.9rem;">🎯 실제 정치에서:</p>
+                    <p style="color: #581c87; font-size: 0.9rem; margin: 0;">
+                        "탄소세로 환경을 지키면 기업 경쟁력이 떨어진다" - 완벽한 정책은 없다
+                    </p>
+                </div>
+            </div>
+            
+            <!-- 외부효과 -->
+            <div style="
+                background: rgba(34, 197, 94, 0.1);
+                border-radius: 12px;
+                padding: 1.5rem;
+                border-left: 4px solid #22c55e;
+                transition: all 0.3s ease;
+            " onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'">
+                <h4 style="color: #059669; font-size: 1.1rem; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+                    🌊 외부효과 (Externalities)
+                </h4>
+                <p style="color: #374151; line-height: 1.5; font-size: 0.95rem; margin-bottom: 1rem;">
+                    한 정책이 의도하지 않은 다른 분야에 미치는 영향. 모든 정책은 연결되어 있음.
+                </p>
+                <div style="background: rgba(255, 255, 255, 0.8); padding: 1rem; border-radius: 8px;">
+                    <p style="font-weight: 600; color: #047857; margin-bottom: 0.5rem; font-size: 0.9rem;">🎯 실제 정치에서:</p>
+                    <p style="color: #065f46; font-size: 0.9rem; margin: 0;">
+                        "교육 투자가 경제 성장과 사회 안정까지 가져온다" - 모든 정책은 연쇄반응
+                    </p>
+                </div>
+            </div>
+            
+            <!-- 공공선택론 -->
+            <div style="
+                background: rgba(245, 158, 11, 0.1);
+                border-radius: 12px;
+                padding: 1.5rem;
+                border-left: 4px solid #f59e0b;
+                transition: all 0.3s ease;
+            " onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'">
+                <h4 style="color: #d97706; font-size: 1.1rem; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+                    🏛️ 공공선택론 (Public Choice Theory)
+                </h4>
+                <p style="color: #374151; line-height: 1.5; font-size: 0.95rem; margin-bottom: 1rem;">
+                    정치인도 유권자의 지지를 얻어야 하는 합리적 행위자. 때로는 장기적 국익보다 단기적 인기를 추구할 수 있음.
+                </p>
+                <div style="background: rgba(255, 255, 255, 0.8); padding: 1rem; border-radius: 8px;">
+                    <p style="font-weight: 600; color: #b45309; margin-bottom: 0.5rem; font-size: 0.9rem;">🎯 실제 정치에서:</p>
+                    <p style="color: #92400e; font-size: 0.9rem; margin: 0;">
+                        "선거 직전엔 인기 정책, 선거 직후엔 고통스러운 개혁" - 정치인의 현실
+                    </p>
+                </div>
+            </div>
+            
+            <!-- 정부실패 -->
+            <div style="
+                background: rgba(239, 68, 68, 0.1);
+                border-radius: 12px;
+                padding: 1.5rem;
+                border-left: 4px solid #ef4444;
+                transition: all 0.3s ease;
+            " onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'">
+                <h4 style="color: #dc2626; font-size: 1.1rem; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+                    🚫 정부실패 (Government Failure)
+                </h4>
+                <p style="color: #374151; line-height: 1.5; font-size: 0.95rem; margin-bottom: 1rem;">
+                    시장실패를 해결하려던 정부 개입이 오히려 더 큰 비효율을 만드는 경우. 정부도 만능이 아님.
+                </p>
+                <div style="background: rgba(255, 255, 255, 0.8); padding: 1rem; border-radius: 8px;">
+                    <p style="font-weight: 600; color: #b91c1c; margin-bottom: 0.5rem; font-size: 0.9rem;">🎯 실제 정치에서:</p>
+                    <p style="color: #991b1b; font-size: 0.9rem; margin: 0;">
+                        "임대료 통제로 주택난이 더 심해진다" - 좋은 의도도 실패할 수 있다
+                    </p>
+                </div>
+            </div>
+            
+            <!-- 파레토 효율성 -->
+            <div style="
+                background: rgba(168, 85, 247, 0.1);
+                border-radius: 12px;
+                padding: 1.5rem;
+                border-left: 4px solid #a855f7;
+                transition: all 0.3s ease;
+            " onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'">
+                <h4 style="color: #9333ea; font-size: 1.1rem; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+                    🎯 파레토 효율성 (Pareto Efficiency)
+                </h4>
+                <p style="color: #374151; line-height: 1.5; font-size: 0.95rem; margin-bottom: 1rem;">
+                    아무도 손해보지 않으면서 누군가의 상황을 개선할 수 없는 상태. 완벽한 정책은 거의 불가능함.
+                </p>
+                <div style="background: rgba(255, 255, 255, 0.8); padding: 1rem; border-radius: 8px;">
+                    <p style="font-weight: 600; color: #7c2d12; margin-bottom: 0.5rem; font-size: 0.9rem;">🎯 실제 정치에서:</p>
+                    <p style="color: #7c2d12; font-size: 0.9rem; margin: 0;">
+                        "모든 계층이 만족하는 세금 정책은 존재하지 않는다" - 완벽한 해답은 없다
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+`;
+
+}
+
+// 게임에서 정치 현실로 연결 섹션
+function generateGameToRealitySection() {
+return `
+<div style="
+background: rgba(255, 255, 255, 0.95);
+border-radius: 16px;
+padding: 2rem;
+backdrop-filter: blur(10px);
+box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+border: 2px solid #6366f1;
+text-align: center;
+">
+<h3 style="
+color: #4338ca;
+font-size: 1.4rem;
+font-weight: 700;
+margin-bottom: 1.5rem;
+">🌍 이제 현실 정치가 보이나요?</h3>
+
+        <div style="
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+            text-align: left;
+        ">
+            <div style="background: rgba(99, 102, 241, 0.1); padding: 1rem; border-radius: 8px;">
+                <strong style="color: #4338ca; display: block; margin-bottom: 0.5rem;">📰 뉴스가 달리 보여요</strong>
+                <p style="color: #6b7280; font-size: 0.9rem; margin: 0;">
+                    "왜 이 정책을 반대하지?" → "아, 트레이드오프 때문이구나!"
+                </p>
+            </div>
+            <div style="background: rgba(139, 92, 246, 0.1); padding: 1rem; border-radius: 8px;">
+                <strong style="color: #7c3aed; display: block; margin-bottom: 0.5rem;">🗳️ 선거가 달리 보여요</strong>
+                <p style="color: #6b7280; font-size: 0.9rem; margin: 0;">
+                    "공약이 왜 이렇게 복잡하지?" → "기회비용을 고려해야 하니까!"
+                </p>
+            </div>
+            <div style="background: rgba(34, 197, 94, 0.1); padding: 1rem; border-radius: 8px;">
+                <strong style="color: #059669; display: block; margin-bottom: 0.5rem;">🏛️ 정치인이 달리 보여요</strong>
+                <p style="color: #6b7280; font-size: 0.9rem; margin: 0;">
+                    "왜 말을 바꾸지?" → "공공선택론적 행동이구나!"
+                </p>
+            </div>
+            <div style="background: rgba(245, 158, 11, 0.1); padding: 1rem; border-radius: 8px;">
+                <strong style="color: #d97706; display: block; margin-bottom: 0.5rem;">📊 정책이 달리 보여요</strong>
+                <p style="color: #6b7280; font-size: 0.9rem; margin: 0;">
+                    "부작용이 왜 생기지?" → "외부효과는 피할 수 없어!"
+                </p>
+            </div>
+        </div>
+        
+        <div style="
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(139, 92, 246, 0.1));
+            padding: 2rem;
+            border-radius: 12px;
+            margin-bottom: 1rem;
+        ">
+            <h4 style="
+                color: #4338ca;
+                font-size: 1.2rem;
+                font-weight: 700;
+                margin-bottom: 1rem;
+            ">🎯 축하합니다!</h4>
+            <p style="
+                color: #6b7280;
+                line-height: 1.6;
+                font-size: 1rem;
+                max-width: 500px;
+                margin: 0 auto;
+            ">
+                이제 여러분은 <strong style="color: #6366f1;">정치학의 핵심 개념들</strong>을 
+                직접 체험해보신 정치학도입니다! 
+                <br><br>
+                앞으로 뉴스나 정치 상황을 볼 때 훨씬 깊이 있게 이해할 수 있을 거예요.
+            </p>
+        </div>
+    </div>
+`;
+
+}
+
+// 헬퍼 함수들
+function hasConflictingEffects(selectedPolicies) {
+if (!selectedPolicies || !window.GameData?.findPolicy) return false;
+
+for (let policy of selectedPolicies) {
+    const policyData = window.GameData.findPolicy(policy);
+    if (policyData?.충돌정책?.some(conflict => selectedPolicies.includes(conflict))) {
+        return true;
+    }
+}
+return false;
+
+}
+
+function hasPositiveExternalities(selectedPolicies) {
+if (!selectedPolicies || !window.GameData?.findPolicy) return false;
+
+// 교육 정책이 있으면서 기술이나 시민반응에 긍정적 효과가 있는지 확인
+const educationPolicies = ["공교육 강화", "디지털 교육 확대", "평생학습 확대"];
+return selectedPolicies.some(policy => educationPolicies.includes(policy));
+
+}
+
 // 콘솔에서 테스트 가능하도록 전역 함수로 등록
 window.testResultsScreen = window.forceShowResults;
 
