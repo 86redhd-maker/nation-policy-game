@@ -4758,7 +4758,7 @@ function generateSuccessFactorAnalysis(gameResult, stats, selectedPolicies) {
                             font-size: 0.95rem;
                         ">${description}</p>
                     </div>
-                `).join('')}
+                `.join('')}
             </div>
         </div>
     `;
@@ -6772,6 +6772,7 @@ function bindHelpButtons() {
 
 // 🆕 전역 함수로 등록
 window.showResultTab = showResultTab;
+
 
 
 
