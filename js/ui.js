@@ -2950,18 +2950,11 @@ function showResultsScreen(gameResult) {
                 </div>
                 
                 <!-- 탭 2: 정치학 교실 (일단 빈 껍데기) -->
-                <div class="result-tab-content" id="tab-theory" style="display: none;">
-                    <div style="
-                        background: rgba(255, 255, 255, 0.98);
-                        border-radius: 16px;
-                        padding: 2rem;
-                        text-align: center;
-                    ">
-                        <h2 style="color: #f6ad55; margin-bottom: 1rem;">📚 정치학 교실</h2>
-                        <p style="color: #666;">곧 업데이트 예정입니다!</p>
-                    </div>
-                </div>
-                
+                <!-- 탭 2: 정치학 교실 (새 버전) -->
+<div class="result-tab-content" id="tab-theory" style="display: none;">
+    ${generateTab2PoliticalTheoryHTML(safeGameResult, stats, selectedPolicies)}
+</div>
+
                 <!-- 탭 3: 실제 사례 (일단 빈 껍데기) -->
                 <!-- 탭 3: 실제 사례 (완성!) -->
 <div class="result-tab-content" id="tab-cases" style="display: none;">
