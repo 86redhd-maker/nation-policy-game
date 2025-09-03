@@ -3559,388 +3559,997 @@ function generateRealCasesTabHTML(selectedPolicies, nationName) {
     `;
 }
 
-// 📚 탭 2: 정치학 교실 완전 구현
+// 📚 탭 2: 정치학 교실 완전 개선 - data 파일 활용
 
-// 탭 2 메인 HTML 생성
+// 탭 2 메인 HTML 생성 (개선된 버전)
 function generateTab2PoliticalTheoryHTML(gameResult, stats, selectedPolicies) {
-return `
-<div style="max-width: 1200px; margin: 0 auto;">
-<!-- 탭 2 헤더 -->
-<div style="
-text-align: center;
-margin-bottom: 2rem;
-background: rgba(255, 255, 255, 0.95);
-border-radius: 16px;
-padding: 2rem;
-backdrop-filter: blur(10px);
-box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-">
-<h2 style="
-font-size: 2rem;
-font-weight: 800;
-color: #6366f1;
-margin-bottom: 1rem;
-background: linear-gradient(135deg, #6366f1, #8b5cf6);
--webkit-background-clip: text;
--webkit-text-fill-color: transparent;
-background-clip: text;
-">📚 정치학 교실</h2>
-<p style="
-color: #6b7280;
-font-size: 1.1rem;
-line-height: 1.6;
-max-width: 600px;
-margin: 0 auto;
-">
-게임 속에서 <strong style="color: #6366f1;">실제로 경험한 정치학 개념들</strong>을
-이론과 현실로 연결해보세요.
-</p>
-</div>
+    return `
+        <div style="max-width: 1200px; margin: 0 auto;">
+            <!-- 탭 2 헤더 -->
+            <div style="
+                text-align: center;
+                margin-bottom: 2rem;
+                background: rgba(255, 255, 255, 0.95);
+                border-radius: 16px;
+                padding: 2rem;
+                backdrop-filter: blur(10px);
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            ">
+                <h2 style="
+                    font-size: 2rem;
+                    font-weight: 800;
+                    color: #6366f1;
+                    margin-bottom: 1rem;
+                    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+                    -webkit-background-clip: text;
+                    -webkit-text-fill-color: transparent;
+                    background-clip: text;
+                ">📚 정치학 교실</h2>
+                <p style="
+                    color: #6b7280;
+                    font-size: 1.1rem;
+                    line-height: 1.6;
+                    max-width: 600px;
+                    margin: 0 auto;
+                ">
+                    게임 속에서 <strong style="color: #6366f1;">실제로 경험한 정치학 개념들</strong>을
+                    이론과 현실로 연결해보세요.
+                </p>
+            </div>
 
-        <!-- 경험한 개념들 분석 -->
-        ${generateExperiencedConceptsSection(gameResult, stats, selectedPolicies)}
-        
-        <!-- 정치학 핵심 개념 총정리 -->
-        ${generateCoreConceptsSection()}
-        
-        <!-- 게임에서 정치 현실로 -->
-        ${generateGameToRealitySection()}
-    </div>
-`;
-
+            <!-- 🆕 경험한 개념들 분석 (data 파일 활용) -->
+            ${generateExperiencedConceptsFromData(gameResult, stats, selectedPolicies)}
+            
+            <!-- 🆕 정치학 핵심 개념 총정리 (data 파일 활용) -->
+            ${generateCoreConceptsFromData()}
+            
+            <!-- 🆕 정책 조합 심화 이론 (data 파일 활용) -->
+            ${generatePolicyCombinationTheoryFromData(selectedPolicies)}
+            
+            <!-- 게임에서 정치 현실로 -->
+            ${generateGameToRealitySection()}
+        </div>
+    `;
 }
 
-// 경험한 개념들 분석 섹션
-function generateExperiencedConceptsSection(gameResult, stats, selectedPolicies) {
-const experiencedConcepts = analyzePlayerExperience(gameResult, stats, selectedPolicies);
+// 🆕 data 파일의 POLICY_THEORY_EDUCATION을 활용한 경험 분석
+function generateExperiencedConceptsFromData(gameResult, stats, selectedPolicies) {
+    if (!window.POLICY_THEORY_EDUCATION) {
+        return '<div style="text-align: center; color: #666;">교육 데이터를 로딩 중...</div>';
+    }
+    
+    const experiencedConcepts = analyzePlayerExperienceWithData(gameResult, stats, selectedPolicies);
+    
+    if (experiencedConcepts.length === 0) {
+        return `
+            <div style="
+                background: rgba(255, 255, 255, 0.95);
+                border-radius: 16px;
+                padding: 2rem;
+                text-align: center;
+                margin-bottom: 2rem;
+            ">
+                <p style="color: #666;">이번 게임에서 특별히 경험한 정치학 개념을 분석 중입니다...</p>
+            </div>
+        `;
+    }
 
-if (experiencedConcepts.length === 0) {
+    let html = `
+        <div style="
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            border-left: 6px solid #6366f1;
+        ">
+            <h3 style="
+                color: #6366f1;
+                font-size: 1.4rem;
+                font-weight: 700;
+                margin-bottom: 1.5rem;
+                text-align: center;
+            ">🎓 이번 게임에서 경험한 정치학 개념들</h3>
+            
+            <div style="
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+                gap: 1.5rem;
+            ">
+    `;
+
+    experiencedConcepts.forEach(conceptData => {
+        html += `
+            <div style="
+                background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(139, 92, 246, 0.1));
+                border-radius: 12px;
+                padding: 1.5rem;
+                border-left: 4px solid #6366f1;
+                transition: all 0.3s ease;
+            " onmouseover="this.style.transform='translateY(-4px)'" onmouseout="this.style.transform='translateY(0)'">
+                <h4 style="
+                    color: #4338ca;
+                    margin-bottom: 1rem;
+                    font-size: 1.1rem;
+                    font-weight: 700;
+                    display: flex;
+                    align-items: center;
+                    gap: 0.5rem;
+                ">🧠 ${conceptData.title}</h4>
+                
+                <!-- 핵심 개념 (data에서 가져옴) -->
+                <div style="
+                    background: rgba(255, 255, 255, 0.9);
+                    padding: 1rem;
+                    border-radius: 8px;
+                    margin-bottom: 1rem;
+                ">
+                    <p style="
+                        font-weight: 600;
+                        color: #4338ca;
+                        margin-bottom: 0.5rem;
+                        font-size: 0.9rem;
+                    ">🎯 핵심 개념:</p>
+                    <p style="
+                        font-size: 0.95rem;
+                        line-height: 1.6;
+                        color: #374151;
+                        margin: 0;
+                    ">${conceptData.core_concept}</p>
+                </div>
+                
+                <!-- 개인 경험 -->
+                <div style="
+                    background: rgba(245, 158, 11, 0.1);
+                    padding: 1rem;
+                    border-radius: 8px;
+                    border-left: 3px solid #f59e0b;
+                    margin-bottom: 1rem;
+                ">
+                    <p style="
+                        font-weight: 600;
+                        color: #92400e;
+                        margin-bottom: 0.5rem;
+                        font-size: 0.9rem;
+                    ">💡 당신의 경험:</p>
+                    <p style="
+                        color: #78350f;
+                        line-height: 1.4;
+                        margin: 0;
+                        font-size: 0.9rem;
+                        font-style: italic;
+                    ">${conceptData.personalExperience}</p>
+                </div>
+                
+                <!-- 실제 정치에서의 적용 (data에서 가져옴) -->
+                <div style="
+                    background: rgba(34, 197, 94, 0.1);
+                    padding: 1rem;
+                    border-radius: 8px;
+                    border-left: 3px solid #22c55e;
+                ">
+                    <p style="
+                        font-weight: 600;
+                        color: #059669;
+                        margin-bottom: 0.5rem;
+                        font-size: 0.9rem;
+                    ">🏛️ 실제 정치에서:</p>
+                    <p style="
+                        color: #065f46;
+                        line-height: 1.4;
+                        margin: 0;
+                        font-size: 0.9rem;
+                    ">${conceptData.real_world_application}</p>
+                </div>
+            </div>
+        `;
+    });
+
+    html += `
+            </div>
+        </div>
+    `;
+
+    return html;
+}
+
+// 🆕 data 파일 기반 플레이어 경험 분석 (개선된 버전)
+function analyzePlayerExperienceWithData(gameResult, stats, selectedPolicies) {
+    if (!window.POLICY_THEORY_EDUCATION) return [];
+    
+    const concepts = [];
+    const theoryEducation = window.POLICY_THEORY_EDUCATION;
+    
+    // 예산 부족 경험 → 기회비용
+    if (stats.budgetUsed > 80 || gameResult.finalIndicators?.재정 < -2) {
+        const conceptData = theoryEducation.opportunity_cost;
+        if (conceptData) {
+            concepts.push({
+                title: conceptData.title,
+                core_concept: conceptData.core_concept,
+                real_world_application: conceptData.real_world_application || conceptData.practical_wisdom,
+                personalExperience: "예산이 부족해서 원하는 정책을 모두 선택할 수 없었죠? 이것이 바로 기회비용입니다. 정치인들도 매일 이런 선택의 고민을 합니다."
+            });
+        }
+    }
+    
+    // 정책 효과의 상충 → 트레이드오프
+    if (hasConflictingEffects(selectedPolicies) || stats.totalScore < stats.budgetUsed) {
+        const conceptData = theoryEducation.trade_offs;
+        if (conceptData) {
+            concepts.push({
+                title: conceptData.title,
+                core_concept: conceptData.core_concept,
+                real_world_application: conceptData.real_world_application,
+                personalExperience: "환경을 지키려니 경제 성장이 어려웠고, 복지를 늘리니 재정이 악화됐죠? 현실 정치도 마찬가지입니다. 모든 선택에는 트레이드오프가 따릅니다."
+            });
+        }
+    }
+    
+    // 복지 vs 재정 딜레마 → 정부실패/시장실패
+    if (gameResult.finalIndicators?.복지 > 2 && gameResult.finalIndicators?.재정 < -1) {
+        const conceptData = theoryEducation.government_market_failure;
+        if (conceptData) {
+            concepts.push({
+                title: conceptData.title,
+                core_concept: conceptData.core_concept,
+                real_world_application: conceptData.policy_implications,
+                personalExperience: "복지를 늘리니 재정이 악화됐죠? 정부도 만능이 아닙니다. 시장 실패를 해결하려다 정부 실패가 생길 수 있어요."
+            });
+        }
+    }
+    
+    // 다수 정책 선택 → 민주주의 의사결정
+    if (selectedPolicies.length >= 8) {
+        const conceptData = theoryEducation.democratic_decision_making;
+        if (conceptData) {
+            concepts.push({
+                title: conceptData.title,
+                core_concept: conceptData.core_concept,
+                real_world_application: conceptData.quality_factors ? conceptData.quality_factors.join(', ') : conceptData.policy_implications,
+                personalExperience: "많은 정책을 선택하며 복잡한 고민을 하셨군요! 실제 민주주의에서도 다양한 이해관계를 조정하는 것이 가장 어려운 과제입니다."
+            });
+        }
+    }
+    
+    // 개인 이익 vs 공익 → 공공선택론
+    if (gameResult.finalIndicators?.['시민 반응'] < 0 && stats.totalScore > 50) {
+        const conceptData = theoryEducation.public_choice_theory;
+        if (conceptData) {
+            concepts.push({
+                title: conceptData.title,
+                core_concept: conceptData.core_concept,
+                real_world_application: conceptData.balanced_view || conceptData.policy_implications,
+                personalExperience: "시민 반응은 나빴지만 국가 점수는 높았나요? 때로는 장기적 국익과 단기적 인기가 충돌합니다. 정치인의 영원한 딜레마죠."
+            });
+        }
+    }
+    
+    return concepts;
+}
+
+// 🆕 data 파일의 모든 정치학 개념 총정리
+function generateCoreConceptsFromData() {
+    if (!window.POLICY_THEORY_EDUCATION) {
+        return '<div style="text-align: center; color: #666;">정치학 이론 데이터를 로딩 중...</div>';
+    }
+    
+    const theoryEducation = window.POLICY_THEORY_EDUCATION;
+    
     return `
         <div style="
             background: rgba(255, 255, 255, 0.95);
             border-radius: 16px;
             padding: 2rem;
-            text-align: center;
             margin-bottom: 2rem;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            border-left: 6px solid #8b5cf6;
         ">
-            <p style="color: #666;">이번 게임에서 특별히 경험한 정치학 개념을 분석 중입니다...</p>
-        </div>
-    `;
-}
-
-let html = `
-    <div style="
-        background: rgba(255, 255, 255, 0.95);
-        border-radius: 16px;
-        padding: 2rem;
-        margin-bottom: 2rem;
-        backdrop-filter: blur(10px);
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-        border-left: 6px solid #6366f1;
-    ">
-        <h3 style="
-            color: #6366f1;
-            font-size: 1.4rem;
-            font-weight: 700;
-            margin-bottom: 1.5rem;
-            text-align: center;
-        ">🎓 이번 게임에서 경험한 정치학 개념들</h3>
-        
-        <div style="
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-            gap: 1.5rem;
-        ">
-`;
-
-experiencedConcepts.forEach(concept => {
-    html += `
-        <div style="
-            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(139, 92, 246, 0.1));
-            border-radius: 12px;
-            padding: 1.5rem;
-            border-left: 4px solid #6366f1;
-            transition: all 0.3s ease;
-        " onmouseover="this.style.transform='translateY(-4px)'" onmouseout="this.style.transform='translateY(0)'">
-            <h4 style="
-                color: #4338ca;
-                margin-bottom: 1rem;
-                font-size: 1.1rem;
+            <h3 style="
+                color: #8b5cf6;
+                font-size: 1.4rem;
                 font-weight: 700;
-                display: flex;
-                align-items: center;
-                gap: 0.5rem;
-            ">🧠 ${concept.title}</h4>
-            
+                margin-bottom: 1.5rem;
+                text-align: center;
+            ">🎓 정치학 핵심 개념 총정리</h3>
+
             <div style="
-                background: rgba(255, 255, 255, 0.8);
-                padding: 1rem;
-                border-radius: 8px;
-                margin-bottom: 1rem;
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+                gap: 1.5rem;
             ">
-                <p style="
-                    font-size: 0.95rem;
-                    line-height: 1.6;
-                    color: #374151;
-                    margin: 0;
-                ">${concept.explanation}</p>
-            </div>
-            
-            <div style="
-                background: rgba(245, 158, 11, 0.1);
-                padding: 1rem;
-                border-radius: 8px;
-                border-left: 3px solid #f59e0b;
-            ">
-                <p style="
-                    font-weight: 600;
-                    color: #92400e;
-                    margin-bottom: 0.5rem;
-                    font-size: 0.9rem;
-                ">💡 당신의 경험:</p>
-                <p style="
-                    color: #78350f;
-                    line-height: 1.4;
-                    margin: 0;
-                    font-size: 0.9rem;
-                    font-style: italic;
-                ">${concept.personalExperience}</p>
+                ${Object.entries(theoryEducation).map(([key, concept]) => {
+                    const colors = {
+                        'opportunity_cost': '#6366f1',
+                        'trade_offs': '#8b5cf6', 
+                        'government_market_failure': '#ef4444',
+                        'democratic_decision_making': '#f59e0b',
+                        'public_choice_theory': '#10b981'
+                    };
+                    const color = colors[key] || '#6366f1';
+                    
+                    return `
+                        <div style="
+                            background: rgba(${hexToRgb(color)}, 0.1);
+                            border-radius: 12px;
+                            padding: 1.5rem;
+                            border-left: 4px solid ${color};
+                            transition: all 0.3s ease;
+                        " onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'">
+                            <h4 style="color: ${color}; font-size: 1.1rem; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+                                ${getConceptIcon(key)} ${concept.title}
+                            </h4>
+                            <p style="color: #374151; line-height: 1.5; font-size: 0.95rem; margin-bottom: 1rem;">
+                                ${concept.core_concept}
+                            </p>
+                            <div style="background: rgba(255, 255, 255, 0.8); padding: 1rem; border-radius: 8px;">
+                                <p style="font-weight: 600; color: ${color}; margin-bottom: 0.5rem; font-size: 0.9rem;">🎯 실제 정치에서:</p>
+                                <p style="color: #1e3a8a; font-size: 0.9rem; margin: 0;">
+                                    ${concept.real_world_application || concept.practical_wisdom || concept.policy_implications}
+                                </p>
+                            </div>
+                            
+                            ${concept.major_trade_offs ? generateTradeOffExamples(concept.major_trade_offs) : ''}
+                            ${concept.market_failures ? generateMarketFailureExamples(concept.market_failures) : ''}
+                            ${concept.democratic_challenges ? generateDemocraticChallenges(concept.democratic_challenges) : ''}
+                        </div>
+                    `;
+                }).join('')}
             </div>
         </div>
     `;
-});
-
-html += `
-        </div>
-    </div>
-`;
-
-return html;
-
 }
 
-// 플레이어 경험 분석 함수
-function analyzePlayerExperience(gameResult, stats, selectedPolicies) {
-const concepts = [];
-
-// 예산 부족 경험 → 기회비용
-if (stats.budgetUsed > 80 || gameResult.finalIndicators?.재정 < -2) {
-    concepts.push({
-        title: "기회비용 (Opportunity Cost)",
-        explanation: "하나를 선택할 때 포기해야 하는 다른 선택의 가치. 정치에서는 한정된 예산으로 모든 문제를 해결할 수 없습니다.",
-        personalExperience: "예산이 부족해서 원하는 정책을 모두 선택할 수 없었죠? 이것이 바로 기회비용입니다. 정치인들도 매일 이런 선택의 고민을 합니다."
-    });
-}
-
-// 정책 효과의 상충 → 트레이드오프
-if (hasConflictingEffects(selectedPolicies) || stats.totalScore < stats.budgetUsed) {
-    concepts.push({
-        title: "트레이드오프 (Trade-off)",
-        explanation: "한 가지를 얻기 위해 다른 것을 포기하는 관계. 모든 정책 결정에는 득과 실이 공존하며, 완벽한 정책은 거의 존재하지 않습니다.",
-        personalExperience: "환경을 지키려니 경제 성장이 어려웠고, 복지를 늘리니 재정이 악화됐죠? 현실 정치도 마찬가지입니다. 모든 선택에는 트레이드오프가 따릅니다."
-    });
-}
-
-// 복지 vs 재정 딜레마 → 정부실패/시장실패
-if (gameResult.finalIndicators?.복지 > 2 && gameResult.finalIndicators?.재정 < -1) {
-    concepts.push({
-        title: "정부실패 vs 시장실패",
-        explanation: "시장이 해결하지 못하는 문제(시장실패)를 정부가 개입해 해결하려 하지만, 때로는 정부 개입이 더 큰 비효율을 만들기도 합니다(정부실패).",
-        personalExperience: "복지를 늘리니 재정이 악화됐죠? 정부도 만능이 아닙니다. 시장 실패를 해결하려다 정부 실패가 생길 수 있어요."
-    });
-}
-
-// 다수 정책 선택 → 민주주의 의사결정
-if (selectedPolicies.length >= 8) {
-    concepts.push({
-        title: "민주주의 의사결정의 복잡성",
-        explanation: "민주주의에서는 다양한 이해관계자들의 의견을 조정해야 합니다. 모든 사람을 만족시키는 정책을 만들기는 거의 불가능합니다.",
-        personalExperience: "많은 정책을 선택하며 복잡한 고민을 하셨군요! 실제 민주주의에서도 다양한 이해관계를 조정하는 것이 가장 어려운 과제입니다."
-    });
-}
-
-// 개인 이익 vs 공익 → 공공선택론
-if (gameResult.finalIndicators?.['시민 반응'] < 0 && stats.totalScore > 50) {
-    concepts.push({
-        title: "공공선택론 (Public Choice Theory)",
-        explanation: "정치인도 재선을 위해 유권자의 지지가 필요한 합리적 행위자입니다. 때로는 장기적 국익보다 단기적 인기를 추구할 수밖에 없는 구조적 한계가 있습니다.",
-        personalExperience: "시민 반응은 나빴지만 국가 점수는 높았나요? 때로는 장기적 국익과 단기적 인기가 충돌합니다. 정치인의 영원한 딜레마죠."
-    });
-}
-
-// 외부효과 경험
-if (hasPositiveExternalities(selectedPolicies)) {
-    concepts.push({
-        title: "외부효과 (Externalities)",
-        explanation: "한 정책이 의도하지 않은 다른 분야에 미치는 영향. 긍정적 외부효과는 사회 전체에 이익을, 부정적 외부효과는 손해를 가져다줍니다.",
-        personalExperience: "교육 투자가 기술 발전뿐만 아니라 시민 만족도까지 올렸던 것처럼, 모든 정책은 연결되어 있어요."
-    });
-}
-
-return concepts;
-
-}
-
-// 핵심 개념 총정리 섹션
-function generateCoreConceptsSection() {
-return `
-<div style="
-background: rgba(255, 255, 255, 0.95);
-border-radius: 16px;
-padding: 2rem;
-margin-bottom: 2rem;
-backdrop-filter: blur(10px);
-box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-border-left: 6px solid #8b5cf6;
-">
-<h3 style="
-color: #8b5cf6;
-font-size: 1.4rem;
-font-weight: 700;
-margin-bottom: 1.5rem;
-text-align: center;
-">🎓 정치학 핵심 개념 총정리</h3>
-
+// 🆕 정책 조합 심화 이론 (data 파일의 POLICY_EDUCATIONAL_ANALYSIS 활용)
+function generatePolicyCombinationTheoryFromData(selectedPolicies) {
+    if (!window.POLICY_EDUCATIONAL_ANALYSIS || !selectedPolicies || selectedPolicies.length === 0) {
+        return '';
+    }
+    
+    // 선택된 정책과 매칭되는 교육 분석 찾기
+    let matchedAnalyses = [];
+    
+    for (const [comboName, analysis] of Object.entries(window.POLICY_EDUCATIONAL_ANALYSIS)) {
+        const requiredPolicies = analysis.combination;
+        const matchCount = requiredPolicies.filter(policy => 
+            selectedPolicies.includes(policy)
+        ).length;
+        
+        // 50% 이상 매칭되면 포함
+        if (matchCount >= Math.ceil(requiredPolicies.length * 0.5)) {
+            matchedAnalyses.push({
+                name: comboName,
+                ...analysis,
+                matchRate: matchCount / requiredPolicies.length
+            });
+        }
+    }
+    
+    if (matchedAnalyses.length === 0) return '';
+    
+    // 매칭률 높은 순으로 정렬
+    matchedAnalyses.sort((a, b) => b.matchRate - a.matchRate);
+    
+    return `
         <div style="
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-            gap: 1.5rem;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            border-left: 6px solid #f59e0b;
         ">
-            <!-- 기회비용 -->
-            <div style="
-                background: rgba(99, 102, 241, 0.1);
-                border-radius: 12px;
-                padding: 1.5rem;
-                border-left: 4px solid #6366f1;
-                transition: all 0.3s ease;
-            " onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'">
-                <h4 style="color: #4338ca; font-size: 1.1rem; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
-                    💰 기회비용 (Opportunity Cost)
-                </h4>
-                <p style="color: #374151; line-height: 1.5; font-size: 0.95rem; margin-bottom: 1rem;">
-                    하나를 선택할 때 포기해야 하는 다른 선택의 가치. 정치에서는 한정된 예산으로 모든 문제를 해결할 수 없음.
-                </p>
-                <div style="background: rgba(255, 255, 255, 0.8); padding: 1rem; border-radius: 8px;">
-                    <p style="font-weight: 600; color: #1e40af; margin-bottom: 0.5rem; font-size: 0.9rem;">🎯 실제 정치에서:</p>
-                    <p style="color: #1e3a8a; font-size: 0.9rem; margin: 0;">
-                        "복지 예산을 늘리면 국방비를 줄여야 한다" - 모든 정책 결정의 기본 원리
-                    </p>
-                </div>
-            </div>
+            <h3 style="
+                color: #f59e0b;
+                font-size: 1.4rem;
+                font-weight: 700;
+                margin-bottom: 1.5rem;
+                text-align: center;
+            ">🔬 당신의 정책 조합 심화 분석</h3>
             
-            <!-- 트레이드오프 -->
-            <div style="
-                background: rgba(139, 92, 246, 0.1);
-                border-radius: 12px;
-                padding: 1.5rem;
-                border-left: 4px solid #8b5cf6;
-                transition: all 0.3s ease;
-            " onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'">
-                <h4 style="color: #7c3aed; font-size: 1.1rem; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
-                    ⚖️ 트레이드오프 (Trade-off)
-                </h4>
-                <p style="color: #374151; line-height: 1.5; font-size: 0.95rem; margin-bottom: 1rem;">
-                    한 가지를 얻기 위해 다른 것을 포기하는 관계. 모든 정책 결정에는 득과 실이 공존함.
-                </p>
-                <div style="background: rgba(255, 255, 255, 0.8); padding: 1rem; border-radius: 8px;">
-                    <p style="font-weight: 600; color: #6d28d9; margin-bottom: 0.5rem; font-size: 0.9rem;">🎯 실제 정치에서:</p>
-                    <p style="color: #581c87; font-size: 0.9rem; margin: 0;">
-                        "탄소세로 환경을 지키면 기업 경쟁력이 떨어진다" - 완벽한 정책은 없다
-                    </p>
+            ${matchedAnalyses.slice(0, 2).map(analysis => `
+                <div style="
+                    background: linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(251, 191, 36, 0.1));
+                    border-radius: 12px;
+                    padding: 2rem;
+                    margin-bottom: 2rem;
+                    border-left: 4px solid #f59e0b;
+                ">
+                    <h4 style="
+                        color: #d97706;
+                        font-size: 1.2rem;
+                        font-weight: 700;
+                        margin-bottom: 1rem;
+                        text-align: center;
+                    ">📊 ${analysis.name.replace(/_/g, ' ')} 전략</h4>
+                    
+                    <!-- 정책 조합 -->
+                    <div style="
+                        background: rgba(255, 255, 255, 0.9);
+                        padding: 1rem;
+                        border-radius: 8px;
+                        margin-bottom: 1rem;
+                    ">
+                        <p style="
+                            font-weight: 600;
+                            color: #92400e;
+                            margin-bottom: 0.5rem;
+                        ">🎯 핵심 정책들:</p>
+                        <p style="color: #78350f; font-size: 0.95rem;">
+                            ${analysis.combination.join(' + ')}
+                        </p>
+                    </div>
+                    
+                    <!-- 이론적 분석 -->
+                    <div style="
+                        background: rgba(255, 255, 255, 0.9);
+                        padding: 1rem;
+                        border-radius: 8px;
+                        margin-bottom: 1rem;
+                    ">
+                        <p style="
+                            font-weight: 600;
+                            color: #92400e;
+                            margin-bottom: 0.5rem;
+                        ">📚 이론적 배경:</p>
+                        <p style="color: #78350f; font-size: 0.95rem; line-height: 1.5;">
+                            ${analysis.analysis}
+                        </p>
+                    </div>
+                    
+                    <!-- 실제 사례 -->
+                    <div style="
+                        background: rgba(255, 255, 255, 0.9);
+                        padding: 1rem;
+                        border-radius: 8px;
+                        margin-bottom: 1rem;
+                    ">
+                        <p style="
+                            font-weight: 600;
+                            color: #92400e;
+                            margin-bottom: 0.5rem;
+                        ">🌍 실제 사례:</p>
+                        <p style="color: #78350f; font-size: 0.95rem; line-height: 1.5;">
+                            <strong>${analysis.real_world_case}</strong> - ${analysis.historical_context}
+                        </p>
+                    </div>
+                    
+                    <!-- 장단점 분석 -->
+                    <div style="
+                        display: grid;
+                        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+                        gap: 1rem;
+                        margin-bottom: 1rem;
+                    ">
+                        <div style="
+                            background: rgba(34, 197, 94, 0.1);
+                            padding: 1rem;
+                            border-radius: 8px;
+                            border-left: 3px solid #22c55e;
+                        ">
+                            <p style="
+                                font-weight: 600;
+                                color: #059669;
+                                margin-bottom: 0.5rem;
+                            ">✅ 장점:</p>
+                            <ul style="margin: 0; padding-left: 1rem; color: #065f46; font-size: 0.9rem;">
+                                ${analysis.pros.slice(0, 3).map(pro => `<li style="margin-bottom: 0.25rem;">${pro}</li>`).join('')}
+                            </ul>
+                        </div>
+                        
+                        <div style="
+                            background: rgba(239, 68, 68, 0.1);
+                            padding: 1rem;
+                            border-radius: 8px;
+                            border-left: 3px solid #ef4444;
+                        ">
+                            <p style="
+                                font-weight: 600;
+                                color: #dc2626;
+                                margin-bottom: 0.5rem;
+                            ">⚠️ 단점:</p>
+                            <ul style="margin: 0; padding-left: 1rem; color: #7f1d1d; font-size: 0.9rem;">
+                                ${analysis.cons.slice(0, 3).map(con => `<li style="margin-bottom: 0.25rem;">${con}</li>`).join('')}
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <!-- 정책 이론 -->
+                    <div style="
+                        background: rgba(139, 92, 246, 0.1);
+                        padding: 1rem;
+                        border-radius: 8px;
+                        border-left: 3px solid #8b5cf6;
+                        text-align: center;
+                    ">
+                        <p style="
+                            font-weight: 600;
+                            color: #7c3aed;
+                            margin-bottom: 0.5rem;
+                        ">💡 정책학적 교훈:</p>
+                        <p style="
+                            color: #5b21b6;
+                            font-size: 0.95rem;
+                            line-height: 1.5;
+                            margin: 0;
+                            font-style: italic;
+                        ">"${analysis.lesson}"</p>
+                        
+                        ${analysis.policy_theory ? `
+                            <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid rgba(139, 92, 246, 0.2);">
+                                <p style="
+                                    font-weight: 600;
+                                    color: #7c3aed;
+                                    margin-bottom: 0.5rem;
+                                    font-size: 0.9rem;
+                                ">📖 관련 이론:</p>
+                                <p style="
+                                    color: #5b21b6;
+                                    font-size: 0.85rem;
+                                    margin: 0;
+                                ">${analysis.policy_theory}</p>
+                            </div>
+                        ` : ''}
+                    </div>
                 </div>
-            </div>
-            
-            <!-- 외부효과 -->
-            <div style="
-                background: rgba(34, 197, 94, 0.1);
-                border-radius: 12px;
-                padding: 1.5rem;
-                border-left: 4px solid #22c55e;
-                transition: all 0.3s ease;
-            " onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'">
-                <h4 style="color: #059669; font-size: 1.1rem; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
-                    🌊 외부효과 (Externalities)
-                </h4>
-                <p style="color: #374151; line-height: 1.5; font-size: 0.95rem; margin-bottom: 1rem;">
-                    한 정책이 의도하지 않은 다른 분야에 미치는 영향. 모든 정책은 연결되어 있음.
-                </p>
-                <div style="background: rgba(255, 255, 255, 0.8); padding: 1rem; border-radius: 8px;">
-                    <p style="font-weight: 600; color: #047857; margin-bottom: 0.5rem; font-size: 0.9rem;">🎯 실제 정치에서:</p>
-                    <p style="color: #065f46; font-size: 0.9rem; margin: 0;">
-                        "교육 투자가 경제 성장과 사회 안정까지 가져온다" - 모든 정책은 연쇄반응
-                    </p>
-                </div>
-            </div>
-            
-            <!-- 공공선택론 -->
-            <div style="
-                background: rgba(245, 158, 11, 0.1);
-                border-radius: 12px;
-                padding: 1.5rem;
-                border-left: 4px solid #f59e0b;
-                transition: all 0.3s ease;
-            " onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'">
-                <h4 style="color: #d97706; font-size: 1.1rem; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
-                    🏛️ 공공선택론 (Public Choice Theory)
-                </h4>
-                <p style="color: #374151; line-height: 1.5; font-size: 0.95rem; margin-bottom: 1rem;">
-                    정치인도 유권자의 지지를 얻어야 하는 합리적 행위자. 때로는 장기적 국익보다 단기적 인기를 추구할 수 있음.
-                </p>
-                <div style="background: rgba(255, 255, 255, 0.8); padding: 1rem; border-radius: 8px;">
-                    <p style="font-weight: 600; color: #b45309; margin-bottom: 0.5rem; font-size: 0.9rem;">🎯 실제 정치에서:</p>
-                    <p style="color: #92400e; font-size: 0.9rem; margin: 0;">
-                        "선거 직전엔 인기 정책, 선거 직후엔 고통스러운 개혁" - 정치인의 현실
-                    </p>
-                </div>
-            </div>
-            
-            <!-- 정부실패 -->
-            <div style="
-                background: rgba(239, 68, 68, 0.1);
-                border-radius: 12px;
-                padding: 1.5rem;
-                border-left: 4px solid #ef4444;
-                transition: all 0.3s ease;
-            " onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'">
-                <h4 style="color: #dc2626; font-size: 1.1rem; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
-                    🚫 정부실패 (Government Failure)
-                </h4>
-                <p style="color: #374151; line-height: 1.5; font-size: 0.95rem; margin-bottom: 1rem;">
-                    시장실패를 해결하려던 정부 개입이 오히려 더 큰 비효율을 만드는 경우. 정부도 만능이 아님.
-                </p>
-                <div style="background: rgba(255, 255, 255, 0.8); padding: 1rem; border-radius: 8px;">
-                    <p style="font-weight: 600; color: #b91c1c; margin-bottom: 0.5rem; font-size: 0.9rem;">🎯 실제 정치에서:</p>
-                    <p style="color: #991b1b; font-size: 0.9rem; margin: 0;">
-                        "임대료 통제로 주택난이 더 심해진다" - 좋은 의도도 실패할 수 있다
-                    </p>
-                </div>
-            </div>
-            
-            <!-- 파레토 효율성 -->
-            <div style="
-                background: rgba(168, 85, 247, 0.1);
-                border-radius: 12px;
-                padding: 1.5rem;
-                border-left: 4px solid #a855f7;
-                transition: all 0.3s ease;
-            " onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'">
-                <h4 style="color: #9333ea; font-size: 1.1rem; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
-                    🎯 파레토 효율성 (Pareto Efficiency)
-                </h4>
-                <p style="color: #374151; line-height: 1.5; font-size: 0.95rem; margin-bottom: 1rem;">
-                    아무도 손해보지 않으면서 누군가의 상황을 개선할 수 없는 상태. 완벽한 정책은 거의 불가능함.
-                </p>
-                <div style="background: rgba(255, 255, 255, 0.8); padding: 1rem; border-radius: 8px;">
-                    <p style="font-weight: 600; color: #7c2d12; margin-bottom: 0.5rem; font-size: 0.9rem;">🎯 실제 정치에서:</p>
-                    <p style="color: #7c2d12; font-size: 0.9rem; margin: 0;">
-                        "모든 계층이 만족하는 세금 정책은 존재하지 않는다" - 완벽한 해답은 없다
-                    </p>
-                </div>
-            </div>
+            `).join('')}
         </div>
-    </div>
-`;
+    `;
+}
 
+// 유틸리티 함수들
+function hexToRgb(hex) {
+    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    return result ? 
+        `${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(result[3], 16)}` : 
+        '99, 102, 241';
+}
+
+function getConceptIcon(key) {
+    const icons = {
+        'opportunity_cost': '💰',
+        'trade_offs': '⚖️',
+        'government_market_failure': '🚫',
+        'democratic_decision_making': '🗳️',
+        'public_choice_theory': '🏛️'
+    };
+    return icons[key] || '📚';
+}
+
+function generateTradeOffExamples(tradeOffs) {
+    if (!tradeOffs || typeof tradeOffs !== 'object') return '';
+    
+    return `
+        <div style="margin-top: 1rem; background: rgba(255, 255, 255, 0.8); padding: 1rem; border-radius: 8px;">
+            <p style="font-weight: 600; color: #4338ca; margin-bottom: 0.5rem; font-size: 0.9rem;">📊 주요 트레이드오프:</p>
+            ${Object.entries(tradeOffs).slice(0, 2).map(([key, tradeoff]) => `
+                <div style="margin-bottom: 0.5rem;">
+                    <strong style="color: #7c3aed; font-size: 0.85rem;">${tradeoff.description}</strong>
+                    <p style="color: #374151; font-size: 0.8rem; margin: 0.25rem 0;">${tradeoff.example}</p>
+                </div>
+            `).join('')}
+        </div>
+    `;
+}
+
+function generateMarketFailureExamples(failures) {
+    if (!failures || typeof failures !== 'object') return '';
+    
+    return `
+        <div style="margin-top: 1rem; background: rgba(255, 255, 255, 0.8); padding: 1rem; border-radius: 8px;">
+            <p style="font-weight: 600; color: #dc2626; margin-bottom: 0.5rem; font-size: 0.9rem;">🚫 시장실패 사례:</p>
+            ${Object.entries(failures).slice(0, 2).map(([key, failure]) => `
+                <div style="margin-bottom: 0.5rem;">
+                    <strong style="color: #ef4444; font-size: 0.85rem;">${key}:</strong>
+                    <p style="color: #374151; font-size: 0.8rem; margin: 0.25rem 0;">${failure.example}</p>
+                </div>
+            `).join('')}
+        </div>
+    `;
+}
+
+function generateDemocraticChallenges(challenges) {
+    if (!challenges || typeof challenges !== 'object') return '';
+    
+    return `
+        <div style="margin-top: 1rem; background: rgba(255, 255, 255, 0.8); padding: 1rem; border-radius: 8px;">
+            <p style="font-weight: 600; color: #f59e0b; margin-bottom: 0.5rem; font-size: 0.9rem;">⚠️ 민주주의 도전과제:</p>
+            ${Object.entries(challenges).slice(0, 2).map(([key, challenge]) => `
+                <div style="margin-bottom: 0.5rem;">
+                    <strong style="color: #d97706; font-size: 0.85rem;">${challenge.problem}:</strong>
+                    <p style="color: #374151; font-size: 0.8rem; margin: 0.25rem 0;">${challenge.example}</p>
+                </div>
+            `).join('')}
+        </div>
+    `;
+}
+
+// 🆕 탭 4 고급 전략에서 POLICY_FAILURE_CASES 활용
+function generateTab4AdvancedAnalysisHTML(gameResult, stats, selectedPolicies, nationName) {
+    const grade = gameResult.ending?.grade || 'C급';
+    const isHighGrade = grade === 'S급' || grade === 'A급';
+    const isLowGrade = grade === 'F급' || grade === 'D급';
+    
+    return `
+        <div style="max-width: 1200px; margin: 0 auto;">
+            <!-- 탭 4 헤더 -->
+            <div style="
+                text-align: center;
+                margin-bottom: 2rem;
+                background: rgba(255, 255, 255, 0.95);
+                border-radius: 16px;
+                padding: 2rem;
+                backdrop-filter: blur(10px);
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+                border: 2px solid ${isLowGrade ? '#ef4444' : '#8b5cf6'};
+            ">
+                <h2 style="
+                    font-size: 2rem;
+                    font-weight: 800;
+                    color: ${isLowGrade ? '#dc2626' : '#7c3aed'};
+                    margin-bottom: 1rem;
+                    background: linear-gradient(135deg, ${isLowGrade ? '#dc2626, #ef4444' : '#7c3aed, #a855f7'});
+                    -webkit-background-clip: text;
+                    -webkit-text-fill-color: transparent;
+                    background-clip: text;
+                ">${isLowGrade ? '⚠️ 위기 사례 분석' : '💡 심화 분석'}</h2>
+                <p style="
+                    color: #6b7280;
+                    font-size: 1.1rem;
+                    line-height: 1.6;
+                    max-width: 600px;
+                    margin: 0 auto;
+                ">
+                    ${isLowGrade ? 
+                        '실패에서 배우는 <strong style="color: #dc2626;">정치적 교훈</strong>과 위기 극복 방안을 살펴보세요.' :
+                        '성공적인 국가 운영의 <strong style="color: #7c3aed;">심화 원리</strong>와 벤치마킹 포인트를 분석해보세요.'
+                    }
+                </p>
+            </div>
+            
+            ${isLowGrade ? 
+                generateCrisisAnalysisWithFailureCases(gameResult, stats, selectedPolicies, nationName) :
+                generateAdvancedAnalysisContent(gameResult, stats, selectedPolicies, nationName)
+            }
+        </div>
+    `;
+}
+
+// 🆕 data 파일의 POLICY_FAILURE_CASES를 활용한 위기 분석
+function generateCrisisAnalysisWithFailureCases(gameResult, stats, selectedPolicies, nationName) {
+    const grade = gameResult.ending?.grade || 'F급';
+    
+    return `
+        <!-- 위기 진단 -->
+        ${generateCrisisDiagnosis(gameResult, stats, grade)}
+        
+        <!-- 🆕 data 파일의 역사적 실패 사례들 -->
+        ${generateHistoricalFailureCasesFromData(gameResult, stats)}
+        
+        <!-- 위기 극복 방안 -->
+        ${generateCrisisRecoveryPlan(gameResult, nationName)}
+        
+        <!-- 정치적 교훈 -->
+        ${generatePoliticalLessons()}
+    `;
+}
+
+// 🆕 data 파일의 POLICY_FAILURE_CASES 활용
+function generateHistoricalFailureCasesFromData(gameResult, stats) {
+    if (!window.POLICY_FAILURE_CASES) {
+        return '<div style="text-align: center; color: #666;">실패 사례 데이터를 로딩 중...</div>';
+    }
+    
+    const grade = gameResult.ending?.grade || 'F급';
+    const failureCases = window.POLICY_FAILURE_CASES;
+    
+    // 등급과 상황에 따른 적절한 사례 선택
+    let selectedCases = [];
+    
+    if (grade === 'F급' || grade === 'D급') {
+        // 심각한 위기 - 베네수엘라, 그리스 사례
+        if (stats.budgetEfficiency < 0.5 || gameResult.finalIndicators?.재정 < -3) {
+            selectedCases.push(failureCases.greece_crisis);
+        }
+        if (stats.citizenSatisfaction < -2 || gameResult.finalIndicators?.경제 < -3) {
+            selectedCases.push(failureCases.venezuela_collapse);
+        }
+    } else if (grade === 'C급') {
+        // 중간 위기 - 일본 장기침체, 아르헨티나 불안정
+        selectedCases.push(failureCases.japan_lost_decades);
+        selectedCases.push(failureCases.argentina_instability);
+    }
+    
+    // 기본적으로 최소 1개 사례는 포함
+    if (selectedCases.length === 0) {
+        selectedCases.push(failureCases.greece_crisis);
+    }
+    
+    return `
+        <div style="
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            border-left: 6px solid #dc2626;
+        ">
+            <h3 style="
+                color: #dc2626;
+                font-size: 1.4rem;
+                font-weight: 700;
+                margin-bottom: 1.5rem;
+                text-align: center;
+            ">📚 역사가 주는 경고: 실제 정책 실패 사례들</h3>
+            
+            ${selectedCases.map((caseData, index) => `
+                <div style="
+                    ${index > 0 ? 'margin-top: 2rem; padding-top: 2rem; border-top: 2px solid rgba(220, 38, 38, 0.2);' : ''}
+                ">
+                    <h4 style="
+                        color: #b91c1c;
+                        font-size: 1.2rem;
+                        font-weight: 700;
+                        margin-bottom: 1rem;
+                        text-align: center;
+                    ">${caseData.title}</h4>
+                    
+                    <p style="
+                        color: #7f1d1d;
+                        font-size: 1rem;
+                        line-height: 1.5;
+                        text-align: center;
+                        margin-bottom: 1.5rem;
+                        font-style: italic;
+                    ">${caseData.subtitle}</p>
+                    
+                    <div style="
+                        display: grid;
+                        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+                        gap: 2rem;
+                        margin-bottom: 2rem;
+                    ">
+                        <!-- 배경과 맥락 -->
+                        <div style="
+                            background: rgba(239, 68, 68, 0.1);
+                            border-radius: 12px;
+                            padding: 1.5rem;
+                            border-left: 4px solid #ef4444;
+                        ">
+                            <h5 style="
+                                color: #b91c1c;
+                                font-weight: 700;
+                                margin-bottom: 1rem;
+                            ">📖 역사적 배경</h5>
+                            <p style="
+                                color: #7f1d1d;
+                                line-height: 1.5;
+                                font-size: 0.95rem;
+                                margin-bottom: 1rem;
+                            ">${caseData.background.context}</p>
+                            
+                            ${caseData.background.initial_conditions ? `
+                                <div style="
+                                    background: rgba(255, 255, 255, 0.8);
+                                    padding: 1rem;
+                                    border-radius: 8px;
+                                    margin-top: 1rem;
+                                ">
+                                    <p style="
+                                        font-weight: 600;
+                                        color: #991b1b;
+                                        margin-bottom: 0.5rem;
+                                        font-size: 0.9rem;
+                                    ">초기 조건:</p>
+                                    <ul style="margin: 0; padding-left: 1rem; color: #7f1d1d; font-size: 0.85rem;">
+                                        ${caseData.background.initial_conditions.map(condition => 
+                                            `<li style="margin-bottom: 0.25rem;">${condition}</li>`
+                                        ).join('')}
+                                    </ul>
+                                </div>
+                            ` : ''}
+                        </div>
+                        
+                        <!-- 정책 실수들 -->
+                        <div style="
+                            background: rgba(245, 158, 11, 0.1);
+                            border-radius: 12px;
+                            padding: 1.5rem;
+                            border-left: 4px solid #f59e0b;
+                        ">
+                            <h5 style="
+                                color: #d97706;
+                                font-weight: 700;
+                                margin-bottom: 1rem;
+                            ">⚠️ 정책 실수들</h5>
+                            
+                            ${Object.entries(caseData.policy_mistakes).map(([key, mistake]) => `
+                                <div style="
+                                    background: rgba(255, 255, 255, 0.8);
+                                    padding: 1rem;
+                                    border-radius: 8px;
+                                    margin-bottom: 1rem;
+                                ">
+                                    <p style="
+                                        font-weight: 600;
+                                        color: #92400e;
+                                        margin-bottom: 0.5rem;
+                                        font-size: 0.9rem;
+                                    ">${mistake.problem}</p>
+                                    <ul style="margin: 0; padding-left: 1rem; color: #78350f; font-size: 0.85rem;">
+                                        ${mistake.details.map(detail => 
+                                            `<li style="margin-bottom: 0.25rem;">${detail}</li>`
+                                        ).join('')}
+                                    </ul>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                    
+                    <!-- 위기 전개 과정 -->
+                    ${caseData.crisis_development ? `
+                        <div style="
+                            background: rgba(107, 114, 128, 0.1);
+                            border-radius: 12px;
+                            padding: 1.5rem;
+                            margin-bottom: 1.5rem;
+                            border-left: 4px solid #6b7280;
+                        ">
+                            <h5 style="
+                                color: #374151;
+                                font-weight: 700;
+                                margin-bottom: 1rem;
+                            ">📅 위기 전개 과정</h5>
+                            <div style="
+                                display: grid;
+                                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                                gap: 1rem;
+                            ">
+                                ${Object.entries(caseData.crisis_development).map(([year, event]) => `
+                                    <div style="
+                                        background: rgba(255, 255, 255, 0.8);
+                                        padding: 0.75rem;
+                                        border-radius: 6px;
+                                        text-align: center;
+                                    ">
+                                        <strong style="color: #374151; font-size: 0.9rem;">${year}</strong>
+                                        <p style="color: #6b7280; font-size: 0.8rem; margin: 0.25rem 0 0 0; line-height: 1.3;">${event}</p>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    ` : ''}
+                    
+                    <!-- 사회적 결과 -->
+                    <div style="
+                        background: rgba(239, 68, 68, 0.1);
+                        border-radius: 12px;
+                        padding: 1.5rem;
+                        margin-bottom: 1.5rem;
+                        border-left: 4px solid #ef4444;
+                    ">
+                        <h5 style="
+                            color: #dc2626;
+                            font-weight: 700;
+                            margin-bottom: 1rem;
+                        ">💔 사회적 결과</h5>
+                        <ul style="
+                            display: grid;
+                            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+                            gap: 0.5rem;
+                            margin: 0;
+                            padding: 0;
+                            list-style: none;
+                        ">
+                            ${caseData.social_consequences.map(consequence => `
+                                <li style="
+                                    background: rgba(255, 255, 255, 0.8);
+                                    padding: 0.75rem;
+                                    border-radius: 6px;
+                                    color: #7f1d1d;
+                                    font-size: 0.9rem;
+                                    line-height: 1.4;
+                                    position: relative;
+                                    padding-left: 2rem;
+                                ">
+                                    <span style="
+                                        position: absolute;
+                                        left: 0.5rem;
+                                        color: #dc2626;
+                                        font-weight: bold;
+                                    ">•</span>
+                                    ${consequence}
+                                </li>
+                            `).join('')}
+                        </ul>
+                    </div>
+                    
+                    <!-- 정책학적 교훈 -->
+                    <div style="
+                        background: rgba(139, 92, 246, 0.1);
+                        border: 2px solid #a855f7;
+                        border-radius: 12px;
+                        padding: 1.5rem;
+                        text-align: center;
+                        margin-bottom: 1.5rem;
+                    ">
+                        <h5 style="
+                            color: #7c3aed;
+                            font-weight: 700;
+                            margin-bottom: 1rem;
+                        ">💡 정책학적 교훈</h5>
+                        ${Object.entries(caseData.policy_lessons).map(([key, lesson]) => `
+                            <div style="
+                                background: rgba(255, 255, 255, 0.8);
+                                padding: 1rem;
+                                border-radius: 8px;
+                                margin-bottom: 1rem;
+                                text-align: left;
+                            ">
+                                <strong style="color: #6d28d9; font-size: 0.9rem;">
+                                    ${key.replace(/_/g, ' ')}:
+                                </strong>
+                                <p style="
+                                    color: #581c87;
+                                    font-size: 0.9rem;
+                                    line-height: 1.4;
+                                    margin: 0.5rem 0 0 0;
+                                    font-style: italic;
+                                ">"${lesson}"</p>
+                            </div>
+                        `).join('')}
+                    </div>
+                    
+                    <!-- 게임과의 연관성 -->
+                    <div style="
+                        background: rgba(34, 197, 94, 0.1);
+                        border: 2px solid #22c55e;
+                        border-radius: 12px;
+                        padding: 1.5rem;
+                        text-align: center;
+                    ">
+                        <h5 style="
+                            color: #059669;
+                            font-weight: 700;
+                            margin-bottom: 1rem;
+                        ">🎮 게임과의 연관성</h5>
+                        <p style="
+                            color: #065f46;
+                            font-size: 1rem;
+                            line-height: 1.5;
+                            margin: 0;
+                            font-weight: 500;
+                        ">${caseData.game_connection}</p>
+                        
+                        ${caseData.current_status ? `
+                            <div style="
+                                margin-top: 1rem;
+                                padding-top: 1rem;
+                                border-top: 1px solid rgba(34, 197, 94, 0.2);
+                            ">
+                                <p style="
+                                    font-weight: 600;
+                                    color: #047857;
+                                    margin-bottom: 0.5rem;
+                                    font-size: 0.9rem;
+                                ">📊 현재 상황:</p>
+                                <p style="
+                                    color: #065f46;
+                                    font-size: 0.85rem;
+                                    margin: 0;
+                                    line-height: 1.4;
+                                ">${caseData.current_status}</p>
+                            </div>
+                        ` : ''}
+                    </div>
+                </div>
+            `).join('')}
+        </div>
+    `;
 }
 
 // 게임에서 정치 현실로 연결 섹션
@@ -7111,6 +7720,7 @@ function bindHelpButtons() {
 
 // 🆕 전역 함수로 등록
 window.showResultTab = showResultTab;
+
 
 
 
