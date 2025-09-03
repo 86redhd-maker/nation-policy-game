@@ -4996,6 +4996,113 @@ function generateNextLevelStrategy(gameResult, stats) {
     `;
 }
 
+// 헬퍼 함수들
+function analyzePolicyPatterns(selectedPolicies) {
+    const patterns = [];
+    
+    // 카테고리별 분포 분석
+    const categories = {};
+    selectedPolicies.forEach(policy => {
+        const category = window.gameAPI?.findPolicyCategory ? 
+            window.gameAPI.findPolicyCategory(policy) : '기타';
+        categories[category] = (categories[category] || 0) + 1;
+    });
+    
+    const categoryCount = Object.keys(categories).length;
+    const maxCategory = Object.entries(categories).sort((a, b) => b[1] - a[1])[0];
+    
+    if (categoryCount === 1) {
+        patterns.push({
+            type: "단일 분야 집중형",
+            description: `${maxCategory[0]} 분야에 특화된 전문가적 접근을 보여줍니다.`
+        });
+    } else if (categoryCount >= 4) {
+        patterns.push({
+            type: "통합적 거버넌스형",
+            description: "다양한 분야를 아우르는 종합적이고 체계적인 국정 운영 패턴을 보입니다."
+        });
+    } else {
+        patterns.push({
+            type: "전략적 선택집중형",
+            description: `핵심 분야(${Object.keys(categories).join(', ')})를 선별한 효율적 자원 배분 패턴입니다.`
+        });
+    }
+    
+    return patterns;
+}
+
+function generateSynergyAnalysis(selectedPolicies) {
+    // 시너지 효과가 있는 정책 조합들
+    const synergyPairs = [
+        {
+            policies: ["디지털 교육 확대", "기술 협력 확대"],
+            effect: "교육-기술 시너지로 혁신 생태계 구축"
+        },
+        {
+            policies: ["탄소세 도입", "재생에너지 투자"],
+            effect: "환경 정책 패키지로 녹색 경제 전환 가속화"
+        },
+        {
+            policies: ["기본소득 도입", "의료 인프라 확충"],
+            effect: "포괄적 복지 시스템으로 사회안전망 강화"
+        }
+    ];
+    
+    const detectedSynergies = synergyPairs.filter(pair => 
+        pair.policies.every(policy => selectedPolicies.includes(policy))
+    );
+    
+    if (detectedSynergies.length === 0) {
+        return `
+            <div style="
+                background: rgba(255, 255, 255, 0.8);
+                padding: 1rem;
+                border-radius: 8px;
+                text-align: center;
+            ">
+                <p style="color: #6b7280; font-style: italic;">
+                    명확한 정책 시너지가 감지되지 않았습니다.<br>
+                    다음에는 상호 보완적인 정책 조합을 시도해보세요!
+                </p>
+            </div>
+        `;
+    }
+    
+    return detectedSynergies.map(synergy => `
+        <div style="
+            background: rgba(255, 255, 255, 0.8);
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        ">
+            <p style="
+                font-weight: 600;
+                color: #047857;
+                margin-bottom: 0.5rem;
+                font-size: 0.9rem;
+            ">✨ ${synergy.policies.join(' + ')}</p>
+            <p style="
+                color: #065f46;
+                line-height: 1.4;
+                margin: 0;
+                font-size: 0.9rem;
+            ">${synergy.effect}</p>
+        </div>
+    `).join('');
+}
+
+// getCategoryIcon 함수도 필요할 수 있으니 추가
+function getCategoryIcon(category) {
+    const icons = {
+        '복지': '❤️',
+        '경제': '💰', 
+        '환경': '🌱',
+        '교육': '📚',
+        '외교': '🤝'
+    };
+    return icons[category] || '📋';
+}
+
 // 콘솔에서 테스트 가능하도록 전역 함수로 등록
 window.testResultsScreen = window.forceShowResults;
 
@@ -7004,6 +7111,7 @@ function bindHelpButtons() {
 
 // 🆕 전역 함수로 등록
 window.showResultTab = showResultTab;
+
 
 
 
