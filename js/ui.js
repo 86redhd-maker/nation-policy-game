@@ -4722,6 +4722,12 @@ function generateSuccessFactorAnalysis(gameResult, stats, selectedPolicies) {
             ">🏆 성공 요인 분석</h3>
             
             <div style="
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+                gap: 1.5rem;
+            ">
+                ${successFactors.map(({factor, icon, description}) => `
+                    <div style="
                         background: linear-gradient(135deg, rgba(5, 150, 105, 0.1), rgba(16, 185, 129, 0.1));
                         border-radius: 12px;
                         padding: 1.5rem;
@@ -4758,7 +4764,7 @@ function generateSuccessFactorAnalysis(gameResult, stats, selectedPolicies) {
                             font-size: 0.95rem;
                         ">${description}</p>
                     </div>
-                `.join('')}
+                `).join('')}
             </div>
         </div>
     `;
@@ -6772,6 +6778,7 @@ function bindHelpButtons() {
 
 // 🆕 전역 함수로 등록
 window.showResultTab = showResultTab;
+
 
 
 
