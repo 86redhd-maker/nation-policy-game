@@ -4167,6 +4167,1706 @@ function generateDemocraticChallenges(challenges) {
     `;
 }
 
+// 📚 POLICY_THEORY_EDUCATION 완전 활용 - 모든 세부 내용 표시
+
+// 🆕 data 파일의 모든 정치학 개념 완전 표시
+function generateCoreConceptsFromData() {
+    if (!window.POLICY_THEORY_EDUCATION) {
+        return '<div style="text-align: center; color: #666;">정치학 이론 데이터를 로딩 중...</div>';
+    }
+    
+    const theoryEducation = window.POLICY_THEORY_EDUCATION;
+    
+    return `
+        <div style="
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            border-left: 6px solid #8b5cf6;
+        ">
+            <h3 style="
+                color: #8b5cf6;
+                font-size: 1.4rem;
+                font-weight: 700;
+                margin-bottom: 1.5rem;
+                text-align: center;
+            ">🎓 정치학 핵심 개념 완전 해설</h3>
+
+            ${Object.entries(theoryEducation).map(([key, concept]) => {
+                return generateFullConceptCard(key, concept);
+            }).join('')}
+        </div>
+    `;
+}
+
+// 🆕 각 개념을 완전히 표시하는 카드 생성
+function generateFullConceptCard(key, concept) {
+    const colors = {
+        'trade_offs': { primary: '#ef4444', secondary: '#fecaca', accent: '#dc2626' },
+        'opportunity_cost': { primary: '#f59e0b', secondary: '#fed7aa', accent: '#d97706' },
+        'government_market_failure': { primary: '#8b5cf6', secondary: '#ddd6fe', accent: '#7c3aed' },
+        'democratic_decision_making': { primary: '#06b6d4', secondary: '#a5f3fc', accent: '#0891b2' },
+        'public_choice_theory': { primary: '#10b981', secondary: '#a7f3d0', accent: '#059669' }
+    };
+    
+    const colorScheme = colors[key] || colors['trade_offs'];
+    const icon = getDetailedConceptIcon(key);
+    
+    return `
+        <div style="
+            background: linear-gradient(135deg, rgba(${hexToRgb(colorScheme.primary)}, 0.1), rgba(${hexToRgb(colorScheme.secondary)}, 0.2));
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border: 2px solid ${colorScheme.primary};
+            transition: all 0.3s ease;
+        " onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 20px 40px rgba(0,0,0,0.15)'" 
+           onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 10px 30px rgba(0,0,0,0.1)'">
+            
+            <!-- 개념 헤더 -->
+            <div style="text-align: center; margin-bottom: 2rem;">
+                <div style="
+                    font-size: 4rem;
+                    margin-bottom: 1rem;
+                ">${icon}</div>
+                <h4 style="
+                    color: ${colorScheme.accent}; 
+                    font-size: 1.4rem; 
+                    font-weight: 800;
+                    margin-bottom: 1rem;
+                ">${concept.title}</h4>
+                <p style="
+                    color: #4a5568; 
+                    line-height: 1.6; 
+                    font-size: 1rem;
+                    max-width: 600px;
+                    margin: 0 auto;
+                    font-weight: 500;
+                ">${concept.core_concept}</p>
+            </div>
+            
+            ${generateConceptDetails(key, concept, colorScheme)}
+            
+            <!-- 실제 정치에서의 적용 -->
+            <div style="
+                background: rgba(255, 255, 255, 0.9);
+                border-radius: 12px;
+                padding: 1.5rem;
+                margin-top: 1.5rem;
+                border-left: 4px solid ${colorScheme.primary};
+            ">
+                <h5 style="
+                    color: ${colorScheme.accent};
+                    font-weight: 700;
+                    margin-bottom: 1rem;
+                    font-size: 1.1rem;
+                ">🏛️ 실제 정치에서의 적용</h5>
+                <p style="
+                    color: #2d3748;
+                    line-height: 1.6;
+                    margin: 0;
+                    font-size: 0.95rem;
+                ">${concept.real_world_application || concept.practical_wisdom || concept.policy_implications}</p>
+                
+                ${concept.winston_churchill ? `
+                    <div style="
+                        margin-top: 1rem;
+                        padding: 1rem;
+                        background: rgba(${hexToRgb(colorScheme.primary)}, 0.1);
+                        border-radius: 8px;
+                        border-left: 3px solid ${colorScheme.primary};
+                        font-style: italic;
+                    ">
+                        <p style="color: ${colorScheme.accent}; margin: 0; font-weight: 600;">
+                            💬 윈스턴 처칠: "${concept.winston_churchill}"
+                        </p>
+                    </div>
+                ` : ''}
+            </div>
+        </div>
+    `;
+}
+
+// 🆕 각 개념의 세부 내용 생성
+function generateConceptDetails(key, concept, colorScheme) {
+    switch(key) {
+        case 'trade_offs':
+            return generateTradeOffsDetails(concept, colorScheme);
+        case 'opportunity_cost':
+            return generateOpportunityCostDetails(concept, colorScheme);
+        case 'government_market_failure':
+            return generateMarketFailureDetails(concept, colorScheme);
+        case 'democratic_decision_making':
+            return generateDemocracyDetails(concept, colorScheme);
+        case 'public_choice_theory':
+            return generatePublicChoiceDetails(concept, colorScheme);
+        default:
+            return '';
+    }
+}
+
+// 🆕 트레이드오프 세부 내용
+function generateTradeOffsDetails(concept, colorScheme) {
+    if (!concept.major_trade_offs) return '';
+    
+    return `
+        <div style="
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        ">
+            ${Object.entries(concept.major_trade_offs).map(([tradeoffKey, tradeoff]) => `
+                <div style="
+                    background: rgba(255, 255, 255, 0.9);
+                    border-radius: 12px;
+                    padding: 1.5rem;
+                    border-left: 4px solid ${colorScheme.primary};
+                    transition: all 0.3s ease;
+                " onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'">
+                    <h5 style="
+                        color: ${colorScheme.accent};
+                        font-weight: 700;
+                        margin-bottom: 1rem;
+                        display: flex;
+                        align-items: center;
+                        gap: 0.5rem;
+                    ">
+                        ⚖️ ${tradeoff.description || tradeoffKey.replace(/_/g, ' vs ')}
+                    </h5>
+                    
+                    ${tradeoff.example ? `
+                        <div style="
+                            background: rgba(${hexToRgb(colorScheme.primary)}, 0.1);
+                            padding: 1rem;
+                            border-radius: 8px;
+                            margin-bottom: 1rem;
+                        ">
+                            <p style="
+                                color: ${colorScheme.accent};
+                                font-weight: 600;
+                                margin-bottom: 0.5rem;
+                                font-size: 0.9rem;
+                            ">📝 실제 예시:</p>
+                            <p style="
+                                color: #4a5568;
+                                margin: 0;
+                                font-size: 0.9rem;
+                                line-height: 1.4;
+                            ">${tradeoff.example}</p>
+                        </div>
+                    ` : ''}
+                    
+                    ${tradeoff.okun_trade_off || tradeoff.kuznets_curve || tradeoff.security_dilemma || tradeoff.political_cycle ? `
+                        <div style="
+                            background: rgba(99, 102, 241, 0.1);
+                            padding: 1rem;
+                            border-radius: 8px;
+                            border-left: 3px solid #6366f1;
+                        ">
+                            <p style="
+                                color: #4338ca;
+                                font-weight: 600;
+                                margin-bottom: 0.5rem;
+                                font-size: 0.9rem;
+                            ">📖 이론적 배경:</p>
+                            <p style="
+                                color: #5b21b6;
+                                margin: 0;
+                                font-size: 0.85rem;
+                                line-height: 1.4;
+                            ">${tradeoff.okun_trade_off || tradeoff.kuznets_curve || tradeoff.security_dilemma || tradeoff.political_cycle}</p>
+                        </div>
+                    ` : ''}
+                </div>
+            `).join('')}
+        </div>
+        
+        ${concept.management_strategies ? `
+            <div style="
+                background: rgba(34, 197, 94, 0.1);
+                border-radius: 12px;
+                padding: 1.5rem;
+                border-left: 4px solid #22c55e;
+                margin-bottom: 1rem;
+            ">
+                <h5 style="
+                    color: #059669;
+                    font-weight: 700;
+                    margin-bottom: 1rem;
+                ">🎯 관리 전략</h5>
+                <ul style="
+                    display: grid;
+                    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                    gap: 0.5rem;
+                    margin: 0;
+                    padding: 0;
+                    list-style: none;
+                ">
+                    ${concept.management_strategies.map(strategy => `
+                        <li style="
+                            background: rgba(255, 255, 255, 0.8);
+                            padding: 0.75rem;
+                            border-radius: 6px;
+                            color: #065f46;
+                            font-size: 0.9rem;
+                            position: relative;
+                            padding-left: 2rem;
+                        ">
+                            <span style="
+                                position: absolute;
+                                left: 0.5rem;
+                                color: #22c55e;
+                                font-weight: bold;
+                            ">•</span>
+                            ${strategy}
+                        </li>
+                    `).join('')}
+                </ul>
+            </div>
+        ` : ''}
+    `;
+}
+
+// 🆕 기회비용 세부 내용
+function generateOpportunityCostDetails(concept, colorScheme) {
+    return `
+        ${concept.policy_examples ? `
+            <div style="margin-bottom: 1.5rem;">
+                <h5 style="
+                    color: ${colorScheme.accent};
+                    font-weight: 700;
+                    margin-bottom: 1rem;
+                    text-align: center;
+                ">💡 정책 결정 예시들</h5>
+                <div style="
+                    display: grid;
+                    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+                    gap: 1rem;
+                ">
+                    ${Object.entries(concept.policy_examples).map(([exampleKey, example]) => `
+                        <div style="
+                            background: rgba(255, 255, 255, 0.9);
+                            border-radius: 12px;
+                            padding: 1.5rem;
+                            border-left: 4px solid ${colorScheme.primary};
+                        ">
+                            <h6 style="
+                                color: ${colorScheme.accent};
+                                font-weight: 700;
+                                margin-bottom: 0.75rem;
+                                font-size: 1rem;
+                            ">${exampleKey.replace(/_/g, ' ')}</h6>
+                            
+                            <div style="
+                                background: rgba(${hexToRgb(colorScheme.primary)}, 0.1);
+                                padding: 0.75rem;
+                                border-radius: 6px;
+                                margin-bottom: 0.75rem;
+                            ">
+                                <p style="
+                                    color: #4a5568;
+                                    margin: 0;
+                                    font-size: 0.9rem;
+                                    line-height: 1.4;
+                                "><strong>상황:</strong> ${example.scenario}</p>
+                            </div>
+                            
+                            <div style="
+                                background: rgba(245, 158, 11, 0.1);
+                                padding: 0.75rem;
+                                border-radius: 6px;
+                                margin-bottom: 0.75rem;
+                                border-left: 3px solid #f59e0b;
+                            ">
+                                <p style="
+                                    color: #92400e;
+                                    margin: 0;
+                                    font-size: 0.85rem;
+                                    line-height: 1.4;
+                                "><strong>기회비용:</strong> ${example.opportunity_cost}</p>
+                            </div>
+                            
+                            ${example.consideration ? `
+                                <div style="
+                                    background: rgba(99, 102, 241, 0.1);
+                                    padding: 0.75rem;
+                                    border-radius: 6px;
+                                    border-left: 3px solid #6366f1;
+                                ">
+                                    <p style="
+                                        color: #4338ca;
+                                        margin: 0;
+                                        font-size: 0.85rem;
+                                        line-height: 1.4;
+                                    "><strong>고려사항:</strong> ${example.consideration}</p>
+                                </div>
+                            ` : ''}
+                            
+                            ${example.long_term_view || example.intergenerational_equity ? `
+                                <div style="
+                                    background: rgba(139, 92, 246, 0.1);
+                                    padding: 0.75rem;
+                                    border-radius: 6px;
+                                    margin-top: 0.75rem;
+                                    border-left: 3px solid #8b5cf6;
+                                ">
+                                    <p style="
+                                        color: #7c3aed;
+                                        margin: 0;
+                                        font-size: 0.85rem;
+                                        line-height: 1.4;
+                                    "><strong>장기적 관점:</strong> ${example.long_term_view || example.intergenerational_equity}</p>
+                                </div>
+                            ` : ''}
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        ` : ''}
+        
+        ${concept.hidden_costs ? `
+            <div style="
+                background: rgba(239, 68, 68, 0.1);
+                border-radius: 12px;
+                padding: 1.5rem;
+                border-left: 4px solid #ef4444;
+                margin-bottom: 1.5rem;
+            ">
+                <h5 style="
+                    color: #dc2626;
+                    font-weight: 700;
+                    margin-bottom: 1rem;
+                ">⚠️ 숨겨진 비용들</h5>
+                <ul style="
+                    display: grid;
+                    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                    gap: 0.5rem;
+                    margin: 0;
+                    padding: 0;
+                    list-style: none;
+                ">
+                    ${concept.hidden_costs.map(cost => `
+                        <li style="
+                            background: rgba(255, 255, 255, 0.8);
+                            padding: 0.75rem;
+                            border-radius: 6px;
+                            color: #7f1d1d;
+                            font-size: 0.9rem;
+                            position: relative;
+                            padding-left: 2rem;
+                        ">
+                            <span style="
+                                position: absolute;
+                                left: 0.5rem;
+                                color: #ef4444;
+                                font-weight: bold;
+                            ">•</span>
+                            ${cost}
+                        </li>
+                    `).join('')}
+                </ul>
+            </div>
+        ` : ''}
+        
+        ${concept.decision_framework ? `
+            <div style="
+                background: rgba(34, 197, 94, 0.1);
+                border-radius: 12px;
+                padding: 1.5rem;
+                border-left: 4px solid #22c55e;
+            ">
+                <h5 style="
+                    color: #059669;
+                    font-weight: 700;
+                    margin-bottom: 1rem;
+                ">🎯 의사결정 프레임워크</h5>
+                <ol style="
+                    margin: 0;
+                    padding-left: 1.5rem;
+                    color: #065f46;
+                    line-height: 1.6;
+                ">
+                    ${concept.decision_framework.map(step => `
+                        <li style="
+                            margin-bottom: 0.5rem;
+                            font-size: 0.9rem;
+                            padding-left: 0.5rem;
+                        ">${step}</li>
+                    `).join('')}
+                </ol>
+            </div>
+        ` : ''}
+    `;
+}
+
+// 🆕 시장실패/정부실패 세부 내용
+function generateMarketFailureDetails(concept, colorScheme) {
+    return `
+        <div style="
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 2rem;
+            margin-bottom: 1.5rem;
+        ">
+            <!-- 시장실패 -->
+            ${concept.market_failures ? `
+                <div style="
+                    background: rgba(255, 255, 255, 0.9);
+                    border-radius: 12px;
+                    padding: 1.5rem;
+                    border: 2px solid #ef4444;
+                ">
+                    <h5 style="
+                        color: #dc2626;
+                        font-weight: 700;
+                        margin-bottom: 1rem;
+                        text-align: center;
+                        font-size: 1.1rem;
+                    ">🚫 시장실패 (Market Failure)</h5>
+                    <p style="
+                        color: #7f1d1d;
+                        text-align: center;
+                        margin-bottom: 1.5rem;
+                        font-size: 0.9rem;
+                        line-height: 1.4;
+                    ">${concept.market_failures.definition}</p>
+                    
+                    ${Object.entries(concept.market_failures.types).map(([failureKey, failure]) => `
+                        <div style="
+                            background: rgba(239, 68, 68, 0.1);
+                            border-radius: 8px;
+                            padding: 1rem;
+                            margin-bottom: 1rem;
+                            border-left: 3px solid #ef4444;
+                        ">
+                            <h6 style="
+                                color: #b91c1c;
+                                font-weight: 700;
+                                margin-bottom: 0.5rem;
+                            ">${failureKey}</h6>
+                            <p style="
+                                color: #7f1d1d;
+                                font-size: 0.85rem;
+                                line-height: 1.4;
+                                margin-bottom: 0.5rem;
+                            ">${failure.problem}</p>
+                            
+                            ${failure.example ? `
+                                <div style="
+                                    background: rgba(255, 255, 255, 0.8);
+                                    padding: 0.5rem;
+                                    border-radius: 4px;
+                                    margin-bottom: 0.5rem;
+                                ">
+                                    <p style="
+                                        color: #991b1b;
+                                        margin: 0;
+                                        font-size: 0.8rem;
+                                    "><strong>예시:</strong> ${failure.example}</p>
+                                </div>
+                            ` : ''}
+                            
+                            ${failure.positive_example || failure.negative_example ? `
+                                <div style="
+                                    background: rgba(255, 255, 255, 0.8);
+                                    padding: 0.5rem;
+                                    border-radius: 4px;
+                                    margin-bottom: 0.5rem;
+                                ">
+                                    <p style="
+                                        color: #991b1b;
+                                        margin: 0;
+                                        font-size: 0.8rem;
+                                    ">${failure.positive_example ? `<strong>긍정적 예:</strong> ${failure.positive_example}` : `<strong>부정적 예:</strong> ${failure.negative_example}`}</p>
+                                </div>
+                            ` : ''}
+                            
+                            ${failure.characteristics ? `
+                                <div style="
+                                    background: rgba(255, 255, 255, 0.8);
+                                    padding: 0.5rem;
+                                    border-radius: 4px;
+                                    margin-bottom: 0.5rem;
+                                ">
+                                    <p style="
+                                        color: #991b1b;
+                                        margin: 0;
+                                        font-size: 0.8rem;
+                                    "><strong>특징:</strong> ${failure.characteristics}</p>
+                                </div>
+                            ` : ''}
+                            
+                            ${failure.government_solution ? `
+                                <div style="
+                                    background: rgba(34, 197, 94, 0.1);
+                                    padding: 0.5rem;
+                                    border-radius: 4px;
+                                    border-left: 2px solid #22c55e;
+                                ">
+                                    <p style="
+                                        color: #059669;
+                                        margin: 0;
+                                        font-size: 0.8rem;
+                                    "><strong>정부 해결방안:</strong> ${failure.government_solution}</p>
+                                </div>
+                            ` : ''}
+                        </div>
+                    `).join('')}
+                </div>
+            ` : ''}
+            
+            <!-- 정부실패 -->
+            ${concept.government_failures ? `
+                <div style="
+                    background: rgba(255, 255, 255, 0.9);
+                    border-radius: 12px;
+                    padding: 1.5rem;
+                    border: 2px solid #8b5cf6;
+                ">
+                    <h5 style="
+                        color: #7c3aed;
+                        font-weight: 700;
+                        margin-bottom: 1rem;
+                        text-align: center;
+                        font-size: 1.1rem;
+                    ">🏛️ 정부실패 (Government Failure)</h5>
+                    <p style="
+                        color: #5b21b6;
+                        text-align: center;
+                        margin-bottom: 1.5rem;
+                        font-size: 0.9rem;
+                        line-height: 1.4;
+                    ">${concept.government_failures.definition}</p>
+                    
+                    ${Object.entries(concept.government_failures.types).map(([failureKey, failure]) => `
+                        <div style="
+                            background: rgba(139, 92, 246, 0.1);
+                            border-radius: 8px;
+                            padding: 1rem;
+                            margin-bottom: 1rem;
+                            border-left: 3px solid #8b5cf6;
+                        ">
+                            <h6 style="
+                                color: #6d28d9;
+                                font-weight: 700;
+                                margin-bottom: 0.5rem;
+                            ">${failureKey.replace(/_/g, ' ')}</h6>
+                            <p style="
+                                color: #5b21b6;
+                                font-size: 0.85rem;
+                                line-height: 1.4;
+                                margin-bottom: 0.5rem;
+                            ">${failure.problem}</p>
+                            
+                            ${failure.example ? `
+                                <div style="
+                                    background: rgba(255, 255, 255, 0.8);
+                                    padding: 0.5rem;
+                                    border-radius: 4px;
+                                    margin-bottom: 0.5rem;
+                                ">
+                                    <p style="
+                                        color: #581c87;
+                                        margin: 0;
+                                        font-size: 0.8rem;
+                                    "><strong>예시:</strong> ${failure.example}</p>
+                                </div>
+                            ` : ''}
+                            
+                            ${failure.causes ? `
+                                <div style="
+                                    background: rgba(255, 255, 255, 0.8);
+                                    padding: 0.5rem;
+                                    border-radius: 4px;
+                                ">
+                                    <p style="
+                                        color: #581c87;
+                                        margin: 0;
+                                        font-size: 0.8rem;
+                                    "><strong>원인:</strong> ${failure.causes}</p>
+                                </div>
+                            ` : ''}
+                        </div>
+                    `).join('')}
+                </div>
+            ` : ''}
+        </div>
+        
+        ${concept.optimal_balance ? `
+            <div style="
+                background: rgba(34, 197, 94, 0.1);
+                border: 2px solid #22c55e;
+                border-radius: 12px;
+                padding: 1.5rem;
+                text-align: center;
+            ">
+                <h5 style="
+                    color: #059669;
+                    font-weight: 700;
+                    margin-bottom: 1rem;
+                ">⚖️ 최적 균형점 찾기</h5>
+                
+                <div style="
+                    display: grid;
+                    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                    gap: 1rem;
+                    margin-bottom: 1rem;
+                ">
+                    <div style="
+                        background: rgba(255, 255, 255, 0.8);
+                        padding: 1rem;
+                        border-radius: 8px;
+                    ">
+                        <p style="
+                            color: #047857;
+                            font-weight: 600;
+                            margin-bottom: 0.5rem;
+                            font-size: 0.9rem;
+                        ">🤝 혼합 영역</p>
+                        <p style="
+                            color: #065f46;
+                            margin: 0;
+                            font-size: 0.8rem;
+                        ">${concept.optimal_balance.mixed_areas}</p>
+                    </div>
+                </div>
+                
+                <div style="
+                    background: rgba(255, 255, 255, 0.9);
+                    padding: 1rem;
+                    border-radius: 8px;
+                    border-left: 3px solid #22c55e;
+                ">
+                    <p style="
+                        color: #047857;
+                        font-weight: 600;
+                        margin-bottom: 0.5rem;
+                    ">💡 핵심 원칙:</p>
+                    <p style="
+                        color: #065f46;
+                        margin: 0;
+                        font-size: 0.9rem;
+                        line-height: 1.4;
+                    ">${concept.optimal_balance.principle}</p>
+                </div>
+            </div>
+        ` : ''}
+    `;
+}
+
+// 🆕 민주주의 의사결정 세부 내용
+function generateDemocracyDetails(concept, colorScheme) {
+    return `
+        ${concept.decision_making_process ? `
+            <div style="margin-bottom: 2rem;">
+                <h5 style="
+                    color: ${colorScheme.accent};
+                    font-weight: 700;
+                    margin-bottom: 1.5rem;
+                    text-align: center;
+                ">🏛️ 민주주의 정책결정 5단계 과정</h5>
+                
+                <div style="
+                    display: grid;
+                    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+                    gap: 1rem;
+                ">
+                    ${Object.entries(concept.decision_making_process).map(([stageKey, stage], index) => `
+                        <div style="
+                            background: rgba(255, 255, 255, 0.9);
+                            border-radius: 12px;
+                            padding: 1.5rem;
+                            border-left: 4px solid ${colorScheme.primary};
+                            position: relative;
+                            transition: all 0.3s ease;
+                        " onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
+                            
+                            <!-- 단계 번호 -->
+                            <div style="
+                                position: absolute;
+                                top: -10px;
+                                right: 15px;
+                                width: 30px;
+                                height: 30px;
+                                background: ${colorScheme.primary};
+                                border-radius: 50%;
+                                display: flex;
+                                align-items: center;
+                                justify-content: center;
+                                color: white;
+                                font-weight: bold;
+                                font-size: 0.9rem;
+                            ">${index + 1}</div>
+                            
+                            <h6 style="
+                                color: ${colorScheme.accent};
+                                font-weight: 700;
+                                margin-bottom: 0.75rem;
+                                font-size: 1rem;
+                            ">${stage.stage}</h6>
+                            
+                            <p style="
+                                color: #4a5568;
+                                margin-bottom: 1rem;
+                                font-size: 0.9rem;
+                                line-height: 1.4;
+                            ">${stage.description}</p>
+                            
+                            ${stage.actors ? `
+                                <div style="
+                                    background: rgba(${hexToRgb(colorScheme.primary)}, 0.1);
+                                    padding: 0.75rem;
+                                    border-radius: 6px;
+                                    margin-bottom: 0.75rem;
+                                ">
+                                    <p style="
+                                        color: ${colorScheme.accent};
+                                        font-weight: 600;
+                                        margin-bottom: 0.25rem;
+                                        font-size: 0.8rem;
+                                    ">👥 주요 참여자:</p>
+                                    <p style="
+                                        color: #4a5568;
+                                        margin: 0;
+                                        font-size: 0.8rem;
+                                    ">${stage.actors}</p>
+                                </div>
+                            ` : ''}
+                            
+                            ${stage.example ? `
+                                <div style="
+                                    background: rgba(34, 197, 94, 0.1);
+                                    padding: 0.75rem;
+                                    border-radius: 6px;
+                                    border-left: 3px solid #22c55e;
+                                ">
+                                    <p style="
+                                        color: #059669;
+                                        font-weight: 600;
+                                        margin-bottom: 0.25rem;
+                                        font-size: 0.8rem;
+                                    ">📝 예시:</p>
+                                    <p style="
+                                        color: #065f46;
+                                        margin: 0;
+                                        font-size: 0.8rem;
+                                    ">${stage.example}</p>
+                                </div>
+                            ` : ''}
+                            
+                            ${stage.challenges ? `
+                                <div style="
+                                    background: rgba(245, 158, 11, 0.1);
+                                    padding: 0.75rem;
+                                    border-radius: 6px;
+                                    border-left: 3px solid #f59e0b;
+                                ">
+                                    <p style="
+                                        color: #d97706;
+                                        font-weight: 600;
+                                        margin-bottom: 0.25rem;
+                                        font-size: 0.8rem;
+                                    ">⚠️ 도전과제:</p>
+                                    <p style="
+                                        color: #92400e;
+                                        margin: 0;
+                                        font-size: 0.8rem;
+                                    ">${stage.challenges}</p>
+                                </div>
+                            ` : ''}
+                            
+                            ${stage.feedback ? `
+                                <div style="
+                                    background: rgba(139, 92, 246, 0.1);
+                                    padding: 0.75rem;
+                                    border-radius: 6px;
+                                    border-left: 3px solid #8b5cf6;
+                                    margin-top: 0.75rem;
+                                ">
+                                    <p style="
+                                        color: #7c3aed;
+                                        margin: 0;
+                                        font-size: 0.8rem;
+                                    "><strong>피드백 루프:</strong> ${stage.feedback}</p>
+                                </div>
+                            ` : ''}
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        ` : ''}
+        
+        ${concept.democratic_challenges ? `
+            <div style="
+                background: rgba(239, 68, 68, 0.1);
+                border-radius: 12px;
+                padding: 1.5rem;
+                border-left: 4px solid #ef4444;
+                margin-bottom: 1.5rem;
+            ">
+                <h5 style="
+                    color: #dc2626;
+                    font-weight: 700;
+                    margin-bottom: 1rem;
+                    text-align: center;
+                ">⚠️ 민주주의의 도전과제들</h5>
+                
+                <div style="
+                    display: grid;
+                    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+                    gap: 1rem;
+                ">
+                    ${Object.entries(concept.democratic_challenges).map(([challengeKey, challenge]) => `
+                        <div style="
+                            background: rgba(255, 255, 255, 0.9);
+                            border-radius: 8px;
+                            padding: 1rem;
+                            border-left: 3px solid #ef4444;
+                        ">
+                            <h6 style="
+                                color: #b91c1c;
+                                font-weight: 700;
+                                margin-bottom: 0.5rem;
+                                font-size: 0.95rem;
+                            ">${challengeKey.replace(/_/g, ' ')}</h6>
+                            
+                            <p style="
+                                color: #7f1d1d;
+                                font-size: 0.85rem;
+                                line-height: 1.4;
+                                margin-bottom: 0.75rem;
+                            ">${challenge.problem}</p>
+                            
+                            ${challenge.example ? `
+                                <div style="
+                                    background: rgba(239, 68, 68, 0.1);
+                                    padding: 0.5rem;
+                                    border-radius: 4px;
+                                    margin-bottom: 0.75rem;
+                                ">
+                                    <p style="
+                                        color: #991b1b;
+                                        margin: 0;
+                                        font-size: 0.8rem;
+                                    "><strong>예시:</strong> ${challenge.example}</p>
+                                </div>
+                            ` : ''}
+                            
+                            ${challenge.solution ? `
+                                <div style="
+                                    background: rgba(34, 197, 94, 0.1);
+                                    padding: 0.5rem;
+                                    border-radius: 4px;
+                                    border-left: 2px solid #22c55e;
+                                ">
+                                    <p style="
+                                        color: #059669;
+                                        margin: 0;
+                                        font-size: 0.8rem;
+                                    "><strong>해결방안:</strong> ${challenge.solution}</p>
+                                </div>
+                            ` : ''}
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        ` : ''}
+        
+        ${concept.participation_mechanisms ? `
+            <div style="
+                background: rgba(34, 197, 94, 0.1);
+                border-radius: 12px;
+                padding: 1.5rem;
+                border-left: 4px solid #22c55e;
+                margin-bottom: 1.5rem;
+            ">
+                <h5 style="
+                    color: #059669;
+                    font-weight: 700;
+                    margin-bottom: 1rem;
+                ">🗳️ 시민 참여 메커니즘</h5>
+                <ul style="
+                    display: grid;
+                    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                    gap: 0.5rem;
+                    margin: 0;
+                    padding: 0;
+                    list-style: none;
+                ">
+                    ${concept.participation_mechanisms.map(mechanism => `
+                        <li style="
+                            background: rgba(255, 255, 255, 0.8);
+                            padding: 0.75rem;
+                            border-radius: 6px;
+                            color: #065f46;
+                            font-size: 0.9rem;
+                            position: relative;
+                            padding-left: 2rem;
+                        ">
+                            <span style="
+                                position: absolute;
+                                left: 0.5rem;
+                                color: #22c55e;
+                                font-weight: bold;
+                            ">•</span>
+                            ${mechanism}
+                        </li>
+                    `).join('')}
+                </ul>
+            </div>
+        ` : ''}
+        
+        ${concept.quality_factors ? `
+            <div style="
+                background: rgba(99, 102, 241, 0.1);
+                border-radius: 12px;
+                padding: 1.5rem;
+                border-left: 4px solid #6366f1;
+            ">
+                <h5 style="
+                    color: #4338ca;
+                    font-weight: 700;
+                    margin-bottom: 1rem;
+                ">⭐ 양질의 민주주의 조건</h5>
+                <ul style="
+                    display: grid;
+                    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                    gap: 0.5rem;
+                    margin: 0;
+                    padding: 0;
+                    list-style: none;
+                ">
+                    ${concept.quality_factors.map(factor => `
+                        <li style="
+                            background: rgba(255, 255, 255, 0.8);
+                            padding: 0.75rem;
+                            border-radius: 6px;
+                            color: #312e81;
+                            font-size: 0.9rem;
+                            position: relative;
+                            padding-left: 2rem;
+                        ">
+                            <span style="
+                                position: absolute;
+                                left: 0.5rem;
+                                color: #6366f1;
+                                font-weight: bold;
+                            ">•</span>
+                            ${factor}
+                        </li>
+                    `).join('')}
+                </ul>
+            </div>
+        ` : ''}
+    `;
+}
+
+// 🆕 공공선택론 세부 내용
+function generatePublicChoiceDetails(concept, colorScheme) {
+    return `
+        ${concept.key_assumptions ? `
+            <div style="
+                background: rgba(255, 255, 255, 0.9);
+                border-radius: 12px;
+                padding: 1.5rem;
+                border-left: 4px solid ${colorScheme.primary};
+                margin-bottom: 1.5rem;
+            ">
+                <h5 style="
+                    color: ${colorScheme.accent};
+                    font-weight: 700;
+                    margin-bottom: 1rem;
+                ">🧠 기본 가정들</h5>
+                <ul style="margin: 0; padding-left: 1.5rem; color: #4a5568; line-height: 1.6;">
+                    ${concept.key_assumptions.map(assumption => `
+                        <li style="margin-bottom: 0.5rem; font-size: 0.9rem;">${assumption}</li>
+                    `).join('')}
+                </ul>
+            </div>
+        ` : ''}
+        
+        ${concept.political_market ? `
+            <div style="
+                background: rgba(255, 255, 255, 0.9);
+                border-radius: 12px;
+                padding: 1.5rem;
+                border-left: 4px solid ${colorScheme.primary};
+                margin-bottom: 1.5rem;
+            ">
+                <h5 style="
+                    color: ${colorScheme.accent};
+                    font-weight: 700;
+                    margin-bottom: 1rem;
+                ">🏪 정치 시장의 참여자들</h5>
+                <div style="
+                    display: grid;
+                    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                    gap: 1rem;
+                ">
+                    ${Object.entries(concept.political_market).map(([actorKey, description]) => `
+                        <div style="
+                            background: rgba(${hexToRgb(colorScheme.primary)}, 0.1);
+                            padding: 1rem;
+                            border-radius: 8px;
+                        ">
+                            <p style="
+                                color: ${colorScheme.accent};
+                                font-weight: 600;
+                                margin-bottom: 0.5rem;
+                                font-size: 0.9rem;
+                            ">${getActorEmoji(actorKey)} ${actorKey}</p>
+                            <p style="
+                                color: #4a5568;
+                                margin: 0;
+                                font-size: 0.8rem;
+                                line-height: 1.4;
+                            ">${description}</p>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        ` : ''}
+        
+        ${concept.rational_ignorance ? `
+            <div style="
+                background: rgba(245, 158, 11, 0.1);
+                border-radius: 12px;
+                padding: 1.5rem;
+                border-left: 4px solid #f59e0b;
+                margin-bottom: 1.5rem;
+            ">
+                <h5 style="
+                    color: #d97706;
+                    font-weight: 700;
+                    margin-bottom: 1rem;
+                ">🤷‍♂️ 합리적 무지 (Rational Ignorance)</h5>
+                
+                <div style="
+                    background: rgba(255, 255, 255, 0.9);
+                    padding: 1rem;
+                    border-radius: 8px;
+                    margin-bottom: 1rem;
+                ">
+                    <p style="
+                        color: #92400e;
+                        font-weight: 600;
+                        margin-bottom: 0.5rem;
+                    ">📖 개념:</p>
+                    <p style="
+                        color: #78350f;
+                        margin: 0;
+                        font-size: 0.9rem;
+                        line-height: 1.4;
+                    ">${concept.rational_ignorance.concept}</p>
+                </div>
+                
+                ${concept.rational_ignorance.problem ? `
+                    <div style="
+                        background: rgba(239, 68, 68, 0.1);
+                        padding: 1rem;
+                        border-radius: 8px;
+                        margin-bottom: 1rem;
+                        border-left: 3px solid #ef4444;
+                    ">
+                        <p style="
+                            color: #dc2626;
+                            font-weight: 600;
+                            margin-bottom: 0.5rem;
+                        ">⚠️ 문제점:</p>
+                        <p style="
+                            color: #7f1d1d;
+                            margin: 0;
+                            font-size: 0.9rem;
+                            line-height: 1.4;
+                        ">${concept.rational_ignorance.problem}</p>
+                    </div>
+                ` : ''}
+                
+                ${concept.rational_ignorance.consequence ? `
+                    <div style="
+                        background: rgba(239, 68, 68, 0.1);
+                        padding: 1rem;
+                        border-radius: 8px;
+                        margin-bottom: 1rem;
+                        border-left: 3px solid #ef4444;
+                    ">
+                        <p style="
+                            color: #dc2626;
+                            font-weight: 600;
+                            margin-bottom: 0.5rem;
+                        ">📉 결과:</p>
+                        <p style="
+                            color: #7f1d1d;
+                            margin: 0;
+                            font-size: 0.9rem;
+                            line-height: 1.4;
+                        ">${concept.rational_ignorance.consequence}</p>
+                    </div>
+                ` : ''}
+                
+                ${concept.rational_ignorance.solution ? `
+                    <div style="
+                        background: rgba(34, 197, 94, 0.1);
+                        padding: 1rem;
+                        border-radius: 8px;
+                        border-left: 3px solid #22c55e;
+                    ">
+                        <p style="
+                            color: #059669;
+                            font-weight: 600;
+                            margin-bottom: 0.5rem;
+                        ">💡 해결방안:</p>
+                        <p style="
+                            color: #065f46;
+                            margin: 0;
+                            font-size: 0.9rem;
+                            line-height: 1.4;
+                        ">${concept.rational_ignorance.solution}</p>
+                    </div>
+                ` : ''}
+            </div>
+        ` : ''}
+        
+        ${concept.collective_action_problem ? `
+            <div style="
+                background: rgba(139, 92, 246, 0.1);
+                border-radius: 12px;
+                padding: 1.5rem;
+                border-left: 4px solid #8b5cf6;
+                margin-bottom: 1.5rem;
+            ">
+                <h5 style="
+                    color: #7c3aed;
+                    font-weight: 700;
+                    margin-bottom: 1rem;
+                ">🤝 집합행동 문제 (Collective Action Problem)</h5>
+                
+                <div style="
+                    background: rgba(255, 255, 255, 0.9);
+                    padding: 1rem;
+                    border-radius: 8px;
+                    margin-bottom: 1rem;
+                ">
+                    <p style="
+                        color: #6d28d9;
+                        font-weight: 600;
+                        margin-bottom: 0.5rem;
+                    ">📖 개념:</p>
+                    <p style="
+                        color: #5b21b6;
+                        margin: 0;
+                        font-size: 0.9rem;
+                        line-height: 1.4;
+                    ">${concept.collective_action_problem.concept}</p>
+                </div>
+                
+                ${concept.collective_action_problem.free_rider ? `
+                    <div style="
+                        background: rgba(255, 255, 255, 0.9);
+                        padding: 1rem;
+                        border-radius: 8px;
+                        margin-bottom: 1rem;
+                    ">
+                        <p style="
+                            color: #6d28d9;
+                            font-weight: 600;
+                            margin-bottom: 0.5rem;
+                        ">🚫 무임승차자:</p>
+                        <p style="
+                            color: #5b21b6;
+                            margin: 0;
+                            font-size: 0.9rem;
+                            line-height: 1.4;
+                        ">${concept.collective_action_problem.free_rider}</p>
+                    </div>
+                ` : ''}
+                
+                ${concept.collective_action_problem.olson_logic ? `
+                    <div style="
+                        background: rgba(255, 255, 255, 0.9);
+                        padding: 1rem;
+                        border-radius: 8px;
+                        margin-bottom: 1rem;
+                    ">
+                        <p style="
+                            color: #6d28d9;
+                            font-weight: 600;
+                            margin-bottom: 0.5rem;
+                        ">📊 올슨의 논리:</p>
+                        <p style="
+                            color: #5b21b6;
+                            margin: 0;
+                            font-size: 0.9rem;
+                            line-height: 1.4;
+                        ">${concept.collective_action_problem.olson_logic}</p>
+                    </div>
+                ` : ''}
+                
+                ${concept.collective_action_problem.solutions ? `
+                    <div style="
+                        background: rgba(34, 197, 94, 0.1);
+                        padding: 1rem;
+                        border-radius: 8px;
+                        border-left: 3px solid #22c55e;
+                    ">
+                        <p style="
+                            color: #059669;
+                            font-weight: 600;
+                            margin-bottom: 0.5rem;
+                        ">💡 해결방안:</p>
+                        <p style="
+                            color: #065f46;
+                            margin: 0;
+                            font-size: 0.9rem;
+                            line-height: 1.4;
+                        ">${concept.collective_action_problem.solutions}</p>
+                    </div>
+                ` : ''}
+            </div>
+        ` : ''}
+        
+        ${concept.government_growth ? `
+            <div style="
+                background: rgba(239, 68, 68, 0.1);
+                border-radius: 12px;
+                padding: 1.5rem;
+                border-left: 4px solid #ef4444;
+                margin-bottom: 1.5rem;
+            ">
+                <h5 style="
+                    color: #dc2626;
+                    font-weight: 700;
+                    margin-bottom: 1rem;
+                ">📈 정부 규모 확대 현상</h5>
+                
+                ${concept.government_growth.niskanen_model ? `
+                    <div style="
+                        background: rgba(255, 255, 255, 0.9);
+                        padding: 1rem;
+                        border-radius: 8px;
+                        margin-bottom: 1rem;
+                    ">
+                        <p style="
+                            color: #b91c1c;
+                            font-weight: 600;
+                            margin-bottom: 0.5rem;
+                        ">👔 니스카넨 모델:</p>
+                        <p style="
+                            color: #7f1d1d;
+                            margin: 0;
+                            font-size: 0.9rem;
+                            line-height: 1.4;
+                        ">${concept.government_growth.niskanen_model}</p>
+                    </div>
+                ` : ''}
+                
+                ${concept.government_growth.causes ? `
+                    <div style="
+                        background: rgba(255, 255, 255, 0.9);
+                        padding: 1rem;
+                        border-radius: 8px;
+                        margin-bottom: 1rem;
+                    ">
+                        <p style="
+                            color: #b91c1c;
+                            font-weight: 600;
+                            margin-bottom: 0.5rem;
+                        ">📋 확대 원인들:</p>
+                        <ul style="margin: 0; padding-left: 1.2rem; color: #7f1d1d; font-size: 0.85rem;">
+                            ${concept.government_growth.causes.map(cause => `
+                                <li style="margin-bottom: 0.25rem;">${cause}</li>
+                            `).join('')}
+                        </ul>
+                    </div>
+                ` : ''}
+                
+                ${concept.government_growth.consequences ? `
+                    <div style="
+                        background: rgba(255, 255, 255, 0.9);
+                        padding: 1rem;
+                        border-radius: 8px;
+                        margin-bottom: 1rem;
+                    ">
+                        <p style="
+                            color: #b91c1c;
+                            font-weight: 600;
+                            margin-bottom: 0.5rem;
+                        ">📉 결과:</p>
+                        <p style="
+                            color: #7f1d1d;
+                            margin: 0;
+                            font-size: 0.9rem;
+                            line-height: 1.4;
+                        ">${concept.government_growth.consequences}</p>
+                    </div>
+                ` : ''}
+                
+                ${concept.government_growth.controls ? `
+                    <div style="
+                        background: rgba(34, 197, 94, 0.1);
+                        padding: 1rem;
+                        border-radius: 8px;
+                        border-left: 3px solid #22c55e;
+                    ">
+                        <p style="
+                            color: #059669;
+                            font-weight: 600;
+                            margin-bottom: 0.5rem;
+                        ">🎯 통제 방안:</p>
+                        <p style="
+                            color: #065f46;
+                            margin: 0;
+                            font-size: 0.9rem;
+                            line-height: 1.4;
+                        ">${concept.government_growth.controls}</p>
+                    </div>
+                ` : ''}
+            </div>
+        ` : ''}
+        
+        ${concept.policy_implications ? `
+            <div style="
+                background: rgba(34, 197, 94, 0.1);
+                border-radius: 12px;
+                padding: 1.5rem;
+                border-left: 4px solid #22c55e;
+                margin-bottom: 1rem;
+            ">
+                <h5 style="
+                    color: #059669;
+                    font-weight: 700;
+                    margin-bottom: 1rem;
+                ">💡 정책적 시사점</h5>
+                <ul style="margin: 0; padding-left: 1.5rem; color: #065f46; line-height: 1.6;">
+                    ${concept.policy_implications.map(implication => `
+                        <li style="margin-bottom: 0.5rem; font-size: 0.9rem;">${implication}</li>
+                    `).join('')}
+                </ul>
+            </div>
+        ` : ''}
+        
+        ${concept.criticism_and_limits ? `
+            <div style="
+                background: rgba(245, 158, 11, 0.1);
+                border-radius: 12px;
+                padding: 1.5rem;
+                border-left: 4px solid #f59e0b;
+            ">
+                <h5 style="
+                    color: #d97706;
+                    font-weight: 700;
+                    margin-bottom: 1rem;
+                ">⚖️ 비판과 한계</h5>
+                <ul style="margin: 0; padding-left: 1.5rem; color: #92400e; line-height: 1.6;">
+                    ${concept.criticism_and_limits.map(criticism => `
+                        <li style="margin-bottom: 0.5rem; font-size: 0.9rem;">${criticism}</li>
+                    `).join('')}
+                </ul>
+            </div>
+        ` : ''}
+    `;
+}
+
+// 유틸리티 함수들
+function getDetailedConceptIcon(key) {
+    const icons = {
+        'trade_offs': '⚖️',
+        'opportunity_cost': '💰',
+        'government_market_failure': '🚫',
+        'democratic_decision_making': '🗳️',
+        'public_choice_theory': '🏛️'
+    };
+    return icons[key] || '📚';
+}
+
+function getActorEmoji(actorKey) {
+    const emojis = {
+        'voters': '🗳️',
+        'politicians': '👔',
+        'bureaucrats': '📋',
+        'interest_groups': '🏢'
+    };
+    return emojis[actorKey] || '👥';
+}
+
+function hexToRgb(hex) {
+    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    return result ? 
+        `${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(result[3], 16)}` : 
+        '99, 102, 241';
+}
+
+// generateCoreConceptsFromData 함수 완성 (끊어진 부분 이어서)
+function generateCoreConceptsFromData() {
+    if (!window.POLICY_THEORY_EDUCATION) {
+        return '<div style="text-align: center; color: #666;">정치학 이론 데이터를 로딩 중...</div>';
+    }
+    
+    const theoryEducation = window.POLICY_THEORY_EDUCATION;
+    
+    return `
+        <div style="
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            border-left: 6px solid #8b5cf6;
+        ">
+            <h3 style="
+                color: #8b5cf6;
+                font-size: 1.4rem;
+                font-weight: 700;
+                margin-bottom: 1.5rem;
+                text-align: center;
+            ">🎓 정치학 핵심 개념 완전 해설</h3>
+
+            ${Object.entries(theoryEducation).map(([key, concept]) => {
+                return generateFullConceptCard(key, concept);
+            }).join('')}
+        </div>
+    `;
+}
+
+// 각 개념을 완전히 표시하는 카드 생성 함수 완성
+function generateFullConceptCard(key, concept) {
+    const colors = {
+        'trade_offs': { primary: '#ef4444', secondary: '#fecaca', accent: '#dc2626' },
+        'opportunity_cost': { primary: '#f59e0b', secondary: '#fed7aa', accent: '#d97706' },
+        'government_market_failure': { primary: '#8b5cf6', secondary: '#ddd6fe', accent: '#7c3aed' },
+        'democratic_decision_making': { primary: '#06b6d4', secondary: '#a5f3fc', accent: '#0891b2' },
+        'public_choice_theory': { primary: '#10b981', secondary: '#a7f3d0', accent: '#059669' }
+    };
+    
+    const colorScheme = colors[key] || colors['trade_offs'];
+    const icon = getDetailedConceptIcon(key);
+    
+    return `
+        <div style="
+            background: linear-gradient(135deg, rgba(${hexToRgb(colorScheme.primary)}, 0.1), rgba(${hexToRgb(colorScheme.secondary)}, 0.2));
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border: 2px solid ${colorScheme.primary};
+            transition: all 0.3s ease;
+        " onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 20px 40px rgba(0,0,0,0.15)'" 
+           onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 10px 30px rgba(0,0,0,0.1)'">
+            
+            <!-- 개념 헤더 -->
+            <div style="text-align: center; margin-bottom: 2rem;">
+                <div style="
+                    font-size: 4rem;
+                    margin-bottom: 1rem;
+                ">${icon}</div>
+                <h4 style="
+                    color: ${colorScheme.accent}; 
+                    font-size: 1.4rem; 
+                    font-weight: 800;
+                    margin-bottom: 1rem;
+                ">${concept.title}</h4>
+                <p style="
+                    color: #4a5568; 
+                    line-height: 1.6; 
+                    font-size: 1rem;
+                    max-width: 600px;
+                    margin: 0 auto;
+                    font-weight: 500;
+                ">${concept.core_concept}</p>
+            </div>
+            
+            ${generateConceptDetails(key, concept, colorScheme)}
+            
+            <!-- 실제 정치에서의 적용 -->
+            <div style="
+                background: rgba(255, 255, 255, 0.9);
+                border-radius: 12px;
+                padding: 1.5rem;
+                margin-top: 1.5rem;
+                border-left: 4px solid ${colorScheme.primary};
+            ">
+                <h5 style="
+                    color: ${colorScheme.accent};
+                    font-weight: 700;
+                    margin-bottom: 1rem;
+                    font-size: 1.1rem;
+                ">🏛️ 실제 정치에서의 적용</h5>
+                <p style="
+                    color: #2d3748;
+                    line-height: 1.6;
+                    margin: 0;
+                    font-size: 0.95rem;
+                ">${concept.real_world_application || concept.practical_wisdom || concept.policy_implications}</p>
+                
+                ${concept.winston_churchill ? `
+                    <div style="
+                        margin-top: 1rem;
+                        padding: 1rem;
+                        background: rgba(${hexToRgb(colorScheme.primary)}, 0.1);
+                        border-radius: 8px;
+                        border-left: 3px solid ${colorScheme.primary};
+                        font-style: italic;
+                    ">
+                        <p style="color: ${colorScheme.accent}; margin: 0; font-weight: 600;">
+                            💬 윈스턴 처칠: "${concept.winston_churchill}"
+                        </p>
+                    </div>
+                ` : ''}
+            </div>
+        </div>
+    `;
+}
+
+// 개념별 세부 내용 생성 함수들 (기존과 동일하지만 완성)
+function generateConceptDetails(key, concept, colorScheme) {
+    switch(key) {
+        case 'trade_offs':
+            return generateTradeOffsDetails(concept, colorScheme);
+        case 'opportunity_cost':
+            return generateOpportunityCostDetails(concept, colorScheme);
+        case 'government_market_failure':
+            return generateMarketFailureDetails(concept, colorScheme);
+        case 'democratic_decision_making':
+            return generateDemocracyDetails(concept, colorScheme);
+        case 'public_choice_theory':
+            return generatePublicChoiceDetails(concept, colorScheme);
+        default:
+            return '';
+    }
+}
+
+// 모바일 팁 표시 함수
+function showMobileTip(policyName, tip) {
+    const existingTip = document.getElementById('mobileTipPopup');
+    if (existingTip) {
+        existingTip.remove();
+    }
+    
+    const tipPopup = document.createElement('div');
+    tipPopup.id = 'mobileTipPopup';
+    tipPopup.style.cssText = `
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: rgba(0, 0, 0, 0.9);
+        color: white;
+        padding: 20px;
+        border-radius: 12px;
+        max-width: 80%;
+        z-index: 999999;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(10px);
+    `;
+    
+    tipPopup.innerHTML = `
+        <div style="text-align: center;">
+            <h4 style="color: #f6ad55; margin-bottom: 10px; font-size: 1.1rem;">${policyName}</h4>
+            <p style="line-height: 1.5; margin-bottom: 15px; font-size: 0.9rem;">${tip}</p>
+            <button onclick="document.getElementById('mobileTipPopup').remove();" style="
+                background: #f6ad55;
+                color: white;
+                border: none;
+                padding: 8px 16px;
+                border-radius: 6px;
+                cursor: pointer;
+                font-weight: 600;
+            ">확인</button>
+        </div>
+    `;
+    
+    document.body.appendChild(tipPopup);
+    
+    setTimeout(() => {
+        if (document.getElementById('mobileTipPopup')) {
+            tipPopup.remove();
+        }
+    }, 3000);
+}
+
+// 디버깅 로그 함수
+function debugLog(message, data = null) {
+    if (window.debugMode) {
+        console.log(`[UI DEBUG] ${message}`, data);
+    }
+}
+
+// 안전한 요소 선택 함수
+function safeGetElement(id) {
+    const element = document.getElementById(id);
+    if (!element) {
+        debugLog(`Element not found: ${id}`);
+    }
+    return element;
+}
+
+// 안전한 클래스 토글 함수
+function safeToggleClass(element, className, condition = null) {
+    if (!element) return false;
+    
+    if (condition === null) {
+        element.classList.toggle(className);
+    } else {
+        element.classList.toggle(className, condition);
+    }
+    return true;
+}
+
+// CSS 애니메이션 완료 대기 함수
+function waitForAnimation(element, duration = 300) {
+    return new Promise(resolve => {
+        setTimeout(resolve, duration);
+    });
+}
+
+// 반응형 체크 함수
+function isMobile() {
+    return window.innerWidth <= 768;
+}
+
+function isTablet() {
+    return window.innerWidth > 768 && window.innerWidth <= 1024;
+}
+
+function isDesktop() {
+    return window.innerWidth > 1024;
+}
+
+// 전역 에러 핸들러
+window.addEventListener('error', function(event) {
+    console.error('UI Error:', event.error);
+    if (typeof gameUtils !== 'undefined') {
+        gameUtils.showToast('오류가 발생했습니다. 페이지를 새로고침해주세요.', 'error');
+    }
+});
+
+// 성능 최적화를 위한 디바운스 함수
+function debounce(func, wait) {
+    let timeout;
+    return function executedFunction(...args) {
+        const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+    };
+}
+
+// 최적화된 리사이즈 핸들러
+const optimizedResize = debounce(() => {
+    adjustMobileLayout();
+    updateIndicators(gameAPI?.getGameStatus()?.indicators || {});
+}, 250);
+
+window.addEventListener('resize', optimizedResize);
+
+console.log('✅ UI.js 완전 로딩 완료 - 모든 유틸리티 함수 포함!');
+
 // 🆕 탭 4 고급 전략에서 POLICY_FAILURE_CASES 활용
 function generateTab4AdvancedAnalysisHTML(gameResult, stats, selectedPolicies, nationName) {
     const grade = gameResult.ending?.grade || 'C급';
@@ -7720,6 +9420,7 @@ function bindHelpButtons() {
 
 // 🆕 전역 함수로 등록
 window.showResultTab = showResultTab;
+
 
 
 
